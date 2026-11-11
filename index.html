@@ -58,7 +58,6 @@
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-cta">
-      <a class="cart" href="#" data-cart aria-label="Cart, 0 items">(<span data-cart-count>0</span>)</a>
       <a class="btn" href="#colours" data-buy>Pre-order<span class="long">&nbsp;— ₹1,490</span></a>
     </div>
   </nav>
@@ -303,7 +302,7 @@
       <div class="price">₹1,490<small>Cash on Delivery</small></div>
       <div class="swatch-label label">Colour: <b data-colour-name>Black</b></div>
       <div class="swatches" role="radiogroup" aria-label="Colour" data-swatches></div>
-      <a class="btn block" href="#" data-buy-selected>Pre-order Black — ₹1,490 <span class="arr">→</span></a>
+      <button class="btn block" type="button" data-buy-selected>Pre-order Black — ₹1,490 <span class="arr">→</span></button>
       <ul class="checks">
         <li>Pay when it arrives. No card needed.</li>
         <li>We call you before it ships to confirm everything.</li>
@@ -412,11 +411,11 @@
       </div>
       <div>
         <h4>Shop</h4>
-        <ul><li><a href="#colours">All colours</a></li><li><a href="#box">In the box</a></li><li><a href="#" data-cart>Cart</a></li></ul>
+        <ul><li><a href="#colours">All colours</a></li><li><a href="#box">In the box</a></li><li><a href="#faq">FAQ</a></li></ul>
       </div>
       <div>
         <h4>Glimp</h4>
-        <ul><li><a href="#how">How it works</a></li><li><a href="#app">KeyCam app</a></li><li><a href="#faq">FAQ</a></li></ul>
+        <ul><li><a href="#how">How it works</a></li><li><a href="#app">KeyCam app</a></li><li><a href="#photos">Photos</a></li></ul>
       </div>
       <div>
         <h4>Say hi</h4>
@@ -426,13 +425,69 @@
     <div class="wordmark-big" aria-hidden="true"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="-3.8 -79.5 376.4 108"><path d="M32.8 -6.95Q27.75 -7.55 25.43 -7.98Q23.1 -8.4 22.48 -8.82Q21.85 -9.25 21.85 -9.7Q21.85 -10.1 22.12 -10.48Q22.4 -10.85 23 -11.2L22.65 -12Q16.1 -12.05 12.23 -10.53Q8.35 -9 6.7 -6.58Q5.05 -4.15 5.05 -1.4Q5.05 1.1 6.53 3.2Q8 5.3 11.7 6.8Q15.4 8.3 22.05 8.95Q27.85 9.5 30.7 10.15Q33.55 10.8 34.48 11.55Q35.4 12.3 35.4 13.2Q35.4 13.9 34.7 14.48Q34 15.05 32.02 15.35Q30.05 15.65 26.15 15.65Q19.4 15.65 17.2 14.45Q15 13.25 15 11.25Q15 10.25 15.25 9.4Q15.5 8.55 16.05 7.65L13.95 6.35Q6.7 6.7 3.45 9.1Q0.2 11.5 0.2 15.2Q0.2 18.3 2.53 20.38Q4.85 22.45 9.88 23.48Q14.9 24.5 23 24.5Q37.95 24.5 44.83 20.12Q51.7 15.75 51.7 7.35Q51.7 3.05 49.95 0.18Q48.2 -2.7 44.08 -4.43Q39.95 -6.15 32.8 -6.95ZM30.7 -41.15 35.8 -40.55Q36.9 -43.75 37.85 -44.83Q38.8 -45.9 40.05 -45.9Q41.25 -45.9 42.1 -45.25Q42.95 -44.6 43.78 -43.78Q44.6 -42.95 45.67 -42.3Q46.75 -41.65 48.4 -41.65Q51.1 -41.65 52.73 -43.83Q54.35 -46 54.35 -49.75Q54.35 -53.75 52.35 -55.83Q50.35 -57.9 46.7 -57.9Q42.15 -57.9 38.38 -54.88Q34.6 -51.85 32.2 -45.25ZM48.05 -28.7Q48.05 -33.25 45.55 -37.12Q43.05 -41 38.08 -43.38Q33.1 -45.75 25.7 -45.75Q18 -45.75 12.55 -43.48Q7.1 -41.2 4.25 -37.05Q1.4 -32.9 1.4 -27.25Q1.4 -22.5 4.12 -18.77Q6.85 -15.05 12.2 -12.93Q17.55 -10.8 25.4 -10.8Q32.25 -10.8 37.33 -13.03Q42.4 -15.25 45.23 -19.27Q48.05 -23.3 48.05 -28.7ZM22.15 -38.6Q23.8 -39 25.62 -36.88Q27.45 -34.75 28.8 -29.3Q30.15 -23.85 29.55 -21.1Q28.95 -18.35 27.3 -17.95Q26.2 -17.7 25 -18.52Q23.8 -19.35 22.68 -21.5Q21.55 -23.65 20.65 -27.25Q19.75 -30.9 19.75 -33.3Q19.75 -35.7 20.4 -37.03Q21.05 -38.35 22.15 -38.6Z" fill="currentColor"/><path d="M74.65 -71.35V-13.3Q74.65 -10.85 74.93 -9.98Q75.2 -9.1 75.75 -8.65L76.25 -8.2Q77.3 -7.35 77.85 -6.43Q78.4 -5.5 78.4 -4.05Q78.4 -2.15 77.28 -1.07Q76.15 0 74.25 0H56.1Q54.2 0 53.08 -1.07Q51.95 -2.15 51.95 -4.05Q51.95 -5.5 52.5 -6.43Q53.05 -7.35 54.1 -8.2L54.6 -8.65Q55.15 -9.1 55.43 -9.98Q55.7 -10.85 55.7 -13.3V-57.55Q55.7 -59.5 55.33 -60.3Q54.95 -61.1 54.1 -61.65L53.65 -61.95Q52.45 -62.75 51.95 -63.55Q51.45 -64.35 51.45 -65.6Q51.45 -67.05 52.3 -68.1Q53.15 -69.15 55.3 -70.05L64.25 -73.7Q66.8 -74.75 68.25 -75.12Q69.7 -75.5 70.95 -75.5Q72.8 -75.5 73.73 -74.35Q74.65 -73.2 74.65 -71.35Z M102.45 -41.65V-13.3Q102.45 -10.9 102.72 -10.03Q103 -9.15 103.55 -8.65L104.05 -8.2Q105.05 -7.4 105.62 -6.45Q106.2 -5.5 106.2 -4.05Q106.2 -2.15 105.08 -1.07Q103.95 0 102.05 0H83.9Q81.95 0 80.85 -1.07Q79.75 -2.15 79.75 -4.05Q79.75 -5.5 80.3 -6.45Q80.85 -7.4 81.9 -8.2L82.4 -8.65Q82.95 -9.15 83.22 -10.03Q83.5 -10.9 83.5 -13.3V-27.85Q83.5 -29.8 83.12 -30.6Q82.75 -31.4 81.9 -31.95L81.45 -32.25Q80.25 -33.05 79.75 -33.85Q79.25 -34.65 79.25 -35.9Q79.25 -37.35 80.1 -38.4Q80.95 -39.45 83.1 -40.35L92.05 -44Q94.6 -45.05 96.05 -45.43Q97.5 -45.8 98.75 -45.8Q100.6 -45.8 101.53 -44.65Q102.45 -43.5 102.45 -41.65ZM92.85 -48.85Q87.85 -48.85 84.98 -51.55Q82.1 -54.25 82.1 -58.85Q82.1 -63.45 84.98 -66.15Q87.85 -68.85 92.85 -68.85Q97.85 -68.85 100.73 -66.15Q103.6 -63.45 103.6 -58.85Q103.6 -54.25 100.73 -51.55Q97.85 -48.85 92.85 -48.85Z M130.25 -41.65V-13.3Q130.25 -10.7 130.45 -9.7Q130.65 -8.7 131.25 -8.15L131.85 -7.6Q133.45 -6.15 133.45 -4.05Q133.45 0 129.75 0H111.7Q109.8 0 108.67 -1.07Q107.55 -2.15 107.55 -4.05Q107.55 -5.5 108.1 -6.43Q108.65 -7.35 109.7 -8.2L110.2 -8.65Q110.75 -9.1 111.03 -9.98Q111.3 -10.85 111.3 -13.3V-27.85Q111.3 -29.8 110.92 -30.6Q110.55 -31.4 109.7 -31.95L109.25 -32.25Q108.05 -33.05 107.55 -33.85Q107.05 -34.65 107.05 -35.9Q107.05 -37.35 107.9 -38.4Q108.75 -39.45 110.9 -40.35L119.85 -44Q122.4 -45.05 123.85 -45.43Q125.3 -45.8 126.55 -45.8Q128.4 -45.8 129.32 -44.65Q130.25 -43.5 130.25 -41.65ZM128.7 -28.45 125.35 -32.55 127.25 -34.6Q133.15 -41 137.68 -43.4Q142.2 -45.8 146.2 -45.8Q151.85 -45.8 155.05 -41.9Q158.25 -38 158.25 -31V-13.3Q158.25 -10.7 158.45 -9.7Q158.65 -8.7 159.25 -8.15L159.85 -7.6Q161.45 -6.15 161.45 -4.05Q161.45 0 157.75 0H139.8Q136.1 0 136.1 -4.05Q136.1 -6.15 137.7 -7.6L138.3 -8.15Q138.9 -8.7 139.1 -9.7Q139.3 -10.7 139.3 -13.3V-26.2Q139.3 -29 138.23 -30.48Q137.15 -31.95 135.1 -31.95Q133.75 -31.95 132.47 -31.4Q131.2 -30.85 130.1 -29.8ZM156.65 -28.45 153.35 -32.5 155.3 -34.55Q161.2 -40.8 165.47 -43.3Q169.75 -45.8 173.9 -45.8Q179.25 -45.8 181.72 -42.6Q184.2 -39.4 184.75 -33.85L186.85 -13.3Q187.1 -10.9 187.28 -10.03Q187.45 -9.15 187.95 -8.65L188.45 -8.2Q189.45 -7.3 190.05 -6.4Q190.65 -5.5 190.65 -4.05Q190.65 -2.15 189.53 -1.07Q188.4 0 186.5 0H168.3Q164.6 0 164.6 -4.05Q164.6 -6.1 166.25 -7.6L166.85 -8.15Q167.45 -8.7 167.78 -9.6Q168.1 -10.5 167.85 -12.8L166.35 -26.15Q166 -29.05 165.15 -30.5Q164.3 -31.95 162.4 -31.95Q161.35 -31.95 160.3 -31.4Q159.25 -30.85 158.1 -29.8Z M212.7 -41.65V-37.55L213.55 -35.75V10Q213.55 12.45 213.83 13.3Q214.1 14.15 214.65 14.65L215.15 15.1Q216.15 15.95 216.73 16.88Q217.3 17.8 217.3 19.25Q217.3 21.1 216.18 22.2Q215.05 23.3 213.15 23.3H195Q193.1 23.3 191.98 22.23Q190.85 21.15 190.85 19.25Q190.85 17.8 191.43 16.9Q192 16 193 15.1L193.5 14.65Q194.05 14.2 194.33 13.33Q194.6 12.45 194.6 10V-27.85Q194.6 -29.8 194.23 -30.6Q193.85 -31.4 193 -31.95L192.55 -32.25Q191.35 -33.05 190.85 -33.85Q190.35 -34.65 190.35 -35.9Q190.35 -37.35 191.2 -38.38Q192.05 -39.4 194.2 -40.35L201.85 -43.75Q204.45 -44.9 206.08 -45.35Q207.7 -45.8 208.9 -45.8Q210.8 -45.8 211.75 -44.65Q212.7 -43.5 212.7 -41.65ZM210.35 -28.2 207.1 -31.9Q210.8 -38.4 215.43 -42.1Q220.05 -45.8 226.3 -45.8Q231.45 -45.8 235.33 -43.1Q239.2 -40.4 241.38 -35.48Q243.55 -30.55 243.55 -23.8Q243.55 -15.85 240.78 -10.23Q238 -4.6 233.08 -1.65Q228.15 1.3 221.6 1.3Q216.45 1.3 212.65 -1.05Q208.85 -3.4 205.95 -8.2L211.05 -14.4Q212.65 -11.2 214.2 -10.05Q215.75 -8.9 217.65 -8.9Q219.55 -8.9 220.98 -10.35Q222.4 -11.8 223.2 -14.62Q224 -17.45 224 -21.55Q224 -26 223.1 -28.77Q222.2 -31.55 220.65 -32.88Q219.1 -34.2 217.05 -34.2Q215.05 -34.2 213.35 -32.83Q211.65 -31.45 210.35 -28.2Z" fill="currentColor"/><rect x="248.6" y="-40" width="120" height="4.6" fill="#E3A21A"/><rect x="248.6" y="-33" width="120" height="4.6" fill="#E0662A"/><rect x="248.6" y="-26" width="120" height="4.6" fill="#C7372A"/></svg></div>
     <div class="foot-bottom label">
       <span>© 2026 Glimp · Prices in ₹</span>
-      <span><a href="#" data-policy="shipping">Shipping</a> · <a href="#" data-policy="refund">Returns</a> · <a href="#" data-policy="privacy">Privacy</a></span>
       <span class="theme-switch" role="group" aria-label="Colour theme">
         <button data-theme-set="auto">Auto</button><button data-theme-set="light">Light</button><button data-theme-set="dark">Dark</button>
       </span>
     </div>
   </div>
 </footer>
+
+<!-- Pre-order form (orders go to the Google Sheet; see ORDERS-SETUP.md) -->
+<dialog class="order" data-order aria-labelledby="order-title">
+  <form class="order-form" data-order-form novalidate>
+    <div class="order-top">
+      <div>
+        <span class="label">Pre-order · Cash on Delivery</span>
+        <h2 id="order-title">Reserve your Glimp</h2>
+      </div>
+      <button type="button" class="order-x" data-order-close aria-label="Close">×</button>
+    </div>
+
+    <div class="order-pick">
+      <img data-order-img src="assets/cam/black-sm.webp" alt="" width="320" height="185">
+      <div class="field">
+        <label for="o-colour">Colour</label>
+        <select id="o-colour" name="colour" required><option value="Black">Black</option><option value="White">White</option><option value="Red">Red</option><option value="Yellow">Yellow</option><option value="Blue">Blue</option><option value="Lime">Lime</option><option value="Teal">Teal</option><option value="Grey">Grey</option></select>
+      </div>
+      <div class="field qty">
+        <span class="lab" id="o-qty-l">Qty</span>
+        <div class="stepper" role="group" aria-labelledby="o-qty-l">
+          <button type="button" data-qty="-1" aria-label="One less">−</button>
+          <input name="qty" value="1" inputmode="numeric" readonly aria-live="polite" aria-labelledby="o-qty-l">
+          <button type="button" data-qty="1" aria-label="One more">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="field"><label for="o-name">Full name</label><input id="o-name" name="name" autocomplete="name" required minlength="2" maxlength="80"><small class="err">Your name, please.</small></div>
+      <div class="field"><label for="o-phone">Phone</label><div class="pre"><span>+91</span><input id="o-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required maxlength="11" placeholder="98765 43210"></div><small class="err">A 10-digit mobile number. We’ll call it to confirm.</small></div>
+    </div>
+    <div class="field"><label for="o-address">Address</label><textarea id="o-address" name="address" rows="2" autocomplete="street-address" required minlength="8" maxlength="300" placeholder="House / flat, street, area, landmark"></textarea><small class="err">The full address, so the courier can find you.</small></div>
+    <div class="grid3">
+      <div class="field"><label for="o-pin">Pincode</label><input id="o-pin" name="pincode" inputmode="numeric" autocomplete="postal-code" required maxlength="6"><small class="err">6 digits.</small></div>
+      <div class="field"><label for="o-city">City</label><input id="o-city" name="city" autocomplete="address-level2" required maxlength="60"><small class="err">Which city?</small></div>
+      <div class="field"><label for="o-state">State</label><select id="o-state" name="state" autocomplete="address-level1" required><option value="">Choose</option><option>Andaman and Nicobar Islands</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu and Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Lakshadweep</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></select><small class="err">Pick one.</small></div>
+    </div>
+    <div class="field"><label for="o-note">Note <span class="opt">(optional)</span></label><input id="o-note" name="note" maxlength="300" placeholder="Best time to call, a gift, anything"></div>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="order-sum">
+      <div><span class="label">Total, pay on delivery</span><b data-order-total>₹1,490</b></div>
+      <button class="btn" type="submit" data-order-submit>Place pre-order <span class="arr">→</span></button>
+    </div>
+    <p class="order-fine">No payment now. We call you before it ships (in about 20 days). We use these details only to deliver your order.</p>
+    <p class="order-msg" data-order-msg role="alert" hidden></p>
+  </form>
+
+  <div class="order-done" data-order-done hidden>
+    <span class="stripes" aria-hidden="true"></span>
+    <span class="label">Order <b data-order-id></b></span>
+    <h2>You’re on the list.</h2>
+    <p class="lede">We’ll call <strong data-order-phone></strong> before it ships to confirm everything. Nothing to pay until it reaches you.</p>
+    <button type="button" class="btn" data-order-close>Back to the site</button>
+  </div>
+</dialog>
 
 <!-- Sticky mobile buy bar -->
 <div class="buybar" data-buybar aria-hidden="true">

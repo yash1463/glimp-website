@@ -1,19 +1,15 @@
 /* Glimp site behaviour. No libraries.
    ─────────────────────────────────────────────────────────────
-   EDIT HERE when the store goes live: every buy link on the page reads from STORE. */
-const STORE = {
-  base: "https://YOUR-STORE.myshopify.com",       // or your own domain once Shopify is connected
-  cart: "/cart",
-  // Shopify product handle for each colour (Admin → Products → the product → URL handle)
-  products: {
-    black: "glimp-black", white: "glimp-white", red: "glimp-red", yellow: "glimp-yellow",
-    blue: "glimp-blue", lime: "glimp-lime", teal: "glimp-teal", grey: "glimp-grey",
-  },
+   EDIT HERE: contact links used across the page. */
+const CONTACT = {
   instagram: "https://instagram.com/",            // TODO: your handle
   whatsapp: "https://wa.me/91XXXXXXXXXX",          // TODO: your number
   email: "mailto:hello@example.com",              // TODO: your address
 };
-const LIVE = !STORE.base.includes("YOUR-STORE");   // until then, buy buttons scroll to the colour picker
+
+/* Pre-orders go to your Google Sheet. Paste the Web app URL from ORDERS-SETUP.md step 4 here. */
+const ORDER_ENDPOINT = "";                        // e.g. "https://script.google.com/macros/s/AKfy…/exec"
+const PRICE = 1490;
 
 const COLOURS = [
   ["black", "Black"], ["white", "White"], ["red", "Red"], ["yellow", "Yellow"],
@@ -30,7 +26,6 @@ const PHOTOS = [
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const productUrl = (c) => `${STORE.base}/products/${STORE.products[c]}`;
 
 /* ---------- colour picker ---------- */
 let colour = "black";
@@ -47,7 +42,6 @@ function setColour(c, focus) {
   $("[data-colour-name]").textContent = name;
   const buy = $("[data-buy-selected]");
   buy.firstChild.textContent = `Pre-order ${name} — ₹1,490 `;
-  buy.href = LIVE ? productUrl(c) : "#colours";
   $$("[data-swatch]").forEach((b) => {
     const on = b.dataset.swatch === c;
     b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1;
@@ -75,13 +69,9 @@ function buildSwatches() {
 
 /* ---------- links ---------- */
 function wireLinks() {
-  if (LIVE) {
-    $$("[data-cart]").forEach((a) => (a.href = STORE.base + STORE.cart));
-  }
-  $$("[data-instagram]").forEach((a) => (a.href = STORE.instagram));
-  $$("[data-contact]").forEach((a) => (a.href = STORE.whatsapp));
-  $$("[data-email]").forEach((a) => (a.href = STORE.email));
-  $$("[data-policy]").forEach((a) => (a.href = LIVE ? `${STORE.base}/policies/${a.dataset.policy}-policy` : "#faq"));
+  $$("[data-instagram]").forEach((a) => (a.href = CONTACT.instagram));
+  $$("[data-contact]").forEach((a) => (a.href = CONTACT.whatsapp));
+  $$("[data-email]").forEach((a) => (a.href = CONTACT.email));
 }
 
 /* ---------- looks ---------- */
@@ -187,4 +177,96 @@ function wireTheme() {
   apply(cur);
 }
 
-buildSwatches(); wireLinks(); wireLooks(); buildWall(); wireUses(); wireCompare(); buildFinal(); wireBuy(); wireSettle(); wireTheme();
+/* ---------- pre-order form ---------- */
+const inr = (n) => "₹" + n.toLocaleString("en-IN");
+function wireOrder() {
+  const dlg = $("[data-order]"), form = $("[data-order-form]"), done = $("[data-order-done]");
+  const msg = $("[data-order-msg]"), submit = $("[data-order-submit]"), qty = form.elements.qty;
+  const colourSel = form.elements.colour, img = $("[data-order-img]");
+
+  const sync = () => {
+    $("[data-order-total]").textContent = inr(PRICE * +qty.value);
+    img.src = `assets/cam/${colourSel.value.toLowerCase()}-sm.webp`;
+  };
+  const open = (c) => {
+    colourSel.value = COLOURS.find(([k]) => k === c)[1];
+    form.hidden = false; done.hidden = true; msg.hidden = true;
+    sync();
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    setTimeout(() => form.elements.name.focus(), 50);
+  };
+  const close = () => (dlg.close ? dlg.close() : dlg.removeAttribute("open"));
+
+  $("[data-buy-selected]").addEventListener("click", () => open(colour));
+  $$("[data-order-close]", dlg).forEach((b) => b.addEventListener("click", close));
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });       // click on the backdrop
+  colourSel.addEventListener("change", sync);
+  $$("[data-qty]", form).forEach((b) => b.addEventListener("click", () => {
+    qty.value = Math.max(1, Math.min(5, +qty.value + +b.dataset.qty)); sync();
+  }));
+
+  // light-touch input cleanup
+  const digits = (el, n) => el.addEventListener("input", () => { el.value = el.value.replace(/\D/g, "").slice(0, n); });
+  digits(form.elements.pincode, 6);
+  form.elements.phone.addEventListener("input", (e) => {
+    let d = e.target.value.replace(/\D/g, ""); if (d.length > 10 && d.startsWith("91")) d = d.slice(2);
+    d = d.slice(0, 10); e.target.value = d.length > 5 ? d.slice(0, 5) + " " + d.slice(5) : d;
+  });
+
+  const rules = {
+    name: (v) => v.trim().length >= 2,
+    phone: (v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),
+    address: (v) => v.trim().length >= 8,
+    pincode: (v) => /^[1-9]\d{5}$/.test(v),
+    city: (v) => v.trim().length >= 2,
+    state: (v) => !!v,
+  };
+  const check = (name) => {
+    const el = form.elements[name], ok = rules[name](el.value);
+    el.closest(".field").classList.toggle("bad", !ok); el.setAttribute("aria-invalid", !ok);
+    return ok;
+  };
+  Object.keys(rules).forEach((n) => form.elements[n].addEventListener("blur", () => { if (form.elements[n].value) check(n); }));
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.hidden = true;
+    const bad = Object.keys(rules).filter((n) => !check(n));
+    if (bad.length) { form.elements[bad[0]].focus(); return; }
+    if (!ORDER_ENDPOINT) {
+      msg.textContent = "Orders open in a day or two. Message us on WhatsApp and we’ll hold one for you.";
+      msg.hidden = false; return;
+    }
+    const data = new URLSearchParams(new FormData(form));
+    data.set("phone", form.elements.phone.value.replace(/\D/g, ""));
+    submit.disabled = true; submit.firstChild.textContent = "Placing order… ";
+    try {
+      const res = await fetch(ORDER_ENDPOINT, { method: "POST", body: data });
+      const out = await res.json();
+      if (!out.ok) {
+        if (rules[out.error]) { check(out.error); form.elements[out.error].focus(); }
+        throw new Error(out.error);
+      }
+      $("[data-order-id]").textContent = out.order;
+      $("[data-order-phone]").textContent = "+91 " + form.elements.phone.value;
+      form.hidden = true; done.hidden = false; form.reset(); qty.value = 1;
+      $("button", done).focus();
+    } catch (err) {
+      msg.textContent = "That didn’t go through. The internet can be like that. Try once more, or message us on WhatsApp.";
+      msg.hidden = false;
+    } finally {
+      submit.disabled = false; submit.firstChild.textContent = "Place pre-order ";
+    }
+  });
+
+  // glimp.in/#order (or #order-teal) opens the form straight away, handy for the Instagram bio link
+  const fromHash = () => {
+    const m = location.hash.match(/^#order(?:-([a-z]+))?$/);
+    if (!m) return;
+    const c = COLOURS.some(([k]) => k === m[1]) ? m[1] : colour;
+    setColour(c); open(c);
+  };
+  fromHash(); window.addEventListener("hashchange", fromHash);
+}
+
+buildSwatches(); wireLinks(); wireLooks(); buildWall(); wireUses(); wireCompare(); buildFinal(); wireBuy(); wireSettle(); wireTheme(); wireOrder();

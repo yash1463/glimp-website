@@ -477,6 +477,63 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .buybar .btn { min-height: 44px; --pad-y: 12px; padding-left: 18px; padding-right: 18px; }
 @media (max-width: 880px) { .buybar { display: flex; } }
 
+/* ---------- pre-order dialog ---------- */
+.order {
+  width: min(640px, calc(100% - 24px)); max-height: calc(100svh - 24px); padding: 0; border: 0; border-radius: var(--r-card);
+  background: var(--bg); color: var(--ink); box-shadow: 0 40px 100px -30px rgba(0,0,0,.5); overflow: auto;
+}
+.order::backdrop { background: rgba(12,10,8,.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.order-form, .order-done { padding: clamp(22px, 4vw, 36px); }
+.order-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+.order-top h2 { font-size: clamp(1.75rem, 3.4vw, 2.25rem); margin-top: 8px; }
+.order-x { appearance: none; border: 1px solid var(--line); background: none; width: 44px; height: 44px; border-radius: 50%; font-size: 24px; line-height: 1; cursor: pointer; flex: 0 0 auto; }
+.order-x:hover { border-color: var(--ink); }
+.order-pick { display: grid; grid-template-columns: 120px 1fr auto; gap: 16px; align-items: end; padding: 14px; margin-bottom: 18px; background: var(--surface); border-radius: 14px; }
+.order-pick img { width: 120px; background: #fff; border-radius: 10px; padding: 6px; align-self: center; }
+.field { display: grid; gap: 6px; margin-bottom: 14px; min-width: 0; }
+.order-pick .field { margin: 0; }
+.field label, .field .lab { font: 500 var(--fs-label)/1.2 var(--font-mono); text-transform: uppercase; letter-spacing: var(--track-label); color: var(--muted); }
+.field .opt { text-transform: none; letter-spacing: 0; }
+.field input, .field select, .field textarea, .pre {
+  width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--ink); font: 400 1rem/1.35 var(--font-body);
+}
+.field textarea { resize: vertical; min-height: 72px; }
+.field select { appearance: none; padding-right: 36px; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 19px) 21px, calc(100% - 14px) 21px; background-size: 5px 5px; background-repeat: no-repeat; }
+.field input:focus, .field select:focus, .field textarea:focus, .pre:focus-within { outline: 2px solid var(--stripe-2); outline-offset: 1px; border-color: transparent; }
+.pre { display: flex; align-items: center; gap: 10px; padding: 0 0 0 14px; }
+.pre span { font: 500 0.9375rem/1 var(--font-mono); color: var(--muted); }
+.pre input { border: 0; min-height: 46px; padding-left: 0; outline: none !important; }
+.field .err { display: none; color: var(--stripe-3); font-size: 0.8125rem; }
+.field.bad .err { display: block; }
+.field.bad input, .field.bad select, .field.bad textarea, .field.bad .pre { border-color: var(--stripe-3); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1.2fr 1.4fr; gap: 0 14px; }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--bg); height: 48px; }
+.stepper button { appearance: none; border: 0; background: none; width: 44px; height: 46px; font-size: 20px; cursor: pointer; color: var(--ink); }
+.stepper input { width: 28px; border: 0; padding: 0; min-height: 0; text-align: center; font: 500 1rem/1 var(--font-mono); background: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.order-sum { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 8px; padding-top: 18px; border-top: 1px solid var(--line); }
+.order-sum b { display: block; font: 400 1.75rem/1.1 var(--font-display); font-variation-settings: "SOFT" 100, "opsz" 36; margin-top: 4px; }
+.order-sum .btn[disabled] { opacity: .6; cursor: progress; }
+.order-fine { margin: 14px 0 0; font-size: 0.8125rem; color: var(--muted); }
+.order-msg { margin: 12px 0 0; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--stripe-3) 10%, var(--bg)); color: var(--ink); font-size: var(--fs-small); }
+.order-done { text-align: center; display: grid; justify-items: center; gap: 16px; padding-top: 48px; padding-bottom: 44px; }
+.order-done[hidden] { display: none; }
+.order-done .label b { color: var(--ink); font-weight: 600; }
+.order-done h2 { font-size: clamp(2rem, 5vw, 2.75rem); }
+.order-done .lede { margin: 0 0 8px; }
+@media (max-width: 560px) {
+  .order { width: 100%; max-width: none; max-height: 100svh; height: 100svh; margin: 0; border-radius: 0; }
+  .order-pick { grid-template-columns: 1fr auto; }
+  .order-pick img { display: none; }
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .grid3 { grid-template-columns: 1fr 1fr; }
+  .grid3 .field:last-child { grid-column: 1 / -1; }
+  .order-sum { flex-direction: column; align-items: stretch; }
+  .order-sum .btn { justify-content: center; }
+}
+
 /* ---------- reveal (one gentle rule, only for the step cards and prints) ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .js .settle { opacity: 0; translate: 0 18px; transition: opacity .7s ease, translate .8s var(--ease); }

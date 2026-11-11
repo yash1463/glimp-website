@@ -12,18 +12,15 @@ Then open http://localhost:8765. For the phone layout, open http://localhost:876
 
 ## Before going live: things to fill in
 
-1. **Store links**: the top of `main.js` (`STORE`). Set `base` to your Shopify domain and the product handle for each of the 8 colours. Until `base` is set, every "Pre-order" button scrolls to the colour picker instead of going to Shopify.
-2. **Instagram, WhatsApp and email**: same block in `main.js`.
-3. **Policies**: footer links point to Shopify's standard `/policies/shipping-policy`, `refund-policy` and `privacy-policy` pages. Create those in Shopify (Settings → Policies).
-4. **Generated images**: see `IMAGES.md` (hero, scale shot, in-the-box flat lay).
-5. **Social share image**: `assets/og-image.jpg`. Once the domain exists, change the `og:image` URL in `index.html` to the full address (`https://yourdomain/assets/og-image.jpg`).
+1. **Instagram, WhatsApp and email**: the `CONTACT` block at the top of `main.js`.
+2. **Orders**: no Shopify. The site takes orders itself.
+3. **Generated images**: see `IMAGES.md` (hero, scale shot, in-the-box flat lay).
 
 ## Hosting
 
 Live at https://glimp.in via GitHub Pages (repo `yash1463/glimp-website`, branch `main`, root folder).
 To update the site: edit, then `git add -A && git commit -m "..." && git push`. It's live in about a minute.
 `CNAME` holds the domain, so don't delete it. DNS is at GoDaddy (4 A records to GitHub, `www` CNAME to yash1463.github.io).
-If Shopify gets its own subdomain later, use `shop.glimp.in` so this site keeps `glimp.in`.
 
 ## Rebuilding images
 
