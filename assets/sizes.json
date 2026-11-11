@@ -1,0 +1,90 @@
+{
+ "cam/black": [
+  1000,
+  579
+ ],
+ "cam/white": [
+  1000,
+  565
+ ],
+ "cam/red": [
+  1000,
+  581
+ ],
+ "cam/yellow": [
+  1000,
+  576
+ ],
+ "cam/blue": [
+  1000,
+  602
+ ],
+ "cam/lime": [
+  1000,
+  611
+ ],
+ "cam/teal": [
+  1000,
+  558
+ ],
+ "cam/grey": [
+  1000,
+  599
+ ],
+ "cam/off-white-back-on": [
+  1200,
+  489
+ ],
+ "cam/black-back-on": [
+  1200,
+  489
+ ],
+ "cam/off-white-bottom": [
+  1200,
+  1012
+ ],
+ "app/journal_three_note": [
+  800,
+  1000
+ ],
+ "app/journal_solo_note": [
+  800,
+  1000
+ ],
+ "app/us_distance": [
+  800,
+  1000
+ ],
+ "app/us_days": [
+  800,
+  1000
+ ],
+ "app/baby_firstYear": [
+  800,
+  1000
+ ],
+ "app/baby_month": [
+  800,
+  1000
+ ],
+ "app/trip_stamps": [
+  800,
+  1000
+ ],
+ "app/trip_photo": [
+  800,
+  1000
+ ],
+ "app/collage_polaroids": [
+  760,
+  950
+ ],
+ "app/collage_filmStrip": [
+  440,
+  996
+ ],
+ "app/cafe_stampCard": [
+  800,
+  1000
+ ]
+}
