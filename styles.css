@@ -331,7 +331,7 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 /* ---------- box ---------- */
 .box { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 96px); align-items: center; }
 .box-visual { display: grid; place-items: center; }
-.box-visual img { width: 100%; height: auto; }
+.box-visual img { width: 88%; height: auto; transform: rotate(-4deg); }
 .box-visual img.full { width: 100%; height: 100%; object-fit: cover; filter: none; }
 .box-list { list-style: none; margin: 26px 0 0; padding: 0; border-top: 1px solid var(--ink); counter-reset: b; }
 .box-list li { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: baseline; padding: 15px 0; border-bottom: 1px solid var(--line); counter-increment: b; }

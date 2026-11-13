@@ -36,14 +36,22 @@ General rules for all three:
 
 ---
 
-## 3. In the box: flat lay
+## 3. In the box: packaging render (like a Leica / Maison Margiela unboxing)
 
-**Where it goes:** "Everything. Even the bit everyone forgets." (left image, square).
-**Size:** 1600 × 1600 px (square).
-**Reference photos to attach:** `XM17/white camera-3.jpg`, `shopify-images/09-ports.jpg`, plus a phone photo of the real cable, converter, strap and SD card if you have them (this makes it much more accurate).
+**Where it goes:** the "In the box" section. Make **two versions of the same image**: one on pure black (#000000) for dark mode and one on pure white (#FFFFFF) for light mode. The site switches between them, so the background matches exactly.
+**Size:** 2000 × 1500 px (4:3).
+**Attach these reference images:**
+- `X1/off-white/KDC.11934.png`: the camera, lens side (this is how it should lie in the box)
+- `glimp-brand/png/glimp-wordmark-on-light@2x.png`: the logo for the lid
+- your Maison Margiela unboxing photo, as the style reference
 
-**Prompt:**
-> A tidy top-down flat lay on a plain warm off-white paper background (#F4F3EF). Laid out in a neat grid with even spacing: a tiny white rectangular keychain digital camera matching the reference images (back view, screen and three round buttons visible); a microSD card; a short black lanyard-style keychain strap; a short white USB-A to USB-C cable, loosely coiled; and a small white USB-A (female) to USB-C (male) adapter. Soft, even daylight from the top left, very soft shadows, realistic product photography, no reflections. Leave some empty space around each item. No text, no logos, no packaging.
+**Prompt (black version; for the white one change only the last line):**
+> Premium product packaging photograph of an open gift box, shot from above at a slight angle, in the style of a luxury camera unboxing (Leica, Maison Margiela). A rigid box with a warm off-white linen-paper lid, lying open beside the base. The lid shows a small dark "glimp" wordmark followed by three thin horizontal stripes in mustard (#E3A21A), orange (#E0662A) and brick red (#C7372A), exactly like the reference logo. The base holds a charcoal-grey felt insert with precisely cut recesses holding: a tiny white keychain digital camera exactly matching the reference image (rounded rectangle body, printed lens side facing up, round black lens, small viewfinder, a strap loop on the right); a microSD card; a short white USB-A to USB-C cable, neatly coiled; a small white USB-A (female) to USB-C (male) adapter; and a short black keychain strap with a metal ring. A small folded card with the same three stripes tucked into the lid. Everything neat, evenly spaced and perfectly aligned. Soft natural daylight from the upper left, soft realistic shadows, true-to-life colours, crisp detail, high-end product photography, 50 mm lens, f/8. Nothing else in the frame, no other text and no other logos.
+> **Background: seamless pure black (#000000), no gradient, no vignette.**
+
+White version: replace the last line with **Background: seamless pure white (#FFFFFF), no gradient, no vignette.**
+
+Where to make it: ChatGPT (image generation), Midjourney, Google Gemini, or Higgsfield once it has credits. Generate the black one first; if it looks right, ask the same tool to "make this exact image on a pure white background".
 
 ---
 
