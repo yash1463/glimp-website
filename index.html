@@ -4,30 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Glimp — a camera for your keys</title>
-<meta name="description" content="Glimp is a thumb-sized retro camera that lives on your keychain. SD card in the box, plugs straight into your phone, and the KeyCam app turns your days into pages. ₹1,490, Cash on Delivery.">
+<meta name="description" content="Glimp is a thumb-sized retro camera for your keychain. SD card in the box, plugs into your phone, comes with an app. ₹1,490, Cash on Delivery.">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="assets/brand/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Glimp — a camera for your keys">
-<meta property="og:description" content="Thumb-sized retro camera. SD card included, plugs into your phone, app included. ₹1,490 with Cash on Delivery.">
-<meta property="og:image" content="https://glimp.in/assets/og-image.jpg">
-<meta property="og:url" content="https://glimp.in/">
 <link rel="canonical" href="https://glimp.in/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://glimp.in/">
+<meta property="og:title" content="Glimp — a camera for your keys">
+<meta property="og:description" content="Thumb-sized retro camera. SD card in the box, plugs into your phone, comes with an app. ₹1,490, Cash on Delivery.">
+<meta property="og:image" content="https://glimp.in/assets/og-image.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Doto:wght@700&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/photos/hero.webp" imagesrcset="assets/photos/hero-sm.webp 900w, assets/photos/hero.webp 1920w" imagesizes="100vw" fetchpriority="high">
+<link rel="preload" as="image" href="assets/photos/hero-group.webp" imagesrcset="assets/photos/hero-group-sm.webp 820w, assets/photos/hero-group.webp 1600w" imagesizes="(max-width: 880px) 100vw, 60vw" fetchpriority="high">
 <link rel="stylesheet" href="styles.css">
 <script>
-  // Apply a saved theme before first paint, so dark-mode visitors never see a white flash.
   try { var t = localStorage.getItem("glimp-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
   document.documentElement.classList.add("js");
 </script>
+<script src="config.js"></script>
+<script src="analytics.js" defer></script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Product","name":"Glimp keychain camera","brand":{"@type":"Brand","name":"Glimp"},
  "description":"Thumb-sized retro keychain camera with SD card, phone converter and the KeyCam app.",
@@ -38,15 +39,13 @@
 
 <a class="visually-hidden" href="#main">Skip to content</a>
 
-<!-- 1. Announcement -->
 <div class="announce" role="note">
   <div class="announce-track">
-    <span>Cash on Delivery</span><span>Pre-order ships in ~20 days</span><span>SD card included</span><span>₹1,490</span>
-    <span aria-hidden="true">Cash on Delivery</span><span aria-hidden="true">Pre-order ships in ~20 days</span><span aria-hidden="true">SD card included</span><span aria-hidden="true">₹1,490</span>
+    <span>Cash on Delivery</span><span>Ships in ~20 days</span><span>SD card included</span><span>₹1,490</span>
+    <span aria-hidden="true">Cash on Delivery</span><span aria-hidden="true">Ships in ~20 days</span><span aria-hidden="true">SD card included</span><span aria-hidden="true">₹1,490</span>
   </div>
 </div>
 
-<!-- 2. Nav -->
 <header class="nav">
   <nav class="nav-inner" aria-label="Main">
     <a class="logo" href="#top" aria-label="Glimp, home"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="-3.8 -79.5 376.4 108"><path d="M32.8 -6.95Q27.75 -7.55 25.43 -7.98Q23.1 -8.4 22.48 -8.82Q21.85 -9.25 21.85 -9.7Q21.85 -10.1 22.12 -10.48Q22.4 -10.85 23 -11.2L22.65 -12Q16.1 -12.05 12.23 -10.53Q8.35 -9 6.7 -6.58Q5.05 -4.15 5.05 -1.4Q5.05 1.1 6.53 3.2Q8 5.3 11.7 6.8Q15.4 8.3 22.05 8.95Q27.85 9.5 30.7 10.15Q33.55 10.8 34.48 11.55Q35.4 12.3 35.4 13.2Q35.4 13.9 34.7 14.48Q34 15.05 32.02 15.35Q30.05 15.65 26.15 15.65Q19.4 15.65 17.2 14.45Q15 13.25 15 11.25Q15 10.25 15.25 9.4Q15.5 8.55 16.05 7.65L13.95 6.35Q6.7 6.7 3.45 9.1Q0.2 11.5 0.2 15.2Q0.2 18.3 2.53 20.38Q4.85 22.45 9.88 23.48Q14.9 24.5 23 24.5Q37.95 24.5 44.83 20.12Q51.7 15.75 51.7 7.35Q51.7 3.05 49.95 0.18Q48.2 -2.7 44.08 -4.43Q39.95 -6.15 32.8 -6.95ZM30.7 -41.15 35.8 -40.55Q36.9 -43.75 37.85 -44.83Q38.8 -45.9 40.05 -45.9Q41.25 -45.9 42.1 -45.25Q42.95 -44.6 43.78 -43.78Q44.6 -42.95 45.67 -42.3Q46.75 -41.65 48.4 -41.65Q51.1 -41.65 52.73 -43.83Q54.35 -46 54.35 -49.75Q54.35 -53.75 52.35 -55.83Q50.35 -57.9 46.7 -57.9Q42.15 -57.9 38.38 -54.88Q34.6 -51.85 32.2 -45.25ZM48.05 -28.7Q48.05 -33.25 45.55 -37.12Q43.05 -41 38.08 -43.38Q33.1 -45.75 25.7 -45.75Q18 -45.75 12.55 -43.48Q7.1 -41.2 4.25 -37.05Q1.4 -32.9 1.4 -27.25Q1.4 -22.5 4.12 -18.77Q6.85 -15.05 12.2 -12.93Q17.55 -10.8 25.4 -10.8Q32.25 -10.8 37.33 -13.03Q42.4 -15.25 45.23 -19.27Q48.05 -23.3 48.05 -28.7ZM22.15 -38.6Q23.8 -39 25.62 -36.88Q27.45 -34.75 28.8 -29.3Q30.15 -23.85 29.55 -21.1Q28.95 -18.35 27.3 -17.95Q26.2 -17.7 25 -18.52Q23.8 -19.35 22.68 -21.5Q21.55 -23.65 20.65 -27.25Q19.75 -30.9 19.75 -33.3Q19.75 -35.7 20.4 -37.03Q21.05 -38.35 22.15 -38.6Z" fill="currentColor"/><path d="M74.65 -71.35V-13.3Q74.65 -10.85 74.93 -9.98Q75.2 -9.1 75.75 -8.65L76.25 -8.2Q77.3 -7.35 77.85 -6.43Q78.4 -5.5 78.4 -4.05Q78.4 -2.15 77.28 -1.07Q76.15 0 74.25 0H56.1Q54.2 0 53.08 -1.07Q51.95 -2.15 51.95 -4.05Q51.95 -5.5 52.5 -6.43Q53.05 -7.35 54.1 -8.2L54.6 -8.65Q55.15 -9.1 55.43 -9.98Q55.7 -10.85 55.7 -13.3V-57.55Q55.7 -59.5 55.33 -60.3Q54.95 -61.1 54.1 -61.65L53.65 -61.95Q52.45 -62.75 51.95 -63.55Q51.45 -64.35 51.45 -65.6Q51.45 -67.05 52.3 -68.1Q53.15 -69.15 55.3 -70.05L64.25 -73.7Q66.8 -74.75 68.25 -75.12Q69.7 -75.5 70.95 -75.5Q72.8 -75.5 73.73 -74.35Q74.65 -73.2 74.65 -71.35Z M102.45 -41.65V-13.3Q102.45 -10.9 102.72 -10.03Q103 -9.15 103.55 -8.65L104.05 -8.2Q105.05 -7.4 105.62 -6.45Q106.2 -5.5 106.2 -4.05Q106.2 -2.15 105.08 -1.07Q103.95 0 102.05 0H83.9Q81.95 0 80.85 -1.07Q79.75 -2.15 79.75 -4.05Q79.75 -5.5 80.3 -6.45Q80.85 -7.4 81.9 -8.2L82.4 -8.65Q82.95 -9.15 83.22 -10.03Q83.5 -10.9 83.5 -13.3V-27.85Q83.5 -29.8 83.12 -30.6Q82.75 -31.4 81.9 -31.95L81.45 -32.25Q80.25 -33.05 79.75 -33.85Q79.25 -34.65 79.25 -35.9Q79.25 -37.35 80.1 -38.4Q80.95 -39.45 83.1 -40.35L92.05 -44Q94.6 -45.05 96.05 -45.43Q97.5 -45.8 98.75 -45.8Q100.6 -45.8 101.53 -44.65Q102.45 -43.5 102.45 -41.65ZM92.85 -48.85Q87.85 -48.85 84.98 -51.55Q82.1 -54.25 82.1 -58.85Q82.1 -63.45 84.98 -66.15Q87.85 -68.85 92.85 -68.85Q97.85 -68.85 100.73 -66.15Q103.6 -63.45 103.6 -58.85Q103.6 -54.25 100.73 -51.55Q97.85 -48.85 92.85 -48.85Z M130.25 -41.65V-13.3Q130.25 -10.7 130.45 -9.7Q130.65 -8.7 131.25 -8.15L131.85 -7.6Q133.45 -6.15 133.45 -4.05Q133.45 0 129.75 0H111.7Q109.8 0 108.67 -1.07Q107.55 -2.15 107.55 -4.05Q107.55 -5.5 108.1 -6.43Q108.65 -7.35 109.7 -8.2L110.2 -8.65Q110.75 -9.1 111.03 -9.98Q111.3 -10.85 111.3 -13.3V-27.85Q111.3 -29.8 110.92 -30.6Q110.55 -31.4 109.7 -31.95L109.25 -32.25Q108.05 -33.05 107.55 -33.85Q107.05 -34.65 107.05 -35.9Q107.05 -37.35 107.9 -38.4Q108.75 -39.45 110.9 -40.35L119.85 -44Q122.4 -45.05 123.85 -45.43Q125.3 -45.8 126.55 -45.8Q128.4 -45.8 129.32 -44.65Q130.25 -43.5 130.25 -41.65ZM128.7 -28.45 125.35 -32.55 127.25 -34.6Q133.15 -41 137.68 -43.4Q142.2 -45.8 146.2 -45.8Q151.85 -45.8 155.05 -41.9Q158.25 -38 158.25 -31V-13.3Q158.25 -10.7 158.45 -9.7Q158.65 -8.7 159.25 -8.15L159.85 -7.6Q161.45 -6.15 161.45 -4.05Q161.45 0 157.75 0H139.8Q136.1 0 136.1 -4.05Q136.1 -6.15 137.7 -7.6L138.3 -8.15Q138.9 -8.7 139.1 -9.7Q139.3 -10.7 139.3 -13.3V-26.2Q139.3 -29 138.23 -30.48Q137.15 -31.95 135.1 -31.95Q133.75 -31.95 132.47 -31.4Q131.2 -30.85 130.1 -29.8ZM156.65 -28.45 153.35 -32.5 155.3 -34.55Q161.2 -40.8 165.47 -43.3Q169.75 -45.8 173.9 -45.8Q179.25 -45.8 181.72 -42.6Q184.2 -39.4 184.75 -33.85L186.85 -13.3Q187.1 -10.9 187.28 -10.03Q187.45 -9.15 187.95 -8.65L188.45 -8.2Q189.45 -7.3 190.05 -6.4Q190.65 -5.5 190.65 -4.05Q190.65 -2.15 189.53 -1.07Q188.4 0 186.5 0H168.3Q164.6 0 164.6 -4.05Q164.6 -6.1 166.25 -7.6L166.85 -8.15Q167.45 -8.7 167.78 -9.6Q168.1 -10.5 167.85 -12.8L166.35 -26.15Q166 -29.05 165.15 -30.5Q164.3 -31.95 162.4 -31.95Q161.35 -31.95 160.3 -31.4Q159.25 -30.85 158.1 -29.8Z M212.7 -41.65V-37.55L213.55 -35.75V10Q213.55 12.45 213.83 13.3Q214.1 14.15 214.65 14.65L215.15 15.1Q216.15 15.95 216.73 16.88Q217.3 17.8 217.3 19.25Q217.3 21.1 216.18 22.2Q215.05 23.3 213.15 23.3H195Q193.1 23.3 191.98 22.23Q190.85 21.15 190.85 19.25Q190.85 17.8 191.43 16.9Q192 16 193 15.1L193.5 14.65Q194.05 14.2 194.33 13.33Q194.6 12.45 194.6 10V-27.85Q194.6 -29.8 194.23 -30.6Q193.85 -31.4 193 -31.95L192.55 -32.25Q191.35 -33.05 190.85 -33.85Q190.35 -34.65 190.35 -35.9Q190.35 -37.35 191.2 -38.38Q192.05 -39.4 194.2 -40.35L201.85 -43.75Q204.45 -44.9 206.08 -45.35Q207.7 -45.8 208.9 -45.8Q210.8 -45.8 211.75 -44.65Q212.7 -43.5 212.7 -41.65ZM210.35 -28.2 207.1 -31.9Q210.8 -38.4 215.43 -42.1Q220.05 -45.8 226.3 -45.8Q231.45 -45.8 235.33 -43.1Q239.2 -40.4 241.38 -35.48Q243.55 -30.55 243.55 -23.8Q243.55 -15.85 240.78 -10.23Q238 -4.6 233.08 -1.65Q228.15 1.3 221.6 1.3Q216.45 1.3 212.65 -1.05Q208.85 -3.4 205.95 -8.2L211.05 -14.4Q212.65 -11.2 214.2 -10.05Q215.75 -8.9 217.65 -8.9Q219.55 -8.9 220.98 -10.35Q222.4 -11.8 223.2 -14.62Q224 -17.45 224 -21.55Q224 -26 223.1 -28.77Q222.2 -31.55 220.65 -32.88Q219.1 -34.2 217.05 -34.2Q215.05 -34.2 213.35 -32.83Q211.65 -31.45 210.35 -28.2Z" fill="currentColor"/><rect x="248.6" y="-40" width="120" height="4.6" fill="#E3A21A"/><rect x="248.6" y="-33" width="120" height="4.6" fill="#E0662A"/><rect x="248.6" y="-26" width="120" height="4.6" fill="#C7372A"/></svg></a>
@@ -57,213 +56,198 @@
       <li><a href="#app">App</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
-    <div class="nav-cta">
-      <a class="btn" href="#colours" data-buy>Pre-order<span class="long">&nbsp;— ₹1,490</span></a>
-    </div>
+    <a class="btn" href="#colours" data-cta="nav_order">Order<span class="long">&nbsp;— ₹1,490</span></a>
   </nav>
 </header>
 
 <main id="main">
 
-<!-- 3. Hero -->
-<section class="hero" id="top" aria-label="Glimp">
-  <div class="hero-card">
-    <!-- HERO IMAGE SLOT: replace with the lifestyle render (keys + camera in a hand). See website/IMAGES.md -->
-    <img class="hero-photo" src="assets/photos/hero.webp" srcset="assets/photos/hero-sm.webp 900w, assets/photos/hero.webp 1920w" sizes="100vw" alt="Fairy lights over beach shacks at night" width="1920" height="1080" fetchpriority="high">
-    <img class="hero-cam" src="assets/cam/off-white-back-on.webp" alt="White Glimp camera, back view, its screen showing the same beach-shack photo" width="1200" height="489">
-    <div class="hero-tag" aria-hidden="true">
-      <svg viewBox="0 0 100 100"><polygon fill="#e3a21a" points="50.0,0.0 59.1,10.0 71.7,5.0 75.6,17.9 89.1,18.8 86.9,32.2 98.7,38.9 91.0,50.0 98.7,61.1 86.9,67.8 89.1,81.2 75.6,82.1 71.7,95.0 59.1,90.0 50.0,100.0 40.9,90.0 28.3,95.0 24.4,82.1 10.9,81.2 13.1,67.8 1.3,61.1 9.0,50.0 1.3,38.9 13.1,32.2 10.9,18.8 24.4,17.9 28.3,5.0 40.9,10.0"/></svg>
-      <span>SD card<br>in the<br>box</span>
-    </div>
+<!-- Hero: words left, candid photo right (Paper Shoot pattern) -->
+<section class="hero" id="top" data-section="hero">
+  <div class="wrap hero-grid">
     <div class="hero-copy">
-      <div class="hero-proof"><span class="dot"></span><span class="label">Pre-orders open · 8 colours</span></div>
+      <span class="label">Keychain camera · 8 colours</span>
       <h1>A camera for your&nbsp;keys.</h1>
-      <p class="hero-sub">Thumb-sized, always on you, and it <strong>plugs straight into your phone</strong>. The app turns every day into a page you’ll actually keep.</p>
+      <ul class="hero-points">
+        <li>SD card in the box</li>
+        <li>Plugs into your phone</li>
+        <li>Comes with an app</li>
+      </ul>
       <div class="hero-actions">
-        <a class="btn paper" href="#colours" data-buy>Pre-order — ₹1,490 <span class="arr">→</span></a>
-        <span class="label hero-trust">Cash on Delivery · We call to confirm</span>
+        <a class="btn" href="#colours" data-cta="hero_order">Order — ₹1,490 <span class="arr">→</span></a>
+        <span class="label">Cash on Delivery</span>
       </div>
     </div>
-    <span class="credit">Sample photo</span>
+    <div class="hero-visual">
+      <div class="hero-photo">
+        <!-- HERO IMAGE SLOT: swap for the keys-in-hand render later (website/IMAGES.md) -->
+        <img src="assets/photos/hero-group.webp" srcset="assets/photos/hero-group-sm.webp 820w, assets/photos/hero-group.webp 1600w"
+             sizes="(max-width: 880px) 100vw, 60vw" alt="Six friends laughing around a table" width="1600" height="900" fetchpriority="high">
+        <span class="credit">Sample photo</span>
+      </div>
+      <img class="hero-cam" src="assets/gallery/white/2.webp" alt="White Glimp camera, back view" width="1100" height="700">
+      <div class="burst-tag" aria-hidden="true"><svg viewBox="0 0 100 100"><use href="#burst"/></svg><span>SD card<br>in the<br>box</span></div>
+    </div>
   </div>
 </section>
 
-<!-- Numbers -->
-<div class="wrap">
-  <div class="stats">
-    <div class="stat"><b>₹1,490</b><span class="label">All in</span></div>
-    <div class="stat"><b>8</b><span class="label">Colours</span></div>
-    <div class="stat"><b>1</b><span class="label">Cable to your phone</span></div>
-    <div class="stat"><b>0</b><span class="label">Card readers needed</span></div>
-  </div>
-</div>
+<!-- 8 colours, as a strip of cameras -->
+<section class="strip" aria-label="Colours" data-section="colours_strip">
+  <div class="strip-track" data-strip></div>
+</section>
 
-<!-- 5. Why it's different -->
-<section class="section" id="different">
-  <div class="wrap diff-grid">
-    <div class="head">
+<!-- Comparison -->
+<section class="section" id="why" data-section="comparison">
+  <div class="wrap">
+    <div class="head center">
       <span class="label">Why Glimp</span>
-      <h2>Other keychain cameras stop at the&nbsp;camera.</h2>
-      <p class="lede">Same tiny body you’ve seen everywhere. What comes with it is the difference.</p>
-      <span class="stripes" aria-hidden="true"></span>
+      <h2>Glimp vs other keychain&nbsp;cams</h2>
     </div>
-    <div>
-      <ol class="rows">
-        <li class="row">
-          <span class="num">01</span>
-          <div>
-            <h3>The SD card is in the box.</h3>
-            <p>Most keychain cameras ship empty, and you find out after it arrives. Glimp comes <strong>ready to shoot</strong>, card already inside.</p>
-          </div>
-        </li>
-        <li class="row">
-          <span class="num">02</span>
-          <div>
-            <h3>It plugs straight into your phone.</h3>
-            <p>A Type-C converter is in the box, so <strong>photos go from camera to phone in one cable</strong>. No laptop, no card reader, no “I’ll transfer them later.”</p>
-          </div>
-        </li>
-        <li class="row">
-          <span class="num">03</span>
-          <div>
-            <h3>It comes with an app.</h3>
-            <p>Others leave you with a folder called DCIM. <strong>KeyCam</strong> imports your shots, gives them a soft film look and lays out your day as a journal page.</p>
-          </div>
-        </li>
-      </ol>
-      <button class="link-mono compare-toggle" aria-expanded="false" aria-controls="compare">See the side-by-side ›</button>
-      <div class="compare" id="compare" hidden>
-        <table>
-          <thead><tr><th scope="col"><span class="visually-hidden">Feature</span></th><th scope="col" class="us">Glimp</th><th scope="col">Typical keychain cam</th><th scope="col">Phone camera</th></tr></thead>
-          <tbody>
-            <tr><td>Fits on your keys</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="yes" aria-label="Yes"></i></td><td><i class="no" aria-label="No"></i></td></tr>
-            <tr><td>SD card included</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="meh" aria-label="Varies"></i></td><td><i class="meh" aria-label="Not applicable"></i></td></tr>
-            <tr><td>Date stamp built in</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="meh" aria-label="Varies"></i></td><td><i class="no" aria-label="No"></i></td></tr>
-            <tr><td>No card reader needed</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="meh" aria-label="Varies"></i></td><td><i class="yes" aria-label="Yes"></i></td></tr>
-            <tr><td>Vintage looks, built in</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="no" aria-label="No"></i></td><td><i class="meh" aria-label="Varies"></i></td></tr>
-            <tr><td>Auto journal pages</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="no" aria-label="No"></i></td><td><i class="no" aria-label="No"></i></td></tr>
-            <tr><td>Private sharing with friends</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="no" aria-label="No"></i></td><td><i class="meh" aria-label="Varies"></i></td></tr>
-            <tr><td>No notifications</td><td class="us"><i class="yes" aria-label="Yes"></i></td><td><i class="yes" aria-label="Yes"></i></td><td><i class="no" aria-label="No"></i></td></tr>
-          </tbody>
-        </table>
-        <div class="compare-key label"><span><i class="yes"></i> Yes</span><span><i class="no"></i> No</span><span><i class="meh"></i> Varies</span></div>
+    <div class="vs" role="table" aria-label="Glimp compared with other keychain cameras">
+      <div class="vs-row vs-headrow" role="row">
+        <span role="columnheader" class="visually-hidden">What</span>
+        <span role="columnheader" class="label">Others</span>
+        <span role="columnheader" class="vs-us"><svg class="vs-logo" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="-3.8 -79.5 376.4 108"><path d="M32.8 -6.95Q27.75 -7.55 25.43 -7.98Q23.1 -8.4 22.48 -8.82Q21.85 -9.25 21.85 -9.7Q21.85 -10.1 22.12 -10.48Q22.4 -10.85 23 -11.2L22.65 -12Q16.1 -12.05 12.23 -10.53Q8.35 -9 6.7 -6.58Q5.05 -4.15 5.05 -1.4Q5.05 1.1 6.53 3.2Q8 5.3 11.7 6.8Q15.4 8.3 22.05 8.95Q27.85 9.5 30.7 10.15Q33.55 10.8 34.48 11.55Q35.4 12.3 35.4 13.2Q35.4 13.9 34.7 14.48Q34 15.05 32.02 15.35Q30.05 15.65 26.15 15.65Q19.4 15.65 17.2 14.45Q15 13.25 15 11.25Q15 10.25 15.25 9.4Q15.5 8.55 16.05 7.65L13.95 6.35Q6.7 6.7 3.45 9.1Q0.2 11.5 0.2 15.2Q0.2 18.3 2.53 20.38Q4.85 22.45 9.88 23.48Q14.9 24.5 23 24.5Q37.95 24.5 44.83 20.12Q51.7 15.75 51.7 7.35Q51.7 3.05 49.95 0.18Q48.2 -2.7 44.08 -4.43Q39.95 -6.15 32.8 -6.95ZM30.7 -41.15 35.8 -40.55Q36.9 -43.75 37.85 -44.83Q38.8 -45.9 40.05 -45.9Q41.25 -45.9 42.1 -45.25Q42.95 -44.6 43.78 -43.78Q44.6 -42.95 45.67 -42.3Q46.75 -41.65 48.4 -41.65Q51.1 -41.65 52.73 -43.83Q54.35 -46 54.35 -49.75Q54.35 -53.75 52.35 -55.83Q50.35 -57.9 46.7 -57.9Q42.15 -57.9 38.38 -54.88Q34.6 -51.85 32.2 -45.25ZM48.05 -28.7Q48.05 -33.25 45.55 -37.12Q43.05 -41 38.08 -43.38Q33.1 -45.75 25.7 -45.75Q18 -45.75 12.55 -43.48Q7.1 -41.2 4.25 -37.05Q1.4 -32.9 1.4 -27.25Q1.4 -22.5 4.12 -18.77Q6.85 -15.05 12.2 -12.93Q17.55 -10.8 25.4 -10.8Q32.25 -10.8 37.33 -13.03Q42.4 -15.25 45.23 -19.27Q48.05 -23.3 48.05 -28.7ZM22.15 -38.6Q23.8 -39 25.62 -36.88Q27.45 -34.75 28.8 -29.3Q30.15 -23.85 29.55 -21.1Q28.95 -18.35 27.3 -17.95Q26.2 -17.7 25 -18.52Q23.8 -19.35 22.68 -21.5Q21.55 -23.65 20.65 -27.25Q19.75 -30.9 19.75 -33.3Q19.75 -35.7 20.4 -37.03Q21.05 -38.35 22.15 -38.6Z" fill="currentColor"/><path d="M74.65 -71.35V-13.3Q74.65 -10.85 74.93 -9.98Q75.2 -9.1 75.75 -8.65L76.25 -8.2Q77.3 -7.35 77.85 -6.43Q78.4 -5.5 78.4 -4.05Q78.4 -2.15 77.28 -1.07Q76.15 0 74.25 0H56.1Q54.2 0 53.08 -1.07Q51.95 -2.15 51.95 -4.05Q51.95 -5.5 52.5 -6.43Q53.05 -7.35 54.1 -8.2L54.6 -8.65Q55.15 -9.1 55.43 -9.98Q55.7 -10.85 55.7 -13.3V-57.55Q55.7 -59.5 55.33 -60.3Q54.95 -61.1 54.1 -61.65L53.65 -61.95Q52.45 -62.75 51.95 -63.55Q51.45 -64.35 51.45 -65.6Q51.45 -67.05 52.3 -68.1Q53.15 -69.15 55.3 -70.05L64.25 -73.7Q66.8 -74.75 68.25 -75.12Q69.7 -75.5 70.95 -75.5Q72.8 -75.5 73.73 -74.35Q74.65 -73.2 74.65 -71.35Z M102.45 -41.65V-13.3Q102.45 -10.9 102.72 -10.03Q103 -9.15 103.55 -8.65L104.05 -8.2Q105.05 -7.4 105.62 -6.45Q106.2 -5.5 106.2 -4.05Q106.2 -2.15 105.08 -1.07Q103.95 0 102.05 0H83.9Q81.95 0 80.85 -1.07Q79.75 -2.15 79.75 -4.05Q79.75 -5.5 80.3 -6.45Q80.85 -7.4 81.9 -8.2L82.4 -8.65Q82.95 -9.15 83.22 -10.03Q83.5 -10.9 83.5 -13.3V-27.85Q83.5 -29.8 83.12 -30.6Q82.75 -31.4 81.9 -31.95L81.45 -32.25Q80.25 -33.05 79.75 -33.85Q79.25 -34.65 79.25 -35.9Q79.25 -37.35 80.1 -38.4Q80.95 -39.45 83.1 -40.35L92.05 -44Q94.6 -45.05 96.05 -45.43Q97.5 -45.8 98.75 -45.8Q100.6 -45.8 101.53 -44.65Q102.45 -43.5 102.45 -41.65ZM92.85 -48.85Q87.85 -48.85 84.98 -51.55Q82.1 -54.25 82.1 -58.85Q82.1 -63.45 84.98 -66.15Q87.85 -68.85 92.85 -68.85Q97.85 -68.85 100.73 -66.15Q103.6 -63.45 103.6 -58.85Q103.6 -54.25 100.73 -51.55Q97.85 -48.85 92.85 -48.85Z M130.25 -41.65V-13.3Q130.25 -10.7 130.45 -9.7Q130.65 -8.7 131.25 -8.15L131.85 -7.6Q133.45 -6.15 133.45 -4.05Q133.45 0 129.75 0H111.7Q109.8 0 108.67 -1.07Q107.55 -2.15 107.55 -4.05Q107.55 -5.5 108.1 -6.43Q108.65 -7.35 109.7 -8.2L110.2 -8.65Q110.75 -9.1 111.03 -9.98Q111.3 -10.85 111.3 -13.3V-27.85Q111.3 -29.8 110.92 -30.6Q110.55 -31.4 109.7 -31.95L109.25 -32.25Q108.05 -33.05 107.55 -33.85Q107.05 -34.65 107.05 -35.9Q107.05 -37.35 107.9 -38.4Q108.75 -39.45 110.9 -40.35L119.85 -44Q122.4 -45.05 123.85 -45.43Q125.3 -45.8 126.55 -45.8Q128.4 -45.8 129.32 -44.65Q130.25 -43.5 130.25 -41.65ZM128.7 -28.45 125.35 -32.55 127.25 -34.6Q133.15 -41 137.68 -43.4Q142.2 -45.8 146.2 -45.8Q151.85 -45.8 155.05 -41.9Q158.25 -38 158.25 -31V-13.3Q158.25 -10.7 158.45 -9.7Q158.65 -8.7 159.25 -8.15L159.85 -7.6Q161.45 -6.15 161.45 -4.05Q161.45 0 157.75 0H139.8Q136.1 0 136.1 -4.05Q136.1 -6.15 137.7 -7.6L138.3 -8.15Q138.9 -8.7 139.1 -9.7Q139.3 -10.7 139.3 -13.3V-26.2Q139.3 -29 138.23 -30.48Q137.15 -31.95 135.1 -31.95Q133.75 -31.95 132.47 -31.4Q131.2 -30.85 130.1 -29.8ZM156.65 -28.45 153.35 -32.5 155.3 -34.55Q161.2 -40.8 165.47 -43.3Q169.75 -45.8 173.9 -45.8Q179.25 -45.8 181.72 -42.6Q184.2 -39.4 184.75 -33.85L186.85 -13.3Q187.1 -10.9 187.28 -10.03Q187.45 -9.15 187.95 -8.65L188.45 -8.2Q189.45 -7.3 190.05 -6.4Q190.65 -5.5 190.65 -4.05Q190.65 -2.15 189.53 -1.07Q188.4 0 186.5 0H168.3Q164.6 0 164.6 -4.05Q164.6 -6.1 166.25 -7.6L166.85 -8.15Q167.45 -8.7 167.78 -9.6Q168.1 -10.5 167.85 -12.8L166.35 -26.15Q166 -29.05 165.15 -30.5Q164.3 -31.95 162.4 -31.95Q161.35 -31.95 160.3 -31.4Q159.25 -30.85 158.1 -29.8Z M212.7 -41.65V-37.55L213.55 -35.75V10Q213.55 12.45 213.83 13.3Q214.1 14.15 214.65 14.65L215.15 15.1Q216.15 15.95 216.73 16.88Q217.3 17.8 217.3 19.25Q217.3 21.1 216.18 22.2Q215.05 23.3 213.15 23.3H195Q193.1 23.3 191.98 22.23Q190.85 21.15 190.85 19.25Q190.85 17.8 191.43 16.9Q192 16 193 15.1L193.5 14.65Q194.05 14.2 194.33 13.33Q194.6 12.45 194.6 10V-27.85Q194.6 -29.8 194.23 -30.6Q193.85 -31.4 193 -31.95L192.55 -32.25Q191.35 -33.05 190.85 -33.85Q190.35 -34.65 190.35 -35.9Q190.35 -37.35 191.2 -38.38Q192.05 -39.4 194.2 -40.35L201.85 -43.75Q204.45 -44.9 206.08 -45.35Q207.7 -45.8 208.9 -45.8Q210.8 -45.8 211.75 -44.65Q212.7 -43.5 212.7 -41.65ZM210.35 -28.2 207.1 -31.9Q210.8 -38.4 215.43 -42.1Q220.05 -45.8 226.3 -45.8Q231.45 -45.8 235.33 -43.1Q239.2 -40.4 241.38 -35.48Q243.55 -30.55 243.55 -23.8Q243.55 -15.85 240.78 -10.23Q238 -4.6 233.08 -1.65Q228.15 1.3 221.6 1.3Q216.45 1.3 212.65 -1.05Q208.85 -3.4 205.95 -8.2L211.05 -14.4Q212.65 -11.2 214.2 -10.05Q215.75 -8.9 217.65 -8.9Q219.55 -8.9 220.98 -10.35Q222.4 -11.8 223.2 -14.62Q224 -17.45 224 -21.55Q224 -26 223.1 -28.77Q222.2 -31.55 220.65 -32.88Q219.1 -34.2 217.05 -34.2Q215.05 -34.2 213.35 -32.83Q211.65 -31.45 210.35 -28.2Z" fill="currentColor"/><rect x="248.6" y="-40" width="120" height="4.6" fill="#E3A21A"/><rect x="248.6" y="-33" width="120" height="4.6" fill="#E0662A"/><rect x="248.6" y="-26" width="120" height="4.6" fill="#C7372A"/></svg></span>
+      </div>
+      <div class="vs-row" role="row">
+        <div class="vs-what" role="rowheader">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 6h15l9 9v27H15z"/><path d="M20 6v7M25 6v7M30 8v5"/><rect x="20" y="26" width="14" height="10" rx="1.5"/></svg>
+          <span>SD card</span>
+        </div>
+        <div class="vs-them" role="cell"><i class="x" aria-hidden="true"></i><span>Buy it separately</span></div>
+        <div class="vs-glimp" role="cell"><i class="ok" aria-hidden="true"></i><span>In the box</span></div>
+      </div>
+      <div class="vs-row" role="row">
+        <div class="vs-what" role="rowheader">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="27" y="6" width="15" height="28" rx="3"/><path d="M32 30h5"/><rect x="5" y="18" width="13" height="8" rx="2"/><path d="M18 22h4c3 0 5 2 5 5v15M34.5 34v4c0 2.5-1.5 4-4 4H27"/></svg>
+          <span>Photos to phone</span>
+        </div>
+        <div class="vs-them" role="cell"><i class="x" aria-hidden="true"></i><span>Laptop + card reader</span></div>
+        <div class="vs-glimp" role="cell"><i class="ok" aria-hidden="true"></i><span>Plug straight in</span></div>
+      </div>
+      <div class="vs-row" role="row">
+        <div class="vs-what" role="rowheader">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="13" y="4" width="22" height="40" rx="4"/><rect x="18" y="11" width="12" height="9" rx="1"/><path d="M18 25h12M18 30h8"/><path d="M21 39h6"/></svg>
+          <span>App</span>
+        </div>
+        <div class="vs-them" role="cell"><i class="x" aria-hidden="true"></i><span>None</span></div>
+        <div class="vs-glimp" role="cell"><i class="ok" aria-hidden="true"></i><span>KeyCam, included</span></div>
+      </div>
+      <div class="vs-row" role="row">
+        <div class="vs-what" role="rowheader">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="2"/><path d="M6 31l11-10 9 8 6-5 10 8"/><text x="26" y="20" font-size="6" font-family="monospace" stroke="none" fill="currentColor">26 11</text></svg>
+          <span>Film look + date</span>
+        </div>
+        <div class="vs-them" role="cell"><i class="half" aria-hidden="true"></i><span>Date only</span></div>
+        <div class="vs-glimp" role="cell"><i class="ok" aria-hidden="true"></i><span>Date + 6 looks</span></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 4. Scale moment (dark band) -->
-<section class="section band-dark" id="keys">
+<!-- On your keys (dark band) -->
+<section class="section band-dark" id="keys" data-section="keys">
   <div class="wrap keys">
     <div class="keys-visual">
-      <!-- SCALE IMAGE SLOT: replace with the hand/keys render and add class="full". See website/IMAGES.md -->
-      <img src="assets/cam/white.webp" alt="White Glimp camera with its keychain loop" width="1000" height="565" loading="lazy">
-      <span class="label">Glimp in White</span>
+      <!-- SCALE IMAGE SLOT: the keys render goes here (website/IMAGES.md) -->
+      <img src="assets/gallery/red/2.webp" alt="Red Glimp camera, back view" width="1100" height="700" loading="lazy">
     </div>
     <div>
-      <span class="label">Actual use</span>
-      <h2 style="margin:16px 0 22px">Goes where your keys&nbsp;go.</h2>
-      <p class="lede">Which is everywhere. The best camera is the one that’s already on you, so Glimp <strong>clips on next to your house key</strong> and comes out when the chai does.</p>
-      <ul>
+      <h2>Goes where your keys&nbsp;go.</h2>
+      <ul class="spec">
         <li><span>Clips onto</span><span class="label">Keys · Bag · Zip</span></li>
-        <li><span>Charges with</span><span class="label">USB-C</span></li>
-        <li><span>Shoots</span><span class="label">Photos · Short video</span></li>
-        <li><span>Stamps every frame with</span><span class="label">The date</span></li>
+        <li><span>Shoots</span><span class="label">Photos · Video</span></li>
+        <li><span>Charges with</span><span class="label">Type-C</span></li>
+        <li><span>Stamps</span><span class="label">The date</span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- 6. Looks -->
-<section class="section" id="looks">
+<!-- Looks -->
+<section class="section" id="looks" data-section="looks">
   <div class="wrap">
     <div class="head">
-      <span class="label">Built-in looks</span>
-      <h2>Six looks. All&nbsp;subtle.</h2>
-      <p class="lede">Nothing that screams “filter”. Just the feeling you remember. <strong>One tap in the app</strong>, and you can change your mind later.</p>
+      <span class="label">In the app</span>
+      <h2>Six looks.</h2>
     </div>
     <div class="looks-stage">
       <span class="label now" data-look-name>Warm Film</span>
-      <img data-look-stage src="assets/looks/c3_portra.webp" alt="Three friends on a bridge, shown in the Warm Film look" width="1280" height="720" loading="lazy">
+      <img data-look-stage src="assets/looks/lake_portra.webp" alt="Three friends at a lake, Warm Film look" width="1280" height="720" loading="lazy">
     </div>
     <div class="looks-row" role="group" aria-label="Choose a look">
-      <button class="look" data-look="c3" aria-pressed="false"><img src="assets/looks/c3-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Original</span></button>
-      <button class="look" data-look="c3_portra" aria-pressed="true"><img src="assets/looks/c3_portra-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Warm Film</span></button>
-      <button class="look" data-look="c3_gold200" aria-pressed="false"><img src="assets/looks/c3_gold200-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Golden Hour</span></button>
-      <button class="look" data-look="c3_glow" aria-pressed="false"><img src="assets/looks/c3_glow-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Dreamy</span></button>
-      <button class="look" data-look="c3_trix400" aria-pressed="false"><img src="assets/looks/c3_trix400-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">B&amp;W Grain</span></button>
-      <button class="look" data-look="c3_disposable" aria-pressed="false"><img src="assets/looks/c3_disposable-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Flash</span></button>
-      <button class="look" data-look="c3_y2k_ccd" aria-pressed="false"><img src="assets/looks/c3_y2k_ccd-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Y2K</span></button>
+      <button class="look" data-look="original" aria-pressed="false"><img src="assets/looks/lake_original-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Original</span></button>
+      <button class="look" data-look="portra" aria-pressed="true"><img src="assets/looks/lake_portra-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Warm Film</span></button>
+      <button class="look" data-look="gold200" aria-pressed="false"><img src="assets/looks/lake_gold200-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Golden Hour</span></button>
+      <button class="look" data-look="glow" aria-pressed="false"><img src="assets/looks/lake_glow-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Dreamy</span></button>
+      <button class="look" data-look="trix400" aria-pressed="false"><img src="assets/looks/lake_trix400-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">B&amp;W Grain</span></button>
+      <button class="look" data-look="disposable" aria-pressed="false"><img src="assets/looks/lake_disposable-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Flash</span></button>
+      <button class="look" data-look="y2k_ccd" aria-pressed="false"><img src="assets/looks/lake_y2k_ccd-sm.webp" alt="" width="400" height="225" loading="lazy"><span class="label">Y2K</span></button>
     </div>
-    <p class="note">One sample photo, shown in each look. Illustrative.</p>
+    <p class="note">Sample photo</p>
   </div>
 </section>
 
-<!-- 7. Photo wall -->
-<section class="section" id="photos" style="padding-top:0">
+<!-- Photo wall -->
+<section class="section" id="photos" style="padding-top:0" data-section="sample_photos">
   <div class="wrap">
     <div class="head">
-      <span class="label">Date stamp included</span>
-      <h2>Every shot, already&nbsp;vintage.</h2>
-      <p class="lede">The date in the corner, a little grain, colours that feel like <span class="hl">the year you were twelve</span>. No editing, no presets to buy.</p>
+      <span class="label">Date stamp</span>
+      <h2>Every photo, dated.</h2>
     </div>
   </div>
   <div class="wall" data-wall aria-label="Sample photos"></div>
   <div class="wrap wall-foot">
-    <span class="label">Sample photos, illustrative · Real Glimp shots coming with the first batch</span>
-    <a class="link-mono" href="#colours">Get yours ›</a>
+    <span class="label">Sample photos</span>
+    <a class="link-mono" href="#colours" data-cta="photos_order">Order ›</a>
   </div>
 </section>
 
-<!-- 8. How it works -->
-<section class="section" id="how" style="background:var(--bg)">
+<!-- How it works -->
+<section class="section" id="how" data-section="how_it_works">
   <div class="wrap">
-    <div class="head center">
-      <span class="label">How it works</span>
-      <h2>Four steps, one of which is&nbsp;living.</h2>
-    </div>
+    <div class="head center"><h2>How it works</h2></div>
     <ol class="steps">
       <li class="step settle">
         <span class="badge"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#burst"/></svg><span>1</span></span>
-        <div class="pic"><img class="contain" src="assets/cam/yellow.webp" alt="Yellow Glimp camera" width="1000" height="576" loading="lazy"></div>
+        <div class="pic"><img class="contain" src="assets/gallery/yellow/2.webp" alt="Yellow Glimp camera" width="1100" height="700" loading="lazy"></div>
         <h3>Clip it on</h3>
-        <p>Keys, bag, zip. It’s small enough that you’ll forget it’s there, <strong>until you don’t</strong>.</p>
+        <p>Keys, bag or zip.</p>
       </li>
       <li class="step settle">
         <span class="badge"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#burst"/></svg><span>2</span></span>
-        <div class="pic"><img src="assets/photos/05-sm.webp" alt="Chai and rusk on a steel plate, with the date stamp" width="640" height="360" loading="lazy"></div>
+        <div class="pic"><img src="assets/photos/05-sm.webp" alt="Chai and rusk with the date stamp" width="640" height="360" loading="lazy"></div>
         <h3>Shoot</h3>
-        <p>No screen-staring, no retakes. Press the button and get back to the moment. <strong>The date stamps itself.</strong></p>
+        <p>The date stamps itself.</p>
       </li>
       <li class="step settle">
         <span class="badge"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#burst"/></svg><span>3</span></span>
-        <div class="pic"><img src="assets/misc/ports.webp" alt="Glimp’s Type-C port and SD card slot" width="1000" height="1000" loading="lazy"></div>
-        <h3>Plug into your phone</h3>
-        <p>Converter’s in the box. Open KeyCam, tap <strong>Import</strong>, and your shots land in one album.</p>
+        <div class="pic"><img class="contain" src="assets/gallery/white/3.webp" alt="Glimp’s Type-C port and card slot" width="1100" height="700" loading="lazy"></div>
+        <h3>Plug in</h3>
+        <p>Converter’s in the box.</p>
       </li>
       <li class="step settle">
         <span class="badge"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#burst"/></svg><span>4</span></span>
-        <div class="pic"><img src="assets/app/journal_three_note.webp" alt="A journal page made by the app from three photos" width="800" height="1000" loading="lazy" style="object-position:50% 20%"></div>
+        <div class="pic"><img src="assets/app/journal_three_note.webp" alt="A journal page made by the app" width="800" height="1000" loading="lazy" style="object-position:50% 20%"></div>
         <h3>Relive</h3>
-        <p>Your day comes back as a page, with the date and room for a note. <strong>Share it with your people</strong>, or keep it.</p>
+        <p>Your day, as a page.</p>
       </li>
     </ol>
   </div>
 </section>
 
-<!-- 9. App -->
-<section class="section" id="app" style="padding-top:0">
+<!-- App -->
+<section class="section" id="app" style="padding-top:0" data-section="app_keycam">
   <div class="wrap app-grid">
     <div>
-      <span class="label">The KeyCam app · Android &amp; iPhone</span>
-      <h2 style="margin:16px 0 22px">It does the scrapbooking. You just&nbsp;live.</h2>
-      <p class="lede">Every photo joins <strong>one album</strong> by date. Every day becomes a page. Start a chapter for a trip or a person, and the app keeps count.</p>
-      <ul class="uses" role="tablist" aria-label="Ways people use Glimp">
-        <li class="use"><button role="tab" aria-selected="true" data-use="journal_three_note"><span class="t">Daily journal</span><span class="label">01</span><span class="d">Shoot through the day. By night it’s a page with the date, a few frames and a line if you want one.</span></button></li>
-        <li class="use"><button role="tab" aria-selected="false" data-use="us_distance"><span class="t">Long distance</span><span class="label">02</span><span class="d">Count the days, mark the kilometres, and send your day to one person who wishes they were in it.</span></button></li>
-        <li class="use"><button role="tab" aria-selected="false" data-use="baby_firstYear"><span class="t">Baby’s first year</span><span class="label">03</span><span class="d">A month-by-month page that fills itself in. Twelve squares, one tiny human getting bigger.</span></button></li>
-        <li class="use"><button role="tab" aria-selected="false" data-use="trip_stamps"><span class="t">Trips</span><span class="label">04</span><span class="d">Each day of the trip gets postmarks and a day count. The whole trip becomes a chapter.</span></button></li>
-        <li class="use"><button role="tab" aria-selected="false" data-use="collage_polaroids"><span class="t">Friends</span><span class="label">05</span><span class="d">Add friends with a 6-letter code. Up to twelve, all private, one tap to share.</span></button></li>
+      <span class="label">Android &amp; iPhone</span>
+      <h2 style="margin:14px 0 0">The KeyCam app</h2>
+      <ul class="uses" role="tablist" aria-label="Ways to use Glimp">
+        <li class="use"><button role="tab" aria-selected="true" data-use="journal_three_note"><span class="t">Daily journal</span><span class="d">A page for every day.</span></button></li>
+        <li class="use"><button role="tab" aria-selected="false" data-use="us_distance"><span class="t">Long distance</span><span class="d">Count the days. Send your day.</span></button></li>
+        <li class="use"><button role="tab" aria-selected="false" data-use="baby_firstYear"><span class="t">Baby’s first year</span><span class="d">Month by month.</span></button></li>
+        <li class="use"><button role="tab" aria-selected="false" data-use="trip_stamps"><span class="t">Trips</span><span class="d">Every trip, a chapter.</span></button></li>
+        <li class="use"><button role="tab" aria-selected="false" data-use="collage_polaroids"><span class="t">Friends</span><span class="d">Private sharing, up to 12.</span></button></li>
       </ul>
     </div>
     <div class="phone-wrap">
@@ -274,144 +258,131 @@
           <div class="screen-tabs" aria-hidden="true"><span>Import</span><span>Gallery</span><span class="on">Scrapbook</span></div>
         </div>
       </div>
-      <div class="phone-print settle" aria-hidden="true">
-        <img src="assets/photos/12-sm.webp" alt="" width="640" height="360" loading="lazy">
-        <span class="stamp">’26 10 23</span>
-      </div>
     </div>
   </div>
 </section>
 
-<!-- 10. Colours -->
-<section class="section" id="colours" style="background:var(--surface)">
+<!-- Shop: every angle of every colour -->
+<section class="section shop-band" id="colours" data-section="colours">
   <div class="wrap shop">
-    <div class="shop-well">
-      <img data-shop-img src="assets/cam/black.webp" alt="Glimp camera in Black" width="1000" height="579">
-      <svg class="stamp-badge" viewBox="0 0 120 120" aria-hidden="true">
-        <defs><path id="ring" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
-        <circle cx="60" cy="60" r="58" fill="none" stroke="#c7372a" stroke-width="1.5"/>
-        <circle cx="60" cy="60" r="34" fill="none" stroke="#c7372a" stroke-width="1"/>
-        <text fill="#c7372a" font-family="Geist Mono, monospace" font-size="10.5" font-weight="600" letter-spacing="2.6"><textPath href="#ring">PRE-ORDER · SHIPS IN ~20 DAYS ·</textPath></text>
-        <text x="60" y="58" text-anchor="middle" fill="#c7372a" font-family="Fraunces, serif" font-size="17">₹1,490</text>
-        <text x="60" y="73" text-anchor="middle" fill="#c7372a" font-family="Geist Mono, monospace" font-size="8" letter-spacing="1.4">COD</text>
-      </svg>
+    <div class="gallery" data-gallery>
+      <div class="gallery-main">
+        <img data-gallery-img src="assets/gallery/black/1.webp" alt="Glimp in Black" width="1100" height="700">
+        <button class="g-nav prev" type="button" data-g="-1" aria-label="Previous angle">‹</button>
+        <button class="g-nav next" type="button" data-g="1" aria-label="Next angle">›</button>
+        <span class="g-count label" data-g-count>1 / 10</span>
+      </div>
+      <div class="gallery-thumbs" data-gallery-thumbs role="group" aria-label="Angles"></div>
     </div>
     <div class="shop-info">
-      <span class="label">Pick your colour</span>
-      <h2>Glimp keychain camera</h2>
+      <h2>Glimp</h2>
       <div class="price">₹1,490<small>Cash on Delivery</small></div>
-      <div class="swatch-label label">Colour: <b data-colour-name>Black</b></div>
+      <div class="swatch-label label">Colour: <b data-colour-name>Black</b> <em class="stock" data-stock-note></em></div>
       <div class="swatches" role="radiogroup" aria-label="Colour" data-swatches></div>
-      <button class="btn block" type="button" data-buy-selected>Pre-order Black — ₹1,490 <span class="arr">→</span></button>
+      <button class="btn block" type="button" data-buy-selected data-cta="shop_order">Order Black — ₹1,490 <span class="arr">→</span></button>
       <ul class="checks">
-        <li>Pay when it arrives. No card needed.</li>
-        <li>We call you before it ships to confirm everything.</li>
-        <li>SD card, strap and phone converter in the box.</li>
+        <li>SD card, strap and phone converter included</li>
+        <li>Pay when it arrives</li>
+        <li>Ships in ~20 days</li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- 11. In the box -->
-<section class="section" id="box">
+<!-- In the box -->
+<section class="section" id="box" data-section="whats_in_box">
   <div class="wrap box">
     <div class="box-visual">
-      <!-- IN-THE-BOX IMAGE SLOT: replace with the flat-lay render and add class="full". See website/IMAGES.md -->
-      <img src="assets/cam/off-white-bottom.webp" alt="White Glimp from below, showing the Type-C port and SD card slot" width="1200" height="1012" loading="lazy">
+      <!-- IN-THE-BOX IMAGE SLOT: the flat-lay render goes here (website/IMAGES.md) -->
+      <img src="assets/gallery/white/3.webp" alt="White Glimp from below: Type-C port and card slot" width="1100" height="700" loading="lazy">
     </div>
     <div>
-      <span class="label">In the box</span>
-      <h2 style="margin:16px 0 18px">Everything. Even the bit everyone&nbsp;forgets.</h2>
-      <p class="lede">Open it, shoot, plug it in. <strong>Nothing else to buy.</strong></p>
+      <h2>In the box</h2>
       <ol class="box-list">
-        <li><div><b>Glimp camera</b><span>In the colour you picked</span></div></li>
-        <li><div><b>Micro SD card</b><span>Already inside, ready to shoot</span></div></li>
-        <li><div><b>Keychain strap</b><span>For keys, bags and zips</span></div></li>
-        <li><div><b>USB-A to Type-C cable</b><span>Charging, and transfers to a laptop</span></div></li>
-        <li><div><b>USB-A to Type-C converter</b><span>Plugs the cable straight into your phone</span></div></li>
+        <li><b>Glimp camera</b></li>
+        <li><b>Micro SD card</b><span>Already inside</span></li>
+        <li><b>Keychain strap</b></li>
+        <li><b>USB-A to Type-C cable</b><span>Charging + laptop</span></li>
+        <li><b>USB-A to Type-C converter</b><span>Plugs into your phone</span></li>
       </ol>
     </div>
   </div>
 </section>
 
-<!-- 12 + 14. Quote and founder note -->
-<section class="section quote" style="padding-top:0">
+<!-- Quote + founder -->
+<section class="section quote" style="padding-top:0" data-section="quote">
   <div class="wrap">
-    <span class="label">You’ll hear this a lot</span>
     <blockquote>“Wait, why is there a camera on your keys?”</blockquote>
     <p class="lede">Best answer: take their photo.</p>
     <div class="founder settle">
-      <p>Hi. I started Glimp because the tiny cameras everyone loved came with <strong>no card, no app and no easy way to get the photos out</strong>. So Glimp comes with all three.</p>
-      <p>Every order is Cash on Delivery, and <strong>I call every buyer myself</strong> before it ships, to check the colour and the address. If something’s off when it arrives, you’ll already have my number.</p>
-      <span class="sign">— Yash, Glimp</span>
+      <p>Hi, I’m Yash. I started Glimp because the tiny cameras everyone loved came with <strong>no card, no app and no easy way to get photos out</strong>.</p>
+      <p>Questions? <a href="#" data-contact data-cta="founder_whatsapp">Message me on WhatsApp.</a></p>
+      <span class="sign">— Yash</span>
     </div>
   </div>
 </section>
 
-<!-- 13. FAQ -->
-<section class="section" id="faq" style="padding-top:0">
+<!-- FAQ -->
+<section class="section" id="faq" style="padding-top:0" data-section="faq">
   <div class="wrap faq-grid">
     <div class="head" style="align-content:start">
-      <span class="label">FAQ</span>
-      <h2>Good&nbsp;questions.</h2>
-      <p class="lede">Something not here? <a href="#" data-contact>Message us</a> and a person will answer.</p>
+      <h2>FAQ</h2>
+      <p class="lede">More? <a href="#" data-contact data-cta="faq_whatsapp">Ask on WhatsApp</a>.</p>
     </div>
     <div class="faq-list">
-      <details>
-        <summary>Can I pay Cash on Delivery?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>Yes. Every order is <strong>Cash on Delivery</strong>. You pay when the camera reaches you, and we call before it ships to confirm your address and colour.</p></div>
+      <details data-faq="cod_available">
+        <summary>Cash on Delivery?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a"><p>Yes. You pay when it arrives.</p></div>
       </details>
-      <details>
+      <details data-faq="delivery_time">
         <summary>When will it arrive?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>Glimp is on <strong>pre-order</strong>. Orders ship in about <strong>20 days</strong>, and we’ll call you when yours is on its way.</p></div>
+        <div class="a"><p>About <strong>20 days</strong> from your order.</p></div>
       </details>
-      <details>
-        <summary>Does it work with iPhone and Android?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>Yes. The KeyCam app is for both. Phones with a <strong>Type-C port</strong> (most Androids, iPhone 15 and later) plug in with the converter in the box. Older iPhones with Lightning need Apple’s Lightning to USB camera adapter, or you can use any micro SD card reader.</p></div>
+      <details data-faq="phone_compat">
+        <summary>iPhone and Android?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a"><p>Both. Type-C phones (most Androids, iPhone 15+) plug in with the converter in the box. Lightning iPhones need Apple’s camera adapter.</p></div>
       </details>
-      <details>
-        <summary>Is the SD card really included?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>Really. It comes <strong>already inside the camera</strong>, so you can shoot the moment it’s out of the box.</p></div>
+      <details data-faq="sd_card">
+        <summary>Is the SD card included?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a"><p>Yes, already inside the camera.</p></div>
       </details>
-      <details>
+      <details data-faq="charging">
         <summary>How do I charge it?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>With the cable in the box, from any USB charger or laptop. It’s the same Type-C port you use to move photos.</p></div>
+        <div class="a"><p>Any USB charger, with the cable in the box.</p></div>
       </details>
-      <details>
+      <details data-faq="video">
         <summary>Does it shoot video?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>Yes, short clips. The camera saves them in an old format your phone won’t play, so <strong>KeyCam converts them on import</strong>. They play like any other video.</p></div>
+        <div class="a"><p>Yes. KeyCam converts clips so they play on your phone.</p></div>
       </details>
-      <details>
-        <summary>Can I turn off the date stamp?<span class="pm" aria-hidden="true"></span></summary>
-        <div class="a"><p>The camera always stamps the date, which is half the charm. In the app you can restyle it or crop it out of a layout.</p></div>
+      <details data-faq="date_stamp">
+        <summary>Can I turn off the date?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a"><p>The camera always stamps it. The app can restyle it or crop it out.</p></div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- Final CTA -->
-<section class="section final" style="padding-top:0">
+<!-- Final -->
+<section class="section final" style="padding-top:0" data-section="final_cta">
   <div class="wrap">
     <div class="cams" aria-hidden="true" data-final-cams></div>
-    <h2>Your keys are already coming with&nbsp;you.</h2>
-    <p class="lede">₹1,490, Cash on Delivery, in eight colours.</p>
-    <a class="btn" href="#colours">Pick your colour <span class="arr">→</span></a>
+    <h2>Pick yours.</h2>
+    <a class="btn" href="#colours" data-cta="final_order">Order — ₹1,490 <span class="arr">→</span></a>
   </div>
 </section>
 
 </main>
 
-<!-- 15. Footer -->
-<footer class="footer">
+<footer class="footer" data-section="footer">
   <div class="wrap">
     <div class="foot-top">
       <div>
         <span class="stripes" aria-hidden="true" style="margin-bottom:20px"></span>
-        <p>A thumb-sized camera for your keys, and an app that keeps the days you’d otherwise forget.</p>
+        <p>A camera for your keys.</p>
       </div>
       <div>
         <h4>Shop</h4>
-        <ul><li><a href="#colours">All colours</a></li><li><a href="#box">In the box</a></li><li><a href="#faq">FAQ</a></li></ul>
+        <ul><li><a href="#colours">Colours</a></li><li><a href="#box">In the box</a></li><li><a href="#faq">FAQ</a></li></ul>
       </div>
       <div>
         <h4>Glimp</h4>
@@ -424,7 +395,8 @@
     </div>
     <div class="wordmark-big" aria-hidden="true"><svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="-3.8 -79.5 376.4 108"><path d="M32.8 -6.95Q27.75 -7.55 25.43 -7.98Q23.1 -8.4 22.48 -8.82Q21.85 -9.25 21.85 -9.7Q21.85 -10.1 22.12 -10.48Q22.4 -10.85 23 -11.2L22.65 -12Q16.1 -12.05 12.23 -10.53Q8.35 -9 6.7 -6.58Q5.05 -4.15 5.05 -1.4Q5.05 1.1 6.53 3.2Q8 5.3 11.7 6.8Q15.4 8.3 22.05 8.95Q27.85 9.5 30.7 10.15Q33.55 10.8 34.48 11.55Q35.4 12.3 35.4 13.2Q35.4 13.9 34.7 14.48Q34 15.05 32.02 15.35Q30.05 15.65 26.15 15.65Q19.4 15.65 17.2 14.45Q15 13.25 15 11.25Q15 10.25 15.25 9.4Q15.5 8.55 16.05 7.65L13.95 6.35Q6.7 6.7 3.45 9.1Q0.2 11.5 0.2 15.2Q0.2 18.3 2.53 20.38Q4.85 22.45 9.88 23.48Q14.9 24.5 23 24.5Q37.95 24.5 44.83 20.12Q51.7 15.75 51.7 7.35Q51.7 3.05 49.95 0.18Q48.2 -2.7 44.08 -4.43Q39.95 -6.15 32.8 -6.95ZM30.7 -41.15 35.8 -40.55Q36.9 -43.75 37.85 -44.83Q38.8 -45.9 40.05 -45.9Q41.25 -45.9 42.1 -45.25Q42.95 -44.6 43.78 -43.78Q44.6 -42.95 45.67 -42.3Q46.75 -41.65 48.4 -41.65Q51.1 -41.65 52.73 -43.83Q54.35 -46 54.35 -49.75Q54.35 -53.75 52.35 -55.83Q50.35 -57.9 46.7 -57.9Q42.15 -57.9 38.38 -54.88Q34.6 -51.85 32.2 -45.25ZM48.05 -28.7Q48.05 -33.25 45.55 -37.12Q43.05 -41 38.08 -43.38Q33.1 -45.75 25.7 -45.75Q18 -45.75 12.55 -43.48Q7.1 -41.2 4.25 -37.05Q1.4 -32.9 1.4 -27.25Q1.4 -22.5 4.12 -18.77Q6.85 -15.05 12.2 -12.93Q17.55 -10.8 25.4 -10.8Q32.25 -10.8 37.33 -13.03Q42.4 -15.25 45.23 -19.27Q48.05 -23.3 48.05 -28.7ZM22.15 -38.6Q23.8 -39 25.62 -36.88Q27.45 -34.75 28.8 -29.3Q30.15 -23.85 29.55 -21.1Q28.95 -18.35 27.3 -17.95Q26.2 -17.7 25 -18.52Q23.8 -19.35 22.68 -21.5Q21.55 -23.65 20.65 -27.25Q19.75 -30.9 19.75 -33.3Q19.75 -35.7 20.4 -37.03Q21.05 -38.35 22.15 -38.6Z" fill="currentColor"/><path d="M74.65 -71.35V-13.3Q74.65 -10.85 74.93 -9.98Q75.2 -9.1 75.75 -8.65L76.25 -8.2Q77.3 -7.35 77.85 -6.43Q78.4 -5.5 78.4 -4.05Q78.4 -2.15 77.28 -1.07Q76.15 0 74.25 0H56.1Q54.2 0 53.08 -1.07Q51.95 -2.15 51.95 -4.05Q51.95 -5.5 52.5 -6.43Q53.05 -7.35 54.1 -8.2L54.6 -8.65Q55.15 -9.1 55.43 -9.98Q55.7 -10.85 55.7 -13.3V-57.55Q55.7 -59.5 55.33 -60.3Q54.95 -61.1 54.1 -61.65L53.65 -61.95Q52.45 -62.75 51.95 -63.55Q51.45 -64.35 51.45 -65.6Q51.45 -67.05 52.3 -68.1Q53.15 -69.15 55.3 -70.05L64.25 -73.7Q66.8 -74.75 68.25 -75.12Q69.7 -75.5 70.95 -75.5Q72.8 -75.5 73.73 -74.35Q74.65 -73.2 74.65 -71.35Z M102.45 -41.65V-13.3Q102.45 -10.9 102.72 -10.03Q103 -9.15 103.55 -8.65L104.05 -8.2Q105.05 -7.4 105.62 -6.45Q106.2 -5.5 106.2 -4.05Q106.2 -2.15 105.08 -1.07Q103.95 0 102.05 0H83.9Q81.95 0 80.85 -1.07Q79.75 -2.15 79.75 -4.05Q79.75 -5.5 80.3 -6.45Q80.85 -7.4 81.9 -8.2L82.4 -8.65Q82.95 -9.15 83.22 -10.03Q83.5 -10.9 83.5 -13.3V-27.85Q83.5 -29.8 83.12 -30.6Q82.75 -31.4 81.9 -31.95L81.45 -32.25Q80.25 -33.05 79.75 -33.85Q79.25 -34.65 79.25 -35.9Q79.25 -37.35 80.1 -38.4Q80.95 -39.45 83.1 -40.35L92.05 -44Q94.6 -45.05 96.05 -45.43Q97.5 -45.8 98.75 -45.8Q100.6 -45.8 101.53 -44.65Q102.45 -43.5 102.45 -41.65ZM92.85 -48.85Q87.85 -48.85 84.98 -51.55Q82.1 -54.25 82.1 -58.85Q82.1 -63.45 84.98 -66.15Q87.85 -68.85 92.85 -68.85Q97.85 -68.85 100.73 -66.15Q103.6 -63.45 103.6 -58.85Q103.6 -54.25 100.73 -51.55Q97.85 -48.85 92.85 -48.85Z M130.25 -41.65V-13.3Q130.25 -10.7 130.45 -9.7Q130.65 -8.7 131.25 -8.15L131.85 -7.6Q133.45 -6.15 133.45 -4.05Q133.45 0 129.75 0H111.7Q109.8 0 108.67 -1.07Q107.55 -2.15 107.55 -4.05Q107.55 -5.5 108.1 -6.43Q108.65 -7.35 109.7 -8.2L110.2 -8.65Q110.75 -9.1 111.03 -9.98Q111.3 -10.85 111.3 -13.3V-27.85Q111.3 -29.8 110.92 -30.6Q110.55 -31.4 109.7 -31.95L109.25 -32.25Q108.05 -33.05 107.55 -33.85Q107.05 -34.65 107.05 -35.9Q107.05 -37.35 107.9 -38.4Q108.75 -39.45 110.9 -40.35L119.85 -44Q122.4 -45.05 123.85 -45.43Q125.3 -45.8 126.55 -45.8Q128.4 -45.8 129.32 -44.65Q130.25 -43.5 130.25 -41.65ZM128.7 -28.45 125.35 -32.55 127.25 -34.6Q133.15 -41 137.68 -43.4Q142.2 -45.8 146.2 -45.8Q151.85 -45.8 155.05 -41.9Q158.25 -38 158.25 -31V-13.3Q158.25 -10.7 158.45 -9.7Q158.65 -8.7 159.25 -8.15L159.85 -7.6Q161.45 -6.15 161.45 -4.05Q161.45 0 157.75 0H139.8Q136.1 0 136.1 -4.05Q136.1 -6.15 137.7 -7.6L138.3 -8.15Q138.9 -8.7 139.1 -9.7Q139.3 -10.7 139.3 -13.3V-26.2Q139.3 -29 138.23 -30.48Q137.15 -31.95 135.1 -31.95Q133.75 -31.95 132.47 -31.4Q131.2 -30.85 130.1 -29.8ZM156.65 -28.45 153.35 -32.5 155.3 -34.55Q161.2 -40.8 165.47 -43.3Q169.75 -45.8 173.9 -45.8Q179.25 -45.8 181.72 -42.6Q184.2 -39.4 184.75 -33.85L186.85 -13.3Q187.1 -10.9 187.28 -10.03Q187.45 -9.15 187.95 -8.65L188.45 -8.2Q189.45 -7.3 190.05 -6.4Q190.65 -5.5 190.65 -4.05Q190.65 -2.15 189.53 -1.07Q188.4 0 186.5 0H168.3Q164.6 0 164.6 -4.05Q164.6 -6.1 166.25 -7.6L166.85 -8.15Q167.45 -8.7 167.78 -9.6Q168.1 -10.5 167.85 -12.8L166.35 -26.15Q166 -29.05 165.15 -30.5Q164.3 -31.95 162.4 -31.95Q161.35 -31.95 160.3 -31.4Q159.25 -30.85 158.1 -29.8Z M212.7 -41.65V-37.55L213.55 -35.75V10Q213.55 12.45 213.83 13.3Q214.1 14.15 214.65 14.65L215.15 15.1Q216.15 15.95 216.73 16.88Q217.3 17.8 217.3 19.25Q217.3 21.1 216.18 22.2Q215.05 23.3 213.15 23.3H195Q193.1 23.3 191.98 22.23Q190.85 21.15 190.85 19.25Q190.85 17.8 191.43 16.9Q192 16 193 15.1L193.5 14.65Q194.05 14.2 194.33 13.33Q194.6 12.45 194.6 10V-27.85Q194.6 -29.8 194.23 -30.6Q193.85 -31.4 193 -31.95L192.55 -32.25Q191.35 -33.05 190.85 -33.85Q190.35 -34.65 190.35 -35.9Q190.35 -37.35 191.2 -38.38Q192.05 -39.4 194.2 -40.35L201.85 -43.75Q204.45 -44.9 206.08 -45.35Q207.7 -45.8 208.9 -45.8Q210.8 -45.8 211.75 -44.65Q212.7 -43.5 212.7 -41.65ZM210.35 -28.2 207.1 -31.9Q210.8 -38.4 215.43 -42.1Q220.05 -45.8 226.3 -45.8Q231.45 -45.8 235.33 -43.1Q239.2 -40.4 241.38 -35.48Q243.55 -30.55 243.55 -23.8Q243.55 -15.85 240.78 -10.23Q238 -4.6 233.08 -1.65Q228.15 1.3 221.6 1.3Q216.45 1.3 212.65 -1.05Q208.85 -3.4 205.95 -8.2L211.05 -14.4Q212.65 -11.2 214.2 -10.05Q215.75 -8.9 217.65 -8.9Q219.55 -8.9 220.98 -10.35Q222.4 -11.8 223.2 -14.62Q224 -17.45 224 -21.55Q224 -26 223.1 -28.77Q222.2 -31.55 220.65 -32.88Q219.1 -34.2 217.05 -34.2Q215.05 -34.2 213.35 -32.83Q211.65 -31.45 210.35 -28.2Z" fill="currentColor"/><rect x="248.6" y="-40" width="120" height="4.6" fill="#E3A21A"/><rect x="248.6" y="-33" width="120" height="4.6" fill="#E0662A"/><rect x="248.6" y="-26" width="120" height="4.6" fill="#C7372A"/></svg></div>
     <div class="foot-bottom label">
-      <span>© 2026 Glimp · Prices in ₹</span>
+      <span>© 2026 Glimp</span>
+      <span><a href="/privacy.html">Privacy</a> · <a href="#" data-cookie-settings>Cookie settings</a></span>
       <span class="theme-switch" role="group" aria-label="Colour theme">
         <button data-theme-set="auto">Auto</button><button data-theme-set="light">Light</button><button data-theme-set="dark">Dark</button>
       </span>
@@ -432,22 +404,22 @@
   </div>
 </footer>
 
-<!-- Pre-order form (orders go to the Google Sheet; see ORDERS-SETUP.md) -->
+<!-- Order form -->
 <dialog class="order" data-order aria-labelledby="order-title">
   <form class="order-form" data-order-form novalidate>
     <div class="order-top">
       <div>
-        <span class="label">Pre-order · Cash on Delivery</span>
-        <h2 id="order-title">Reserve your Glimp</h2>
+        <span class="label">Cash on Delivery</span>
+        <h2 id="order-title">Order</h2>
       </div>
       <button type="button" class="order-x" data-order-close aria-label="Close">×</button>
     </div>
 
     <div class="order-pick">
-      <img data-order-img src="assets/cam/black-sm.webp" alt="" width="320" height="185">
+      <img data-order-img src="assets/gallery/black/1-sm.webp" alt="" width="240" height="150">
       <div class="field">
         <label for="o-colour">Colour</label>
-        <select id="o-colour" name="colour" required><option value="Black">Black</option><option value="White">White</option><option value="Red">Red</option><option value="Yellow">Yellow</option><option value="Blue">Blue</option><option value="Lime">Lime</option><option value="Teal">Teal</option><option value="Grey">Grey</option></select>
+        <select id="o-colour" name="colour" required><option value="black">Black</option><option value="white">White</option><option value="red">Red</option><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="lime">Lime</option><option value="teal">Teal</option><option value="grey">Grey</option></select>
       </div>
       <div class="field qty">
         <span class="lab" id="o-qty-l">Qty</span>
@@ -460,39 +432,51 @@
     </div>
 
     <div class="grid2">
-      <div class="field"><label for="o-name">Full name</label><input id="o-name" name="name" autocomplete="name" required minlength="2" maxlength="80"><small class="err">Your name, please.</small></div>
-      <div class="field"><label for="o-phone">Phone</label><div class="pre"><span>+91</span><input id="o-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required maxlength="11" placeholder="98765 43210"></div><small class="err">A 10-digit mobile number. We’ll call it to confirm.</small></div>
+      <div class="field"><label for="o-name">Full name</label><input id="o-name" name="name" autocomplete="name" required maxlength="80" data-clarity-mask="true"><small class="err">Your name, please.</small></div>
+      <div class="field"><label for="o-phone">Phone</label><div class="pre"><span>+91</span><input id="o-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required maxlength="11" placeholder="98765 43210" data-clarity-mask="true"></div><small class="err">A 10-digit mobile number.</small></div>
     </div>
-    <div class="field"><label for="o-address">Address</label><textarea id="o-address" name="address" rows="2" autocomplete="street-address" required minlength="8" maxlength="300" placeholder="House / flat, street, area, landmark"></textarea><small class="err">The full address, so the courier can find you.</small></div>
+    <div class="field"><label for="o-address">Address</label><textarea id="o-address" name="address" rows="2" autocomplete="street-address" required maxlength="300" placeholder="House / flat, street, area, landmark" data-clarity-mask="true"></textarea><small class="err">The full address, please.</small></div>
     <div class="grid3">
-      <div class="field"><label for="o-pin">Pincode</label><input id="o-pin" name="pincode" inputmode="numeric" autocomplete="postal-code" required maxlength="6"><small class="err">6 digits.</small></div>
-      <div class="field"><label for="o-city">City</label><input id="o-city" name="city" autocomplete="address-level2" required maxlength="60"><small class="err">Which city?</small></div>
+      <div class="field"><label for="o-pin">Pincode</label><input id="o-pin" name="pincode" inputmode="numeric" autocomplete="postal-code" required maxlength="6" data-clarity-mask="true"><small class="err">6 digits.</small></div>
+      <div class="field"><label for="o-city">City</label><input id="o-city" name="city" autocomplete="address-level2" required maxlength="60" data-clarity-mask="true"><small class="err">Which city?</small></div>
       <div class="field"><label for="o-state">State</label><select id="o-state" name="state" autocomplete="address-level1" required><option value="">Choose</option><option>Andaman and Nicobar Islands</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu and Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Lakshadweep</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></select><small class="err">Pick one.</small></div>
     </div>
-    <div class="field"><label for="o-note">Note <span class="opt">(optional)</span></label><input id="o-note" name="note" maxlength="300" placeholder="Best time to call, a gift, anything"></div>
+    <div class="field"><label for="o-note">Note <span class="opt">(optional)</span></label><input id="o-note" name="note" maxlength="300" placeholder="Best time to call, a gift…" data-clarity-mask="true"></div>
     <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
 
     <div class="order-sum">
-      <div><span class="label">Total, pay on delivery</span><b data-order-total>₹1,490</b></div>
-      <button class="btn" type="submit" data-order-submit>Place pre-order <span class="arr">→</span></button>
+      <div><span class="label">Pay on delivery</span><b data-order-total>₹1,490</b></div>
+      <button class="btn" type="submit" data-order-submit>Place order <span class="arr">→</span></button>
     </div>
-    <p class="order-fine">No payment now. We call you before it ships (in about 20 days). We use these details only to deliver your order.</p>
+    <p class="order-fine">Ships in about 20 days. <a href="/privacy.html">Privacy</a></p>
     <p class="order-msg" data-order-msg role="alert" hidden></p>
   </form>
 
   <div class="order-done" data-order-done hidden>
     <span class="stripes" aria-hidden="true"></span>
     <span class="label">Order <b data-order-id></b></span>
-    <h2>You’re on the list.</h2>
-    <p class="lede">We’ll call <strong data-order-phone></strong> before it ships to confirm everything. Nothing to pay until it reaches you.</p>
+    <h2>Done.</h2>
+    <p class="lede">Pay when it arrives. Ships in about 20 days.</p>
     <button type="button" class="btn" data-order-close>Back to the site</button>
   </div>
 </dialog>
 
-<!-- Sticky mobile buy bar -->
+<!-- Sold out: tell me when it's back -->
+<dialog class="order small" data-restock aria-labelledby="restock-title">
+  <form class="order-form" data-restock-form novalidate>
+    <div class="order-top">
+      <div><span class="label" data-restock-colour>Sold out</span><h2 id="restock-title">Tell me when it’s back</h2></div>
+      <button type="button" class="order-x" data-restock-close aria-label="Close">×</button>
+    </div>
+    <div class="field"><label for="r-phone">Phone</label><div class="pre"><span>+91</span><input id="r-phone" name="phone" type="tel" inputmode="numeric" required maxlength="11" placeholder="98765 43210" data-clarity-mask="true"></div><small class="err">A 10-digit mobile number.</small></div>
+    <button class="btn block" type="submit">Notify me <span class="arr">→</span></button>
+    <p class="order-msg" data-restock-msg role="status" hidden></p>
+  </form>
+</dialog>
+
 <div class="buybar" data-buybar aria-hidden="true">
   <span class="label">Glimp · ₹1,490</span>
-  <a class="btn" href="#colours" data-buy tabindex="-1">Pre-order <span class="arr">→</span></a>
+  <a class="btn" href="#colours" data-cta="sticky_order" tabindex="-1">Order <span class="arr">→</span></a>
 </div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">

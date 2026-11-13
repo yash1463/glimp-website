@@ -1,27 +1,37 @@
 # Glimp website
 
-A static site with no build step: `index.html`, `styles.css`, `main.js` and `assets/`. Built from `Glimp_Website_Reference/README.md`.
+glimp.in: a static site on GitHub Pages, with orders, stock and analytics in Supabase. There's no build step.
+
+| File | What it is |
+|---|---|
+| `index.html`, `styles.css`, `main.js` | The page: colour gallery, order form, stock-aware buttons |
+| `config.js` | **Settings**: Supabase URL and key, Clarity ID, Meta Pixel ID, WhatsApp, Instagram, email |
+| `analytics.js` | Cookie banner + event tracking (contract: `../glimp-analytics-spec/03-event-taxonomy.md`) |
+| `admin/` | glimp.in/admin: overview, orders, stock and behaviour (admins only) |
+| `backend/supabase.sql` | All tables and functions. Paste into Supabase once (see `SETUP.md`) |
+| `privacy.html` | Privacy notice linked from the cookie banner |
+| `SETUP.md` | Step-by-step: database, admin login, stock, Clarity, Pixel, ad links |
+| `IMAGES.md` | The three lifestyle renders still to make |
+| `tools/` | `build_assets.py` (all images), `serve.py` (local preview), `mobile-check.html` |
 
 ## Preview locally
+```
+python website/tools/serve.py
+```
+Then open http://localhost:8765 (phone layout: http://localhost:8765/tools/mobile-check.html).
 
+## Update the live site
 ```
 cd website
-python -m http.server 8765
+git add -A && git commit -m "what changed" && git push
 ```
-Then open http://localhost:8765. For the phone layout, open http://localhost:8765/tools/mobile-check.html, or use Chrome DevTools at 390 px.
+It's live about a minute later. `CNAME` holds the domain, so don't delete it. DNS is at GoDaddy: 4 A records point to GitHub, and the `www` CNAME points to yash1463.github.io.
 
-## Before going live: things to fill in
-
-1. **Instagram, WhatsApp and email**: the `CONTACT` block at the top of `main.js`.
-2. **Orders**: no Shopify. The site takes orders itself.
-3. **Generated images**: see `IMAGES.md` (hero, scale shot, in-the-box flat lay).
-
-## Hosting
-
-Live at https://glimp.in via GitHub Pages (repo `yash1463/glimp-website`, branch `main`, root folder).
-To update the site: edit, then `git add -A && git commit -m "..." && git push`. It's live in about a minute.
-`CNAME` holds the domain, so don't delete it. DNS is at GoDaddy (4 A records to GitHub, `www` CNAME to yash1463.github.io).
+## Still to fill in
+- WhatsApp number, Instagram handle and email in `config.js`
+- Clarity and Meta Pixel IDs in `config.js` (`SETUP.md` steps 4–5)
+- Real stock numbers on /admin → Stock (each colour starts at a placeholder 10)
+- The three generated images (`IMAGES.md`)
 
 ## Rebuilding images
-
-`python website/tools/build_assets.py` regenerates everything in `assets/` from the source folders (camera cut-outs, samples, app pages, brand kit).
+`python website/tools/build_assets.py` regenerates everything in `assets/`: X1 angles per colour, sample photos, looks rendered by `lab/retro.py`, app pages and the brand kit.

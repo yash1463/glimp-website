@@ -55,7 +55,7 @@ save(ROOT / "shopify-images/09-ports.jpg", "misc/ports.webp", 1000, 82)
 
 # Brand
 b = OUT / "brand"; b.mkdir(parents=True, exist_ok=True)
-for f in ["svg/glimp-wordmark-on-light.svg", "svg/glimp-wordmark-on-dark.svg", "svg/glimp-mark-on-light.svg",
+for f in ["svg/glimp-wordmark-on-light.svg", "svg/glimp-wordmark-on-dark.svg", "svg/glimp-mark-on-light.svg", "svg/glimp-mark-on-dark.svg",
           "web/favicon.svg", "web/favicon.ico", "web/apple-touch-icon.png", "web/icon-192.png", "web/icon-512.png"]:
     shutil.copy(ROOT / "glimp-brand" / f, b / Path(f).name)
 
@@ -75,3 +75,52 @@ cam = Image.open(SP / "cam/off-white-back-on.png").convert("RGBA"); cam = cam.cr
 cam = cam.resize((620, round(cam.height * 620 / cam.width)), Image.LANCZOS).rotate(5, expand=True, resample=Image.BICUBIC)
 og.paste(cam, (1200 - cam.width - 40, 630 - cam.height - 50), cam)
 og.save(OUT / "og-image.jpg", quality=86)
+
+# ── Round 2 (2026-11-13) ─────────────────────────────────────────────
+# Every angle of every colour, from the X1 renders (3840 px transparent PNGs). Back views first.
+X1 = ROOT / "X1"
+ANGLES = {   # site colour: (X1 folder, file indexes in sorted order, backs first)
+    "black":  ("black",      [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "white":  ("off-white",  [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "red":    ("red",        [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "yellow": ("yellow",     [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "blue":   ("blue",       [2, 4, 5, 3, 9, 1, 7, 6, 8]),
+    "lime":   ("green",      [3, 6, 7, 5, 0, 2, 1, 8, 10]),
+    "teal":   ("dark green", [2, 4, 5, 3, 9, 1, 0, 6, 7, 8]),
+    "grey":   ("dark gray",  [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+}
+gallery = {}
+for name, (folder, idx) in ANGLES.items():
+    files = sorted((X1 / folder).glob("*.png"))
+    gallery[name] = []
+    for n, i in enumerate(idx, 1):
+        save(files[i], f"gallery/{name}/{n}.webp", 1100, 84, crop=True)
+        save(files[i], f"gallery/{name}/{n}-sm.webp", 240, 80, crop=True)
+        gallery[name].append(n)
+(OUT / "gallery/angles.json").write_text(json.dumps({k: len(v) for k, v in gallery.items()}))
+
+# Candid group photo for the hero (stock photo through the app's look, no stamp)
+CANDID = ROOT / "KeyCam_Candid_and_AdRefs/KeyCam_Candid_Friends_India"
+HERO2 = CANDID / "keycam_look_nostamp/college_gang__LCwo5opgr9M.jpg"
+save(HERO2, "photos/hero-group.webp", 1600, 80)
+save(HERO2, "photos/hero-group-sm.webp", 820, 78)
+
+# Six looks on a new photo, rendered by the app's own engine (lab/retro.py)
+import sys as _sys
+_sys.path.insert(0, str(ROOT / "lab"))
+from retro import Engine  # noqa: E402
+LOOK_SRC = Image.open(CANDID / "original/girls_gang__5Hie9W1YsBI.jpg").convert("RGB")
+if LOOK_SRC.width > 1920:
+    LOOK_SRC = LOOK_SRC.resize((1920, round(LOOK_SRC.height * 1920 / LOOK_SRC.width)), Image.LANCZOS)
+# 16:9 centre crop
+th = round(LOOK_SRC.width * 9 / 16); top = max(0, (LOOK_SRC.height - th) // 2)
+LOOK_SRC = LOOK_SRC.crop((0, top, LOOK_SRC.width, top + th))
+eng = Engine()
+tmp = OUT / "looks/_src.png"; tmp.parent.mkdir(parents=True, exist_ok=True)
+for key in ["original", "portra", "gold200", "glow", "trix400", "disposable", "y2k_ccd"]:
+    im = LOOK_SRC if key == "original" else eng.process(LOOK_SRC, key, None, seed=7)
+    im.save(tmp)
+    save(tmp, f"looks/lake_{key}.webp", 1280, 80)
+    save(tmp, f"looks/lake_{key}-sm.webp", 400, 76)
+tmp.unlink()
+print("round 2 done")

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Glimp</title>
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,400,100&family=Geist+Mono:wght@500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .policy { max-width: 680px; padding-top: 48px; padding-bottom: 96px; }
+  .policy h1 { font-size: clamp(2.5rem, 6vw, 3.5rem); margin: 18px 0 8px; }
+  .policy h2 { font-size: 1.5rem; margin: 40px 0 10px; }
+  .policy p, .policy li { color: var(--muted); }
+  .policy li { margin-bottom: 6px; }
+  .policy strong { color: var(--ink); }
+  .policy a { color: var(--ink); text-underline-offset: 4px; }
+  .policy table { width: 100%; border-collapse: collapse; font-size: .9375rem; margin-top: 8px; }
+  .policy td, .policy th { text-align: left; padding: 10px 8px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .policy th { font: 500 .75rem/1.3 var(--font-mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+</style>
+<script src="/config.js"></script>
+<script src="/analytics.js" defer></script>
+</head>
+<body>
+<main class="wrap policy">
+  <a href="/" class="link-mono">‹ Glimp</a>
+  <h1>Privacy</h1>
+  <p class="label">Updated 13 Nov 2026</p>
+
+  <h2>What we collect</h2>
+  <table>
+    <tr><th>What</th><th>Why</th><th>Kept for</th></tr>
+    <tr><td><strong>Your order</strong>: name, phone, address, colour</td><td>To call you, ship it and collect payment</td><td>As long as tax and accounts law requires</td></tr>
+    <tr><td><strong>Restock alerts</strong>: phone and colour</td><td>To message you when a colour is back</td><td>Until we message you</td></tr>
+    <tr><td><strong>Basic visit counts</strong>: pages, the order form opening, orders</td><td>To know how many people visit and order. No cookies, no ID that lasts beyond the tab.</td><td>2 years</td></tr>
+    <tr><td><strong>Analytics</strong> (only if you allow it): scrolls, clicks, sections seen, device type, the ad you came from</td><td>To see what works on this page. Includes Microsoft Clarity screen recordings with every form field hidden.</td><td>2 years (Clarity: 30 days)</td></tr>
+    <tr><td><strong>Marketing</strong> (only if you allow it): the Meta Pixel</td><td>To measure our Facebook ads</td><td>Meta’s own policy</td></tr>
+  </table>
+
+  <h2>What we never do</h2>
+  <ul>
+    <li>We never put your name, phone or address into analytics.</li>
+    <li>We never store your IP address.</li>
+    <li>We never sell your data.</li>
+  </ul>
+
+  <h2>Who else sees it</h2>
+  <p>Supabase stores our database. With your consent, Microsoft (Clarity) and Meta (Pixel) receive analytics or ad data. Couriers get your name, phone and address to deliver the parcel.</p>
+
+  <h2>Your choices</h2>
+  <p>Change your cookie choice any time with <a href="#" data-cookie-settings>Cookie settings</a>. To see, correct or delete your data, message us and we’ll do it within 7 days.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or complaints about your data: <a href="mailto:hello@glimp.in" data-email>hello@glimp.in</a>.</p>
+</main>
+<script>
+  var c = (window.GLIMP_CONFIG || {}).contact || {};
+  document.querySelectorAll("[data-email]").forEach(function (a) { if (c.email) { a.href = c.email; a.textContent = c.email.replace("mailto:", ""); } });
+</script>
+</body>
+</html>
