@@ -143,7 +143,7 @@ function wireLooks() {
     $$("[data-look]").forEach((x) => x.setAttribute("aria-pressed", x === b));
     const next = new Image(); next.src = `assets/looks/look_${k}.webp`;
     stage.style.opacity = .35;
-    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Friends on a brick bench, ${n} look`; stage.style.opacity = 1; });
+    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Friends at a candlelit dinner, ${n} look`; stage.style.opacity = 1; });
     label.textContent = n;
     track("look_selected", { look: k });
   }));

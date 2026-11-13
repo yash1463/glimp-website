@@ -78,17 +78,18 @@ og.save(OUT / "og-image.jpg", quality=86)
 
 # ── Round 2 (2026-11-13) ─────────────────────────────────────────────
 # Every angle of every colour, from the X1 renders (3840 px transparent PNGs).
-# Order: angled back (default everywhere), flat back, ports, other side, then the printed fronts.
 X1 = ROOT / "X1"
-ANGLES = {   # site colour: (X1 folder, file indexes in sorted order, backs first)
-    "black":  ("black",      [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "white":  ("off-white",  [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "red":    ("red",        [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "yellow": ("yellow",     [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "blue":   ("blue",       [4, 2, 5, 3, 9, 1, 7, 6, 8]),
-    "lime":   ("green",      [6, 3, 7, 5, 0, 2, 1, 8, 10]),
-    "teal":   ("dark green", [4, 2, 5, 3, 9, 1, 0, 6, 7, 8]),
-    "grey":   ("dark gray",  [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
+ANGLES = {   # site colour: (X1 folder, file indexes in sorted order)
+    # 1 = flat lens side (the default everywhere, user's pick 2026-11-13), then lens 3/4, top,
+    # screen side 3/4, screen flat, ports (6), other side, the rest
+    "black":  ("black",      [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
+    "white":  ("off-white",  [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
+    "red":    ("red",        [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
+    "yellow": ("yellow",     [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
+    "blue":   ("blue",       [1, 9, 4, 2, 5, 3, 7, 6, 8]),
+    "lime":   ("green",      [2, 0, 1, 6, 3, 7, 5, 8, 10]),
+    "teal":   ("dark green", [1, 9, 0, 4, 2, 5, 3, 6, 7, 8]),
+    "grey":   ("dark gray",  [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
 }
 gallery = {}
 for name, (folder, idx) in ANGLES.items():
@@ -102,7 +103,7 @@ for name, (folder, idx) in ANGLES.items():
 
 # Candid group photo for the hero (stock photo through the app's look, no stamp)
 CANDID = ROOT / "KeyCam_Candid_and_AdRefs/KeyCam_Candid_Friends_India"
-HERO2 = CANDID / "keycam_look_nostamp/holi__Sovp-2s8REY.jpg"
+HERO2 = ROOT / "KeyCam_Film_Candid/original/rwrfDpT3qk0.jpg"   # Unsplash, film photo, two friends in a bar
 save(HERO2, "photos/hero-group.webp", 1600, 80)
 save(HERO2, "photos/hero-group-sm.webp", 820, 78)
 
@@ -110,7 +111,7 @@ save(HERO2, "photos/hero-group-sm.webp", 820, 78)
 import sys as _sys
 _sys.path.insert(0, str(ROOT / "lab"))
 from retro import Engine  # noqa: E402
-LOOK_SRC = Image.open(CANDID / "original/college_gang___doODZvbOlw.jpg").convert("RGB")
+LOOK_SRC = Image.open(ROOT / "KeyCam_Film_Candid/original/UEjjO-aJtZ8.jpg").convert("RGB")   # Unsplash, candlelit dinner
 if LOOK_SRC.width > 1920:
     LOOK_SRC = LOOK_SRC.resize((1920, round(LOOK_SRC.height * 1920 / LOOK_SRC.width)), Image.LANCZOS)
 # 16:9 centre crop
