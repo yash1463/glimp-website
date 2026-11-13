@@ -442,6 +442,7 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .order-sum { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 6px; padding-top: 18px; border-top: 1px solid var(--line); }
 .order-sum b { display: block; font: 400 1.75rem/1.1 var(--font-display); font-variation-settings: "SOFT" 100, "opsz" 36; margin-top: 4px; }
+.order-break { display: block; margin-top: 2px; font-size: 0.75rem; color: var(--muted); }
 .order-fine { margin: 14px 0 0; font-size: 0.8125rem; color: var(--muted); }
 .order-fine a { color: inherit; }
 .order-msg { margin: 12px 0 0; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--stripe-2) 12%, var(--bg)); color: var(--ink); font-size: var(--fs-small); }
