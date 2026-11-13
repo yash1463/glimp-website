@@ -205,12 +205,15 @@ function stampSvg(text) {
   return `<svg viewBox="-2 -1 ${x + 4} 20" fill="#fff"><g transform="skewX(-10)">${out}</g></svg>`;
 }
 function wireStamp() {
-  const el = $("[data-stamp]"); if (!el) return;
-  const draw = () => {
-    const ist = new Date(Date.now() + 5.5 * 3600e3).toISOString();       // yyyy-mm-ddThh:mm
-    el.innerHTML = stampSvg(`'${ist.slice(2, 4)} ${ist.slice(5, 7)} ${ist.slice(8, 10)}  ${ist.slice(11, 16)}`);
-  };
-  draw(); setInterval(draw, 30000);
+  // data-stamp="'26 10 18  21:42" = a fixed stamp (photos); empty = today's date and time in IST (the camera)
+  $$("[data-stamp]").forEach((el) => {
+    if (el.dataset.stamp) { el.innerHTML = stampSvg(el.dataset.stamp); return; }
+    const draw = () => {
+      const ist = new Date(Date.now() + 5.5 * 3600e3).toISOString();     // yyyy-mm-ddThh:mm
+      el.innerHTML = stampSvg(`'${ist.slice(2, 4)} ${ist.slice(5, 7)} ${ist.slice(8, 10)}  ${ist.slice(11, 16)}`);
+    };
+    draw(); setInterval(draw, 30000);
+  });
 }
 
 /* ---------- FAQ ---------- */
