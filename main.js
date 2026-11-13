@@ -122,7 +122,7 @@ function buildStrips() {
     `<a class="chip" href="#colours" data-pick="${k}" data-cta="strip_${k}">
        <img src="assets/gallery/${k}/1-sm.webp" alt="" width="240" height="150" loading="lazy"><span class="label">${n}</span></a>`).join("");
   $("[data-final-cams]").innerHTML = COLOURS.slice(0, 6).map(([k]) =>
-    `<img src="assets/gallery/${k}/2-sm.webp" alt="" width="240" height="160" loading="lazy">`).join("");
+    `<img src="assets/gallery/${k}/1-sm.webp" alt="" width="240" height="160" loading="lazy">`).join("");
   document.addEventListener("click", (e) => { const p = e.target.closest("[data-pick]"); if (p) setColour(p.dataset.pick, true); });
 }
 
@@ -140,9 +140,9 @@ function wireLooks() {
   $$("[data-look]").forEach((b) => b.addEventListener("click", () => {
     const k = b.dataset.look, n = $(".label", b).textContent;
     $$("[data-look]").forEach((x) => x.setAttribute("aria-pressed", x === b));
-    const next = new Image(); next.src = `assets/looks/lake_${k}.webp`;
+    const next = new Image(); next.src = `assets/looks/look_${k}.webp`;
     stage.style.opacity = .35;
-    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Three friends at a lake, ${n} look`; stage.style.opacity = 1; });
+    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Friends on a brick bench, ${n} look`; stage.style.opacity = 1; });
     label.textContent = n;
     track("look_selected", { look: k });
   }));
@@ -159,17 +159,16 @@ function buildWall() {
     `<div class="wall-track${i ? " rev" : ""}" style="--dur:${i ? 95 : 80}s">${r.map((p) => fig(p)).join("")}${r.map((p) => fig(p, true)).join("")}</div>`).join("");
 }
 
-/* ---------- app use cases ---------- */
+/* ---------- app use cases + template strip ---------- */
+const TEMPLATES = ["J3", "LD1", "TR6", "M4", "B5", "J6", "LD5", "M7", "S7", "TR4", "B2", "M12"];
 function wireUses() {
-  const screen = $("[data-use-screen]"), lab = $("[data-app-label]");
-  const labels = { journal_three_note: "Today", us_distance: "Riya", baby_firstYear: "Aarav", trip_stamps: "Goa", collage_polaroids: "Make" };
+  const screen = $("[data-use-screen]");
   const tabs = $$("[data-use]");
   const select = (b, focus) => {
     tabs.forEach((x) => { x.setAttribute("aria-selected", x === b); x.tabIndex = x === b ? 0 : -1; });
     screen.style.opacity = 0;
-    const next = new Image(); next.src = `assets/app/${b.dataset.use}.webp`;
-    next.decode().catch(() => {}).finally(() => { screen.src = next.src; screen.alt = `KeyCam app: ${$(".t", b).textContent}`; screen.style.opacity = 1; });
-    lab.textContent = labels[b.dataset.use] || "";
+    const next = new Image(); next.src = `assets/templates/${b.dataset.use}.webp`;
+    next.decode().catch(() => {}).finally(() => { screen.src = next.src; screen.alt = `Glimp app: ${$(".t", b).textContent}`; screen.style.opacity = 1; });
     if (focus) b.focus();
     track("app_usecase_selected", { usecase: b.dataset.use });
   };
@@ -181,6 +180,8 @@ function wireUses() {
       if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
     });
   });
+  const tile = (c, hidden) => `<img src="assets/templates/${c}-sm.webp" alt="${hidden ? "" : "Glimp app template"}" width="300" height="534" loading="lazy"${hidden ? ' aria-hidden="true"' : ""}>`;
+  $("[data-templates]").innerHTML = TEMPLATES.map((c) => tile(c)).join("") + TEMPLATES.map((c) => tile(c, true)).join("");
 }
 
 /* ---------- FAQ ---------- */

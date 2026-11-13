@@ -77,17 +77,18 @@ og.paste(cam, (1200 - cam.width - 40, 630 - cam.height - 50), cam)
 og.save(OUT / "og-image.jpg", quality=86)
 
 # ── Round 2 (2026-11-13) ─────────────────────────────────────────────
-# Every angle of every colour, from the X1 renders (3840 px transparent PNGs). Back views first.
+# Every angle of every colour, from the X1 renders (3840 px transparent PNGs).
+# Order: angled back (default everywhere), flat back, ports, other side, then the printed fronts.
 X1 = ROOT / "X1"
 ANGLES = {   # site colour: (X1 folder, file indexes in sorted order, backs first)
-    "black":  ("black",      [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "white":  ("off-white",  [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "red":    ("red",        [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "yellow": ("yellow",     [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
-    "blue":   ("blue",       [2, 4, 5, 3, 9, 1, 7, 6, 8]),
-    "lime":   ("green",      [3, 6, 7, 5, 0, 2, 1, 8, 10]),
-    "teal":   ("dark green", [2, 4, 5, 3, 9, 1, 0, 6, 7, 8]),
-    "grey":   ("dark gray",  [3, 5, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "black":  ("black",      [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "white":  ("off-white",  [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "red":    ("red",        [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "yellow": ("yellow",     [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
+    "blue":   ("blue",       [4, 2, 5, 3, 9, 1, 7, 6, 8]),
+    "lime":   ("green",      [6, 3, 7, 5, 0, 2, 1, 8, 10]),
+    "teal":   ("dark green", [4, 2, 5, 3, 9, 1, 0, 6, 7, 8]),
+    "grey":   ("dark gray",  [5, 3, 6, 4, 0, 2, 1, 7, 8, 9]),
 }
 gallery = {}
 for name, (folder, idx) in ANGLES.items():
@@ -101,7 +102,7 @@ for name, (folder, idx) in ANGLES.items():
 
 # Candid group photo for the hero (stock photo through the app's look, no stamp)
 CANDID = ROOT / "KeyCam_Candid_and_AdRefs/KeyCam_Candid_Friends_India"
-HERO2 = CANDID / "keycam_look_nostamp/college_gang__LCwo5opgr9M.jpg"
+HERO2 = CANDID / "keycam_look_nostamp/holi__Sovp-2s8REY.jpg"
 save(HERO2, "photos/hero-group.webp", 1600, 80)
 save(HERO2, "photos/hero-group-sm.webp", 820, 78)
 
@@ -109,7 +110,7 @@ save(HERO2, "photos/hero-group-sm.webp", 820, 78)
 import sys as _sys
 _sys.path.insert(0, str(ROOT / "lab"))
 from retro import Engine  # noqa: E402
-LOOK_SRC = Image.open(CANDID / "original/girls_gang__5Hie9W1YsBI.jpg").convert("RGB")
+LOOK_SRC = Image.open(CANDID / "original/college_gang___doODZvbOlw.jpg").convert("RGB")
 if LOOK_SRC.width > 1920:
     LOOK_SRC = LOOK_SRC.resize((1920, round(LOOK_SRC.height * 1920 / LOOK_SRC.width)), Image.LANCZOS)
 # 16:9 centre crop
@@ -120,7 +121,16 @@ tmp = OUT / "looks/_src.png"; tmp.parent.mkdir(parents=True, exist_ok=True)
 for key in ["original", "portra", "gold200", "glow", "trix400", "disposable", "y2k_ccd"]:
     im = LOOK_SRC if key == "original" else eng.process(LOOK_SRC, key, None, seed=7)
     im.save(tmp)
-    save(tmp, f"looks/lake_{key}.webp", 1280, 80)
-    save(tmp, f"looks/lake_{key}-sm.webp", 400, 76)
+    save(tmp, f"looks/look_{key}.webp", 1280, 80)
+    save(tmp, f"looks/look_{key}-sm.webp", 400, 76)
 tmp.unlink()
 print("round 2 done")
+
+# ── Round 3 (2026-11-13): the app's new minimal templates, rendered by app/test/chapter_pages_test.dart
+TPL = ROOT / "app/build/chapter_pages_test"
+for f in sorted(TPL.glob("*_*.png")):
+    code = f.stem.split("_")[0]
+    if code[0] in "SJTLBCM" and code[1:].isdigit() or code[:2] in ("TR", "LD"):
+        save(f, f"templates/{code}.webp", 720, 80)
+        save(f, f"templates/{code}-sm.webp", 300, 76)
+print("templates done")

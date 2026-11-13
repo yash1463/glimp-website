@@ -28,8 +28,7 @@ git add -A && git commit -m "what changed" && git push
 It's live about a minute later. `CNAME` holds the domain, so don't delete it. DNS is at GoDaddy: 4 A records point to GitHub, and the `www` CNAME points to yash1463.github.io.
 
 ## Still to fill in
-- WhatsApp number, Instagram handle and email in `config.js`
-- Clarity and Meta Pixel IDs in `config.js` (`SETUP.md` steps 4–5)
+- Meta Pixel ID in `config.js` (`SETUP.md` step 5). Clarity, WhatsApp, Instagram and email are done.
 - Real stock numbers on /admin → Stock (each colour starts at a placeholder 10)
 - The three generated images (`IMAGES.md`)
 
