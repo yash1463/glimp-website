@@ -133,7 +133,7 @@
   }
 
   /* ---------- Meta Pixel (marketing consent only) ---------- */
-  const PIXEL_MAP = { page_viewed: "PageView", product_viewed: "ViewContent", checkout_started: "InitiateCheckout", order_placed: "Purchase" };
+  const PIXEL_MAP = { product_viewed: "ViewContent", checkout_started: "InitiateCheckout", order_placed: "Purchase" };
   let pixelOn = false;
   function loadPixel() {
     if (pixelOn || !CFG.metaPixelId || !consent?.marketing) return;
@@ -144,6 +144,7 @@
     s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     /* eslint-enable */
     fbq("init", CFG.metaPixelId);
+    fbq("track", "PageView");          // fired here: page_viewed happens before consent/loading
   }
   function pixel(name, props, eventId) {
     if (!pixelOn || !PIXEL_MAP[name]) return;

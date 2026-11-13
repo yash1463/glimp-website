@@ -59,8 +59,9 @@ function showAngle(n, user) {
   });
   $("[data-g-count]").textContent = `${angle} / ${max}`;
   $$("[data-thumb]").forEach((t) => t.setAttribute("aria-current", +t.dataset.thumb === angle));
-  const cur = $(`[data-thumb="${angle}"]`);
-  cur?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: user ? "smooth" : "auto" });
+  // scroll only the thumbnail row sideways (scrollIntoView would also scroll the page)
+  const cur = $(`[data-thumb="${angle}"]`), row = $("[data-gallery-thumbs]");
+  if (cur) row.scrollTo({ left: cur.offsetLeft - row.clientWidth / 2 + cur.clientWidth / 2, behavior: user ? "smooth" : "auto" });
   if (user) track("product_image_viewed", { image_index: angle, image_kind: "product", colour });
 }
 function buildThumbs() {
