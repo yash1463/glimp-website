@@ -163,36 +163,39 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 @media (max-width: 720px) { .strip-track { grid-template-columns: repeat(8, 104px); width: max-content; } }
 
 /* ---------- comparison ---------- */
-.vs { max-width: 860px; margin: 0 auto; }
-.vs-row { display: grid; grid-template-columns: 1.15fr 1fr 1fr; align-items: center; border-bottom: 1px solid var(--line); }
-.vs-headrow { border-bottom: 1px solid var(--ink); padding-bottom: 10px; }
-.vs-headrow > * { text-align: center; }
+.vs { max-width: 760px; margin: 0 auto; }
+.vs-row { display: grid; grid-template-columns: 1.1fr 1fr 1fr; align-items: stretch; border-bottom: 1px solid var(--line); }
+.vs-headrow { border-bottom: 1px solid var(--ink); padding-bottom: 8px; align-items: end; }
+.vs-headrow > * { padding-left: 14px; }
 .vs-headrow > :nth-child(2) { grid-column: 2; }
-.vs-us { display: flex; justify-content: center; color: var(--ink); }
-.vs-logo { height: 24px; width: auto; }
-.vs-what { display: flex; align-items: center; gap: 16px; padding: 22px 0; font: 400 clamp(1.125rem, 1.8vw, 1.375rem)/1.2 var(--font-display); font-variation-settings: "SOFT" 100, "opsz" 36; }
-.vs-what svg { width: 44px; height: 44px; flex: 0 0 auto; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.vs-them, .vs-glimp { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 18px 8px; font-size: var(--fs-small); }
+.vs-us { display: flex; color: var(--ink); }
+.vs-logo { height: 20px; width: auto; }
+.vs-what { display: flex; align-items: center; gap: 12px; padding: 14px 0; font: 400 1.125rem/1.2 var(--font-display); font-variation-settings: "SOFT" 100, "opsz" 36; }
+.vs-what svg { width: 30px; height: 30px; flex: 0 0 auto; fill: none; stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.vs-them, .vs-glimp { display: flex; align-items: center; gap: 9px; padding: 14px; font-size: var(--fs-small); line-height: 1.3; }
 .vs-them { color: var(--muted); }
-.vs-glimp { background: var(--surface); color: var(--ink); font-weight: 500; align-self: stretch; justify-content: center; }
-.vs-row:last-child .vs-glimp { border-radius: 0 0 14px 14px; }
-.vs .ok, .vs .x, .vs .half { width: 26px; height: 26px; border-radius: 50%; position: relative; display: block; }
+.vs-glimp { background: var(--surface); color: var(--ink); font-weight: 500; }
+.vs-row:last-child .vs-glimp { border-radius: 0 0 12px 12px; }
+.vs .ok, .vs .x, .vs .half { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 50%; position: relative; display: block; }
 .vs .ok { background: var(--yes); }
-.vs .ok::after { content: ""; position: absolute; left: 8px; top: 7px; width: 10px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+.vs .ok::after { content: ""; position: absolute; left: 5px; top: 5px; width: 8px; height: 4px; border-left: 1.8px solid #fff; border-bottom: 1.8px solid #fff; transform: rotate(-45deg); }
 .vs .x { background: var(--no); }
-.vs .x::before, .vs .x::after { content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px; margin-top: -1px; background: #fff; border-radius: 1px; transform: rotate(45deg); }
+.vs .x::before, .vs .x::after { content: ""; position: absolute; left: 5px; right: 5px; top: 50%; height: 1.8px; margin-top: -.9px; background: #fff; border-radius: 1px; transform: rotate(45deg); }
 .vs .x::after { transform: rotate(-45deg); }
 .vs .half { background: var(--partly); }
-.vs .half::after { content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px; margin-top: -1px; background: #fff; border-radius: 1px; }
+.vs .half::after { content: ""; position: absolute; left: 5px; right: 5px; top: 50%; height: 1.8px; margin-top: -.9px; background: #fff; border-radius: 1px; }
 @media (max-width: 600px) {
   .vs-row { grid-template-columns: 1fr 1fr; }
-  .vs-what { grid-column: 1 / -1; padding: 18px 0 6px; }
-  .vs-headrow > :nth-child(2) { grid-column: 1; }
+  .vs-what { grid-column: 1 / -1; padding: 14px 0 6px; font-size: 1rem; gap: 10px; }
+  .vs-what svg { width: 24px; height: 24px; }
   .vs-headrow { grid-template-columns: 1fr 1fr; }
   .vs-headrow > :first-child { display: none; }
-  .vs-them, .vs-glimp { padding: 12px 6px 16px; }
-  .vs-glimp { border-radius: 12px; margin-bottom: 12px; }
-  .vs-row:last-child .vs-glimp { border-radius: 12px; }
+  .vs-headrow > :nth-child(2) { grid-column: 1; }
+  .vs-headrow > * { padding-left: 10px; }
+  .vs-them, .vs-glimp { padding: 9px 10px; gap: 7px; font-size: 0.8125rem; margin-bottom: 12px; }
+  .vs-glimp { border-radius: 10px; }
+  .vs-row:last-child .vs-glimp { border-radius: 10px; }
+  .vs-logo { height: 17px; }
 }
 
 /* ---------- keys band (dark) ---------- */
@@ -523,12 +526,6 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
   .chip { padding: 14px 6px 12px; }
   .strip-track { grid-template-columns: repeat(8, 92px); }
 
-  .vs-what { font-size: 1.0625rem; gap: 12px; padding: 16px 0 4px; }
-  .vs-what svg { width: 34px; height: 34px; }
-  .vs-them, .vs-glimp { font-size: 0.8125rem; gap: 6px; padding: 10px 6px 14px; }
-  .vs .ok, .vs .x, .vs .half { width: 22px; height: 22px; }
-  .vs .ok::after { left: 6.5px; top: 6px; width: 9px; height: 5px; }
-  .vs .x::before, .vs .x::after, .vs .half::after { left: 6px; right: 6px; }
 
   .keys { gap: 20px; }
   .spec { margin-top: 20px; }
