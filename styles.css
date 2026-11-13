@@ -37,7 +37,7 @@
   --r-pill: 999px;
 
   --space-section: clamp(80px, 11vw, 150px);
-  --gutter: clamp(20px, 3.2vw, 40px);
+  --gutter: clamp(22px, 4vw, 40px);
   --max: 1200px;
   --ease: cubic-bezier(.2, .7, .2, 1);
   color-scheme: light;
@@ -491,4 +491,107 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
   .tpl-track [aria-hidden="true"] { display: none; }
   .wall-track [aria-hidden="true"] { display: none; }
   * { transition-duration: .01ms !important; }
+}
+
+/* ---------- phones (most visitors): calmer type, more air at the sides ---------- */
+@media (max-width: 560px) {
+  :root {
+    --fs-hero: 2.375rem;
+    --fs-h2: 1.875rem;
+    --fs-h3: 1.1875rem;
+    --fs-body: 1rem;
+    --fs-small: 0.875rem;
+    --fs-label: 0.6875rem;
+    --space-section: 72px;
+  }
+  body { line-height: 1.5; }
+  .head { gap: 10px; margin-bottom: 28px; }
+  .nav { margin-top: 10px; }
+  .nav-inner { padding: 7px 7px 7px 16px; }
+  .logo svg { height: 22px; }
+  .nav .btn { min-height: 36px; --pad-y: 10px; padding-left: 15px; padding-right: 15px; font-size: 0.6875rem; }
+
+  .hero { padding-top: 22px; padding-bottom: 36px; }
+  .hero-visual { margin-bottom: 8px; }
+  .hero-copy { gap: 14px; }
+  .hero-points { font-size: 0.9375rem; gap: 7px; margin: 0 0 4px; }
+  .hero-points li::before { width: 14px; }
+  .hero-actions { gap: 10px 16px; }
+  .btn { --pad-y: 13px; min-height: 46px; padding-left: 22px; padding-right: 22px; font-size: 0.75rem; }
+  .burst-tag { width: 74px; height: 74px; font-size: 8.5px; right: -4px; top: -10px; }
+
+  .chip { padding: 14px 6px 12px; }
+  .strip-track { grid-template-columns: repeat(8, 92px); }
+
+  .vs-what { font-size: 1.0625rem; gap: 12px; padding: 16px 0 4px; }
+  .vs-what svg { width: 34px; height: 34px; }
+  .vs-them, .vs-glimp { font-size: 0.8125rem; gap: 6px; padding: 10px 6px 14px; }
+  .vs .ok, .vs .x, .vs .half { width: 22px; height: 22px; }
+  .vs .ok::after { left: 6.5px; top: 6px; width: 9px; height: 5px; }
+  .vs .x::before, .vs .x::after, .vs .half::after { left: 6px; right: 6px; }
+
+  .keys { gap: 20px; }
+  .spec { margin-top: 20px; }
+  .spec li { padding: 12px 0; font-size: 0.875rem; }
+  .cam-stamp { height: 16px; }
+
+  .looks-stage .now { left: 10px; top: 10px; padding: 5px 8px 6px; font-size: 10px; }
+  .look { flex: 0 0 30%; }
+  .shot { width: 210px; }
+
+  .steps { gap: 18px 12px; }
+  .step { padding: 10px 10px 14px; border-radius: 16px; }
+  .step .pic { margin-bottom: 12px; border-radius: 10px; }
+  .step h3 { font-size: 1.0625rem; margin-bottom: 2px; }
+  .step p { font-size: 0.8125rem; line-height: 1.4; }
+  .badge { width: 36px; height: 36px; top: -12px; left: -8px; font-size: 0.75rem; }
+
+  .uses { margin-top: 16px; }
+  .use button { padding: 8px 13px 9px; }
+  .use .t { font-size: 0.75rem; }
+  .phone { width: min(250px, 70vw); border-radius: 40px; padding: 10px; }
+  .phone::before { top: 19px; width: 76px; height: 22px; margin-left: -38px; }
+  .screen { border-radius: 31px; }
+  .screen img { top: 44px; }
+  .screen-tabs { bottom: 16px; }
+  .screen-tabs span { padding: 6px 8px 7px; font-size: 8px; }
+  .tpl-strip { margin-top: 32px; }
+  .tpl-track { gap: 10px; }
+  .tpl-track img { width: 112px; }
+
+  .shop { gap: 20px; }
+  .gallery-main { aspect-ratio: 4 / 3; }
+  .thumb { flex-basis: 60px; }
+  .price { margin: 4px 0 18px; font-size: 1rem; }
+  .swatches { gap: 8px; margin-bottom: 18px; }
+  .swatch { padding: 6px 4px; border-radius: 10px; }
+  .checks { margin-top: 18px; font-size: 0.8125rem; gap: 7px; }
+
+  .box { gap: 16px; }
+  .box-list { margin-top: 18px; }
+  .box-list li { grid-template-columns: 30px 1fr; gap: 2px 8px; padding: 12px 0; }
+  .box-list li::before { grid-row: span 2; line-height: 1.6; }
+  .box-list b { font-size: 0.9375rem; }
+  .box-list span { grid-column: 2; text-align: left; font-size: 0.8125rem; }
+
+  .quote blockquote { font-size: 1.875rem; max-width: 12em; }
+  .quote .lede { font-size: 0.9375rem; margin-top: 14px; }
+  .founder { margin-top: 44px; padding: 24px 20px 20px; transform: rotate(-.8deg);
+    background-image: repeating-linear-gradient(transparent 0 25px, rgba(28,26,23,.07) 25px 26px); background-position: 0 16px; }
+  .founder::before { width: 84px; height: 20px; margin-left: -42px; top: -10px; }
+  .founder p { font-size: 0.9375rem; line-height: 26px; margin-bottom: 26px; }
+  .founder .sign { font-size: 1.25rem; margin-top: 12px; }
+
+  .faq-list summary { font-size: 1.0625rem; padding: 16px 0; }
+  .faq-list .a { font-size: 0.9375rem; padding-bottom: 16px; }
+  .final .cams { margin-bottom: 20px; }
+  .final h2 { margin-bottom: 20px; }
+
+  .footer { padding: 56px 0 96px; }
+  .foot-top { gap: 26px 16px; }
+  .wordmark-big { margin: 44px 0 20px; }
+  .foot-bottom { gap: 12px; font-size: 10px; }
+  .buybar { left: 10px; right: 10px; bottom: 10px; padding: 6px 6px 6px 16px; }
+  .buybar .btn { min-height: 40px; --pad-y: 10px; padding-left: 16px; padding-right: 16px; }
+  .consent { padding: 16px 16px 12px; }
 }
