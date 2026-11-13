@@ -141,10 +141,6 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .hero-photo { position: relative; border-radius: var(--r-card); overflow: hidden; aspect-ratio: 16 / 11; background: var(--surface); }
 .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 55% 60%; }
 .credit { position: absolute; right: 14px; bottom: 12px; font: 500 10px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.82); text-shadow: 0 1px 4px rgba(0,0,0,.4); }
-.hero-cam {
-  position: absolute; left: -10%; bottom: -17%; width: 34%; transform: rotate(-7deg);
-  filter: drop-shadow(0 24px 30px rgba(0,0,0,.28)) drop-shadow(0 4px 8px rgba(0,0,0,.18));
-}
 .burst-tag { position: absolute; right: -14px; top: -18px; width: 104px; height: 104px; display: grid; place-items: center; text-align: center; transform: rotate(12deg); color: #1c1a17; font: 600 11px/1.15 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
 .burst-tag svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .burst-tag span { position: relative; }
@@ -152,8 +148,7 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
   .hero-grid { grid-template-columns: 1fr; }
   .hero-visual { order: -1; margin-bottom: 34px; }
   .hero-photo { aspect-ratio: 4 / 3.4; }
-  .hero-cam { left: auto; right: -2%; bottom: -16%; width: 38%; transform: rotate(6deg); }
-  .burst-tag { right: -6px; top: -14px; width: 86px; height: 86px; font-size: 9.5px; }
+    .burst-tag { right: -6px; top: -14px; width: 86px; height: 86px; font-size: 9.5px; }
   .hero-copy { gap: 18px; }
 }
 
