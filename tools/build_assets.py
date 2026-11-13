@@ -2,7 +2,7 @@
 Run from anywhere: python website/tools/build_assets.py"""
 from pathlib import Path
 from PIL import Image
-import json, shutil
+import json, shutil, sys
 
 ROOT = Path(__file__).resolve().parents[2]          # KeyChain_Cam
 OUT = ROOT / "website" / "assets"
@@ -103,28 +103,13 @@ for name, (folder, idx) in ANGLES.items():
 
 # Candid group photo for the hero (stock photo through the app's look, no stamp)
 CANDID = ROOT / "KeyCam_Candid_and_AdRefs/KeyCam_Candid_Friends_India"
-HERO2 = ROOT / "KeyCam_Film_Candid/original/rwrfDpT3qk0.jpg"   # Unsplash, film photo, two friends in a bar
+HERO2 = ROOT / "KeyCam_Film_Candid/original/UEjjO-aJtZ8.jpg"   # Unsplash, candlelit dinner
 save(HERO2, "photos/hero-group.webp", 1600, 80)
 save(HERO2, "photos/hero-group-sm.webp", 820, 78)
 
-# Six looks on a new photo, rendered by the app's own engine (lab/retro.py)
-import sys as _sys
-_sys.path.insert(0, str(ROOT / "lab"))
-from retro import Engine  # noqa: E402
-LOOK_SRC = Image.open(ROOT / "KeyCam_Film_Candid/original/UEjjO-aJtZ8.jpg").convert("RGB")   # Unsplash, candlelit dinner
-if LOOK_SRC.width > 1920:
-    LOOK_SRC = LOOK_SRC.resize((1920, round(LOOK_SRC.height * 1920 / LOOK_SRC.width)), Image.LANCZOS)
-# 16:9 centre crop
-th = round(LOOK_SRC.width * 9 / 16); top = max(0, (LOOK_SRC.height - th) // 2)
-LOOK_SRC = LOOK_SRC.crop((0, top, LOOK_SRC.width, top + th))
-eng = Engine()
-tmp = OUT / "looks/_src.png"; tmp.parent.mkdir(parents=True, exist_ok=True)
-for key in ["original", "portra", "gold200", "glow", "trix400", "disposable", "y2k_ccd"]:
-    im = LOOK_SRC if key == "original" else eng.process(LOOK_SRC, key, None, seed=7)
-    im.save(tmp)
-    save(tmp, f"looks/look_{key}.webp", 1280, 80)
-    save(tmp, f"looks/look_{key}-sm.webp", 400, 76)
-tmp.unlink()
+# Six looks: marketing renders (tools/looks_marketing.py) on two friends at a bar (Unsplash rwrfDpT3qk0)
+import subprocess as _sp
+_sp.run([sys.executable, str(ROOT / "website/tools/looks_marketing.py"), str(ROOT / "KeyCam_Film_Candid/original/rwrfDpT3qk0.jpg")], check=True)
 print("round 2 done")
 
 # ── Round 3 (2026-11-13): the app's new minimal templates, rendered by app/test/chapter_pages_test.dart

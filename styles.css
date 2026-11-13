@@ -14,6 +14,9 @@
   --stripe-3: #c7372a;
   --accent-text: #b8501f;
   --ok: #1c1a17;
+  --yes: #22a35a;
+  --no: #d64541;
+  --partly: #e0a21a;
 
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -42,12 +45,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #000000; --surface: #111111; --ink: #f5f3ee; --ink-soft: #d9d5cd; --muted: #9a968e; --line: #262626;
-    --accent-text: #f08a4b; --ok: #f5f3ee; color-scheme: dark;
+    --accent-text: #f08a4b; --ok: #f5f3ee; --yes: #2fb86a; --no: #e5534b; --partly: #e3a21a; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #000000; --surface: #111111; --ink: #f5f3ee; --ink-soft: #d9d5cd; --muted: #9a968e; --line: #262626;
-  --accent-text: #f08a4b; --ok: #f5f3ee; color-scheme: dark;
+  --accent-text: #f08a4b; --ok: #f5f3ee; --yes: #2fb86a; --no: #e5534b; --partly: #e3a21a; color-scheme: dark;
 }
 
 /* ---------- base ---------- */
@@ -179,12 +182,13 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .vs-glimp { background: var(--surface); color: var(--ink); font-weight: 500; align-self: stretch; justify-content: center; }
 .vs-row:last-child .vs-glimp { border-radius: 0 0 14px 14px; }
 .vs .ok, .vs .x, .vs .half { width: 26px; height: 26px; border-radius: 50%; position: relative; display: block; }
-.vs .ok { background: var(--ok); }
-.vs .ok::after { content: ""; position: absolute; left: 8px; top: 7px; width: 10px; height: 6px; border-left: 2px solid var(--bg); border-bottom: 2px solid var(--bg); transform: rotate(-45deg); }
-.vs .x { border: 1.5px solid var(--muted); opacity: .7; }
-.vs .x::before, .vs .x::after { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 1.5px; margin-top: -.75px; background: var(--muted); transform: rotate(45deg); }
+.vs .ok { background: var(--yes); }
+.vs .ok::after { content: ""; position: absolute; left: 8px; top: 7px; width: 10px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+.vs .x { background: var(--no); }
+.vs .x::before, .vs .x::after { content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px; margin-top: -1px; background: #fff; border-radius: 1px; transform: rotate(45deg); }
 .vs .x::after { transform: rotate(-45deg); }
-.vs .half { border: 1.5px solid var(--muted); opacity: .7; background: linear-gradient(90deg, var(--muted) 50%, transparent 0); }
+.vs .half { background: var(--partly); }
+.vs .half::after { content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px; margin-top: -1px; background: #fff; border-radius: 1px; }
 @media (max-width: 600px) {
   .vs-row { grid-template-columns: 1fr 1fr; }
   .vs-what { grid-column: 1 / -1; padding: 18px 0 6px; }
@@ -199,8 +203,10 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 /* ---------- keys band (dark) ---------- */
 .band-dark { background: #000; color: #f5f3ee; --ink: #f5f3ee; --muted: #9a968e; --line: #262626; --bg: #000; }
 .keys { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
-.keys-visual { border-radius: var(--r-card); overflow: hidden; background: #111; aspect-ratio: 4 / 3.2; display: grid; place-items: center; }
-.keys-visual img { width: 80%; transform: rotate(-5deg); filter: drop-shadow(0 30px 40px rgba(0,0,0,.6)); }
+.keys-visual { position: relative; aspect-ratio: 16 / 10; display: grid; place-items: center; background: transparent; }
+.cam-stamp { position: absolute; left: 4px; bottom: 6px; height: 22px; filter: drop-shadow(0 0 6px rgba(255,255,255,.35)); }
+.cam-stamp svg { height: 100%; width: auto; display: block; overflow: visible; }
+.keys-visual img { width: 86%; transform: rotate(-5deg); }
 .keys-visual img.full { width: 100%; height: 100%; object-fit: cover; transform: none; filter: none; }
 .spec { list-style: none; margin: 30px 0 0; padding: 0; border-top: 1px solid #262626; }
 .spec li { display: flex; justify-content: space-between; gap: 16px; padding: 15px 0; border-bottom: 1px solid #262626; font-size: var(--fs-small); color: #d9d5cd; }

@@ -143,7 +143,7 @@ function wireLooks() {
     $$("[data-look]").forEach((x) => x.setAttribute("aria-pressed", x === b));
     const next = new Image(); next.src = `assets/looks/look_${k}.webp`;
     stage.style.opacity = .35;
-    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Friends at a candlelit dinner, ${n} look`; stage.style.opacity = 1; });
+    next.decode().catch(() => {}).finally(() => { stage.src = next.src; stage.alt = `Two friends at a bar, ${n} look`; stage.style.opacity = 1; });
     label.textContent = n;
     track("look_selected", { look: k });
   }));
@@ -183,6 +183,34 @@ function wireUses() {
   });
   const tile = (c, hidden) => `<img src="assets/templates/${c}-sm.webp" alt="${hidden ? "" : "Glimp app template"}" width="300" height="534" loading="lazy"${hidden ? ' aria-hidden="true"' : ""}>`;
   $("[data-templates]").innerHTML = TEMPLATES.map((c) => tile(c)).join("") + TEMPLATES.map((c) => tile(c, true)).join("");
+}
+
+/* ---------- seven-segment date stamp (like a film camera's imprint), today in IST ---------- */
+const SEG = {
+  a: "1,0 9,0 7.6,2 2.4,2", b: "10,0.8 10,8.6 8,7.6 8,2.4", c: "10,9.4 10,17.2 8,15.6 8,10.4",
+  d: "2.4,16 7.6,16 9,18 1,18", e: "0,9.4 2,10.4 2,15.6 0,17.2", f: "0,0.8 2,2.4 2,7.6 0,8.6",
+  g: "1.2,9 2.4,8 7.6,8 8.8,9 7.6,10 2.4,10",
+};
+const DIGIT = ["abcdef", "bc", "abged", "abgcd", "fgbc", "afgcd", "afgedc", "abc", "abcdefg", "abfgcd"];
+function stampSvg(text) {
+  let x = 0, out = "";
+  for (const ch of text) {
+    if (/\d/.test(ch)) {
+      out += `<g transform="translate(${x} 0)">${[...DIGIT[ch]].map((s) => `<polygon points="${SEG[s]}"/>`).join("")}</g>`;
+      x += 13;
+    } else if (ch === "'") { out += `<polygon points="${x + 1},0 ${x + 3.4},0 ${x + 2},5 ${x},5"/>`; x += 6; }
+    else if (ch === ":") { out += `<rect x="${x + 1}" y="4" width="2.2" height="2.2"/><rect x="${x + 1}" y="11.5" width="2.2" height="2.2"/>`; x += 6; }
+    else x += 8;                                                     // space
+  }
+  return `<svg viewBox="-2 -1 ${x + 4} 20" fill="#fff"><g transform="skewX(-10)">${out}</g></svg>`;
+}
+function wireStamp() {
+  const el = $("[data-stamp]"); if (!el) return;
+  const draw = () => {
+    const ist = new Date(Date.now() + 5.5 * 3600e3).toISOString();       // yyyy-mm-ddThh:mm
+    el.innerHTML = stampSvg(`'${ist.slice(2, 4)} ${ist.slice(5, 7)} ${ist.slice(8, 10)}  ${ist.slice(11, 16)}`);
+  };
+  draw(); setInterval(draw, 30000);
 }
 
 /* ---------- FAQ ---------- */
@@ -372,4 +400,4 @@ function wireRestock() {
 }
 
 wireShop(); buildStrips(); wireLinks(); wireLooks(); buildWall(); wireUses(); wireFaq();
-wireBuyBar(); wireSettle(); wireTheme(); wireRestock(); wireOrder(); loadStock();
+wireBuyBar(); wireSettle(); wireTheme(); wireRestock(); wireOrder(); wireStamp(); loadStock();
