@@ -1,6 +1,6 @@
 /* Glimp site behaviour. No libraries. Settings live in config.js. */
 const CFG = window.GLIMP_CONFIG || {};
-const PRICE = 1490;
+const PRICE = 1690;
 const SHIPPING = 119; // flat per order, collected on delivery
 const COLOURS = [
   ["white", "White"], ["red", "Red"], ["yellow", "Yellow"], ["teal", "Teal"], ["grey", "Grey"],
@@ -81,8 +81,11 @@ function setColour(c, user, keepAngle) {
   note.textContent = st?.status === "out" ? "Sold out" : st?.status === "low" && st.left ? `Only ${st.left} left` : "";
   note.className = "stock " + (st?.status || "");
   const buy = $("[data-buy-selected]");
-  buy.firstChild.textContent = stockOf(c) === "out" ? `Notify me when ${nameOf(c)} is back ` : `Order ${nameOf(c)} — ₹1,490 `;
+  buy.firstChild.textContent = stockOf(c) === "out" ? `Notify me when ${nameOf(c)} is back ` : `Order ${nameOf(c)} — ${inr(PRICE)} `;
   buy.classList.toggle("ghost", stockOf(c) === "out");
+  $("[data-bb-name]").textContent = `Glimp · ${nameOf(c)}${stockOf(c) === "out" ? " · Sold out" : ""}`;
+  $("[data-buy-now]").firstChild.textContent = stockOf(c) === "out" ? "Notify me " : "Buy now ";
+  $("[data-bb-img]").src = `assets/gallery/${c}/1-sm.webp`;
   $$("[data-swatch]").forEach((b) => { const on = b.dataset.swatch === c; b.setAttribute("aria-checked", on); b.tabIndex = on ? 0 : -1; });
   if (user && changed) track("colour_swatch_selected", { from_colour: from, to_colour: c, in_stock: stockOf(c) !== "out" });
 }
@@ -221,18 +224,6 @@ function wireFaq() {
   $$("[data-faq]").forEach((d) => d.addEventListener("toggle", () => { if (d.open) track("faq_opened", { faq_id: d.dataset.faq }); }));
 }
 
-/* ---------- sticky buy bar ---------- */
-function wireBuyBar() {
-  const bar = $("[data-buybar]");
-  let heroGone = false, shopIn = false;
-  const update = () => {
-    const show = heroGone && !shopIn;
-    bar.classList.toggle("show", show); bar.setAttribute("aria-hidden", !show);
-    $("a", bar).tabIndex = show ? 0 : -1;
-  };
-  new IntersectionObserver(([e]) => { heroGone = !e.isIntersecting; update(); }).observe($(".hero"));
-  new IntersectionObserver(([e]) => { shopIn = e.isIntersecting; update(); }, { threshold: 0.2 }).observe($("#colours"));
-}
 
 /* ---------- gentle settle-in ---------- */
 function wireSettle() {
@@ -293,7 +284,7 @@ function wireOrder() {
     dlg.close ? dlg.close() : dlg.removeAttribute("open");
   };
 
-  $("[data-buy-selected]").addEventListener("click", () => (stockOf(colour) === "out" ? openRestock(colour) : open(colour)));
+  $$("[data-buy-selected], [data-buy-now]").forEach((b) => b.addEventListener("click", () => (stockOf(colour) === "out" ? openRestock(colour) : open(colour))));
   $$("[data-order-close]", dlg).forEach((b) => b.addEventListener("click", close));
   dlg.addEventListener("click", (e) => { if (e.target === dlg) close(); });
   dlg.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
@@ -404,4 +395,4 @@ function wireRestock() {
 }
 
 wireShop(); buildStrips(); wireLinks(); wireLooks(); buildWall(); wireUses(); wireFaq();
-wireBuyBar(); wireSettle(); wireTheme(); wireRestock(); wireOrder(); wireStamp(); loadStock();
+wireSettle(); wireTheme(); wireRestock(); wireOrder(); wireStamp(); loadStock();

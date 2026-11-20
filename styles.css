@@ -382,7 +382,7 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .final h2 { margin-bottom: 26px; }
 
 /* ---------- footer ---------- */
-.footer { background: #000; color: #d9d5cd; padding: clamp(64px, 8vw, 110px) 0 28px; }
+.footer { background: #000; color: #d9d5cd; padding: clamp(64px, 8vw, 110px) 0 108px; }
 .footer a { color: #d9d5cd; text-decoration: none; }
 .footer a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
 .foot-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; }
@@ -397,17 +397,18 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .theme-switch button[aria-pressed="true"] { background: #f5f3ee; color: #000; }
 @media (max-width: 720px) { .foot-top { grid-template-columns: 1fr 1fr; } .foot-top > :first-child { grid-column: 1 / -1; } }
 
-/* ---------- sticky buy bar ---------- */
+/* ---------- buy bar: always on screen, every width ---------- */
 .buybar {
-  position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60; display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 8px 8px 18px;
-  background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  border: 1px solid var(--line); border-radius: var(--r-pill); box-shadow: 0 12px 30px -12px rgba(0,0,0,.3);
-  transform: translateY(140%); transition: transform .35s var(--ease);
+  position: fixed; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 60; transform: translateX(-50%);
+  width: min(520px, calc(100% - 24px)); display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 10px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid var(--line); border-radius: var(--r-pill); box-shadow: 0 12px 30px -12px rgba(0,0,0,.35);
 }
-.buybar.show { transform: none; }
-.buybar .label { color: var(--ink); }
-.buybar .btn { min-height: 44px; --pad-y: 12px; padding-left: 18px; padding-right: 18px; }
-@media (max-width: 880px) { .buybar { display: flex; } }
+.bb-cam { width: 56px; height: auto; flex: none; }
+.bb-text { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.bb-text .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bb-text b { font-size: 1.125rem; line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
+.buybar .btn { flex: none; min-height: 48px; --pad-y: 15px; padding-left: 24px; padding-right: 24px; }
 
 /* ---------- order + restock dialogs ---------- */
 .order { width: min(640px, calc(100% - 24px)); max-height: calc(100svh - 24px); padding: 0; border: 0; border-radius: var(--r-card); background: var(--bg); color: var(--ink); box-shadow: 0 40px 100px -30px rgba(0,0,0,.5); overflow: auto; }
@@ -465,7 +466,7 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 
 /* ---------- cookie banner ---------- */
 .consent {
-  position: fixed; z-index: 80; left: 12px; bottom: 12px; width: min(420px, calc(100% - 24px)); padding: 18px 18px 14px;
+  position: fixed; z-index: 80; left: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); width: min(420px, calc(100% - 24px)); padding: 18px 18px 14px;
   background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 50px -20px rgba(0,0,0,.35);
   font-size: var(--fs-small);
 }
@@ -585,12 +586,13 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
   .final .cams { margin-bottom: 20px; }
   .final h2 { margin-bottom: 20px; }
 
-  .footer { padding: 56px 0 96px; }
+  .footer { padding: 56px 0 104px; }
   .foot-top { gap: 26px 16px; }
   .wordmark-big { margin: 44px 0 20px; }
   .foot-bottom { gap: 12px; font-size: 10px; }
-  .buybar { left: 10px; right: 10px; bottom: 10px; padding: 6px 6px 6px 16px; }
-  .buybar .btn { min-height: 40px; --pad-y: 10px; padding-left: 16px; padding-right: 16px; }
-  .consent { padding: 16px 16px 12px; }
+  .buybar { width: calc(100% - 20px); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); gap: 10px; padding: 5px 5px 5px 8px; }
+  .bb-cam { width: 48px; }
+  .buybar .btn { min-height: 46px; --pad-y: 14px; padding-left: 20px; padding-right: 20px; }
+  .consent { padding: 16px 16px 12px; left: 10px; width: calc(100% - 20px); bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (min-width: 881px) { .hero h1 { font-size: clamp(2.75rem, 4.4vw, 4.25rem); } }
