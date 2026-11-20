@@ -1,6 +1,6 @@
 # Glimp website
 
-glimp.in: a static site on GitHub Pages, with orders, stock and analytics in Supabase. There's no build step.
+glimp.in: a static site on Cloudflare Pages, with orders, stock and analytics in Supabase. There's no build step.
 
 | File | What it is |
 |---|---|
@@ -25,7 +25,9 @@ Then open http://localhost:8765 (phone layout: http://localhost:8765/tools/mobil
 cd website
 git add -A && git commit -m "what changed" && git push
 ```
-It's live about a minute later. `CNAME` holds the domain, so don't delete it. DNS is at GoDaddy: 4 A records point to GitHub, and the `www` CNAME points to yash1463.github.io.
+It's live about a minute later. Cloudflare Pages watches the `main` branch of yash1463/glimp-website and publishes the repo folder as-is, with no build command. Each deploy is listed under Workers & Pages → glimp-website → Deployments, and any earlier one can be rolled back from there.
+
+**Hosting:** the domain is registered at GoDaddy, but its DNS lives in Cloudflare (nameservers changed at GoDaddy). Email for yash@glimp.in is still GoDaddy's, so the MX, SPF, DMARC and `email` records in Cloudflare DNS must stay grey-cloud (DNS only). `www` redirects to glimp.in with a Cloudflare Redirect Rule. `_headers` sets the security and image-cache headers.
 
 ## Still to fill in
 - Real stock numbers on /admin → Stock (each colour starts at a placeholder 10)
