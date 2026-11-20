@@ -35,8 +35,7 @@ create table if not exists inventory (
 );
 -- Starting numbers are placeholders: set the real ones on /admin → Stock.
 insert into inventory (colour, on_hand, sort) values
-  ('black', 10, 1), ('white', 10, 2), ('red', 10, 3), ('yellow', 10, 4),
-  ('blue', 10, 5), ('lime', 10, 6), ('teal', 10, 7), ('grey', 10, 8)
+  ('white', 10, 2), ('red', 10, 3), ('yellow', 10, 4), ('teal', 10, 7), ('grey', 10, 8)
 on conflict (colour) do nothing;
 
 create table if not exists inventory_moves (
@@ -114,6 +113,14 @@ create table if not exists order_status_events (
   created_by text
 );
 alter table order_status_events enable row level security;
+
+-- Black, blue and lime are no longer sold (2026-11-21). Remove them; if something
+-- already points at a row (an order, a stock move, a notify-me), keep it at 0 so it can't be ordered.
+delete from inventory i where i.colour in ('black', 'blue', 'lime')
+  and not exists (select 1 from inventory_moves m where m.colour = i.colour)
+  and not exists (select 1 from orders o where o.colour = i.colour)
+  and not exists (select 1 from restock_requests r where r.colour = i.colour);
+update inventory set on_hand = 0 where colour in ('black', 'blue', 'lime');
 
 -- ───────────────────────── Ad spend (typed in on /admin) ─────────────────────────
 create table if not exists ad_spend_daily (

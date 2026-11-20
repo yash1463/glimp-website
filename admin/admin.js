@@ -10,7 +10,7 @@
   const num = (n) => (n ?? 0).toLocaleString("en-IN");
   const pct = (a, b) => (b ? (100 * a / b) : 0);
   const fmtPct = (a, b) => (b ? pct(a, b).toFixed(pct(a, b) < 10 ? 1 : 0) + "%" : "—");
-  const SWATCH = { black: "#2a2a2a", white: "#f2f2f0", red: "#d44b45", yellow: "#f2c230", blue: "#3060c8", lime: "#8fd13a", teal: "#2d8a78", grey: "#a5a5a5" };
+  const SWATCH = { white: "#f2f2f0", red: "#d44b45", yellow: "#f2c230", teal: "#2d8a78", grey: "#a5a5a5" };
   const LABEL = { hero: "Hero", colours_strip: "Colour strip", comparison: "Glimp vs others", keys: "On your keys", looks: "Six looks",
     sample_photos: "Photo wall", how_it_works: "How it works", app_keycam: "App", colours: "Shop / colours", whats_in_box: "In the box",
     quote: "Quote + note", faq: "FAQ", final_cta: "Pick yours", footer: "Footer" };

@@ -29,7 +29,7 @@ General rules for all three:
 
 **Where it goes:** the black band under "Why Glimp" (left image). It sits on a black page, so a darker, moody image works best.
 **Size:** 1600 × 1360 px (about 4:3.4).
-**Reference photos to attach:** `XM17/black camera-4.jpg`, `XM17/red video camera-4.jpg`
+**Reference photos to attach:** `XM17/red video camera-4.jpg`
 
 **Prompt:**
 > A close-up photo of a tiny red keychain digital camera clipped onto a key ring with two brass house keys and a small plastic tag, lying on a dark wooden table. The camera matches the reference images exactly: rounded rectangular body, small square viewfinder on the left, dark rectangular screen, three round black buttons on the right, a loop on the left side for the ring. Show the back of the camera. The camera is about as long as one of the keys, so the scale is obvious. Low, warm side light from a window, deep shadows, dark background, 35 mm film look, fine grain, true-to-life colours. No text, no logos.

@@ -23,12 +23,12 @@ def save(src, dst, width, quality=80, crop=None):
 
 sizes = {}
 # Cameras: back-view cut-outs (no supplier print on the front)
-cams = {"black": "black-4", "white": "white-3", "red": "red-4", "yellow": "yellow-4",
-        "blue": "blue-4", "lime": "green-4", "teal": "dark_green-4", "grey": "gray-4"}
+# Black, blue and lime are no longer sold (2026-11-21).
+cams = {"white": "white-3", "red": "red-4", "yellow": "yellow-4", "teal": "dark_green-4", "grey": "gray-4"}
 for name, f in cams.items():
     sizes[f"cam/{name}"] = save(SP / "cam" / f"{f}.png", f"cam/{name}.webp", 1000, 85, crop=True)
     save(SP / "cam" / f"{f}.png", f"cam/{name}-sm.webp", 320, 82, crop=True)
-for f in ["off-white-back-on", "black-back-on", "off-white-bottom"]:
+for f in ["off-white-back-on", "off-white-bottom"]:
     sizes[f"cam/{f}"] = save(SP / "cam" / f"{f}.png", f"cam/{f}.webp", 1200, 85, crop=True)
 
 # Sample photos (stock photos through the app's look; illustrative only)
@@ -82,12 +82,9 @@ X1 = ROOT / "X1"
 ANGLES = {   # site colour: (X1 folder, file indexes in sorted order)
     # 1 = flat lens side (the default everywhere, user's pick 2026-11-13), then lens 3/4, top,
     # screen side 3/4, screen flat, ports (6), other side, the rest
-    "black":  ("black",      [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
     "white":  ("off-white",  [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
     "red":    ("red",        [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
     "yellow": ("yellow",     [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
-    "blue":   ("blue",       [1, 9, 4, 2, 5, 3, 7, 6, 8]),
-    "lime":   ("green",      [2, 0, 1, 6, 3, 7, 5, 8, 10]),
     "teal":   ("dark green", [1, 9, 0, 4, 2, 5, 3, 6, 7, 8]),
     "grey":   ("dark gray",  [2, 0, 1, 5, 3, 6, 4, 7, 8, 9]),
 }

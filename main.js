@@ -3,10 +3,9 @@ const CFG = window.GLIMP_CONFIG || {};
 const PRICE = 1490;
 const SHIPPING = 119; // flat per order, collected on delivery
 const COLOURS = [
-  ["black", "Black"], ["white", "White"], ["red", "Red"], ["yellow", "Yellow"],
-  ["blue", "Blue"], ["lime", "Lime"], ["teal", "Teal"], ["grey", "Grey"],
+  ["white", "White"], ["red", "Red"], ["yellow", "Yellow"], ["teal", "Teal"], ["grey", "Grey"],
 ];
-const ANGLES = { black: 10, white: 10, red: 10, yellow: 10, blue: 9, lime: 9, teal: 10, grey: 10 };
+const ANGLES = { white: 10, red: 10, yellow: 10, teal: 10, grey: 10 };
 
 /* Sample photos for the wall: [file, caption]. Swap for real Glimp shots in assets/photos. */
 const PHOTOS = [
@@ -48,7 +47,7 @@ function paintStock() {
 }
 
 /* ---------- colour + angle gallery ---------- */
-let colour = "black", angle = 1;
+let colour = "white", angle = 1;
 function showAngle(n, user) {
   const max = ANGLES[colour];
   angle = ((n - 1 + max) % max) + 1;
@@ -108,7 +107,7 @@ function wireShop() {
   main.addEventListener("pointerdown", (e) => { x0 = e.clientX; });
   main.addEventListener("pointerup", (e) => { if (x0 !== null && Math.abs(e.clientX - x0) > 40) showAngle(angle + (e.clientX < x0 ? 1 : -1), true); x0 = null; });
   main.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") showAngle(angle + 1, true); if (e.key === "ArrowLeft") showAngle(angle - 1, true); });
-  setColour("black");
+  setColour("white");
 
   // product_viewed: the shop came into view (an essential event, counted even without consent)
   let viewed = false;
@@ -123,7 +122,7 @@ function buildStrips() {
   $("[data-strip]").innerHTML = COLOURS.map(([k, n]) =>
     `<a class="chip" href="#colours" data-pick="${k}" data-cta="strip_${k}">
        <img src="assets/gallery/${k}/1-sm.webp" alt="" width="240" height="150" loading="lazy"><span class="label">${n}</span></a>`).join("");
-  $("[data-final-cams]").innerHTML = COLOURS.slice(0, 6).map(([k]) =>
+  $("[data-final-cams]").innerHTML = COLOURS.map(([k]) =>
     `<img src="assets/gallery/${k}/1-sm.webp" alt="" width="240" height="160" loading="lazy">`).join("");
   document.addEventListener("click", (e) => { const p = e.target.closest("[data-pick]"); if (p) setColour(p.dataset.pick, true); });
 }
