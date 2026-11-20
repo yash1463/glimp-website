@@ -1,0 +1,14 @@
+// Cloudflare (Workers static assets) settings for glimp.in. No build step: the repo folder is the site.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "glimp-website",
+  "compatibility_date": "2026-11-19",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": ".",
+    // unknown paths get 404.html with a real 404 status
+    "not_found_handling": "404-page",
+    // /privacy serves privacy.html, /admin redirects to /admin/
+    "html_handling": "auto-trailing-slash"
+  }
+}

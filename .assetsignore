@@ -1,0 +1,18 @@
+# Files in the repo that must not be published on glimp.in
+.git
+.gitignore
+.nojekyll
+.assetsignore
+.wrangler
+node_modules
+wrangler.jsonc
+wrangler.json
+wrangler.toml
+package.json
+package-lock.json
+CNAME
+README.md
+SETUP.md
+IMAGES.md
+backend
+tools
