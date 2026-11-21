@@ -598,3 +598,4 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
   .consent { padding: 16px 16px 12px; left: 10px; width: calc(100% - 20px); bottom: calc(82px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (min-width: 881px) { .hero h1 { font-size: clamp(2.75rem, 4.4vw, 4.25rem); } }
+.checks li b { color: var(--ink); font-weight: 600; }
