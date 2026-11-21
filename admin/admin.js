@@ -233,9 +233,28 @@
     const list = await call("admin_orders", { p_status: filter || null, p_limit: 300 });
     const box = $("[data-orders]");
     if (!list.length) { box.innerHTML = `<p class="empty">No orders here.</p>`; return; }
+    // Thank-you message. The last line is a glimp.in/c/<colour> link: WhatsApp shows it as a preview
+    // with the photo of the camera they ordered (assets/wa/<colour>.jpg, made by tools/build_wa_cards.py).
+    const thankYou = (o) => {
+      const first = (o.name.trim().split(/\s+/)[0] || "").replace(/^./, (c) => c.toUpperCase());
+      return `Hi ${first} 👋
+
+This is Yash, the founder of Glimp. I wanted to personally say thank you. Your order #${o.order_no} has been received, and you're one of our early customers. That means a lot to me 🙏
+
+I'm packing your Glimp myself and will ship it as soon as possible. I'll send you the tracking details the moment it's on its way. It's Cash on Delivery, so you only pay when it reaches you.
+
+If you face any issue at any point, before or after delivery, we'll give you our utmost support until it's sorted. Just reply here. You're talking directly to me.
+
+Once it arrives, clip it on, click your first shot, and send it to me. I'll be waiting to see the first glimpse you catch 📸✨
+
+Yash
+Founder, Glimp
+
+https://glimp.in/c/${o.colour}`;
+    };
     box.innerHTML = list.map((o) => {
       const when = new Date(o.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
-      const wa = `https://wa.me/91${o.phone}?text=${encodeURIComponent(`Hi ${o.name.split(" ")[0]}, this is Yash from Glimp about your order ${o.order_no}.`)}`;
+      const wa = `https://wa.me/91${o.phone}?text=${encodeURIComponent(thankYou(o))}`;
       const addr = `${o.address}, ${o.city}, ${o.state} ${o.pincode}`;
       return `<article class="order${o.is_test ? " test" : ""}" data-no="${esc(o.order_no)}">
         <div class="o-head"><span class="o-no">${esc(o.order_no)} · ${when}</span>
