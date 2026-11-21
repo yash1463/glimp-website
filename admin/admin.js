@@ -396,6 +396,24 @@ https://glimp.in/c/${o.colour}`;
     } catch { b.disabled = false; }
   });
 
+  /* ---------- new order by hand ---------- */
+  const newForm = $("[data-new-form]");
+  $("[data-new-order]").addEventListener("click", () => { newForm.hidden = !newForm.hidden; if (!newForm.hidden) newForm.elements.name.focus(); });
+  $("[data-new-close]").addEventListener("click", () => (newForm.hidden = true));
+  newForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = $("button:not([type])", newForm); btn.disabled = true;
+    try {
+      const r = await call("admin_create_order", { p: Object.fromEntries(new FormData(newForm)) });
+      if (!r.ok) { alert(r.error); return; }
+      toast(`${r.order} added`);
+      newForm.reset(); newForm.hidden = true;
+      filter = r.status;
+      $$("[data-order-filter] button").forEach((x) => x.setAttribute("aria-pressed", x.dataset.f === filter));
+      loadOrders();
+    } catch { /* toast already shown */ } finally { btn.disabled = false; }
+  });
+
   /* ---------- stock ---------- */
   async function loadStock() {
     const v = await call("admin_stock_view");

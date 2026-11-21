@@ -111,6 +111,9 @@ a.tag { text-decoration: none; }
 .fld { display: grid; gap: 5px; min-width: 0; }
 .fld input, .fld select { width: 100%; }
 .ship-btns { grid-column: 1 / -1; }
+.new-order { margin-bottom: 16px; }
+.fld.wide { grid-column: span 2; }
+@media (max-width: 420px) { .fld.wide { grid-column: 1 / -1; } }
 .couriers-box { border-top: 1px solid var(--line); padding-top: 10px; }
 .couriers td { vertical-align: middle; }
 .couriers tr.off td { color: var(--muted); }

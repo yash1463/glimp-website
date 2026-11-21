@@ -609,6 +609,70 @@ begin
   return order_action_core(p_order_no, p_action, p_reason, p_courier, p_awb, coalesce(auth.jwt() ->> 'email', 'admin'));
 end $$;
 
+-- ───────────────────────── Admin: add an order by hand ─────────────────────────
+-- For orders taken on WhatsApp, Instagram or the phone. Same checks and stock as the site.
+-- Already booked in the iThink panel? Pass its AWB: the order starts as Shipped and tracking picks it up.
+create or replace function admin_create_order(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_name text := left(btrim(regexp_replace(coalesce(p ->> 'name', ''), '\s+', ' ', 'g')), 80);
+  v_phone text := right(regexp_replace(coalesce(p ->> 'phone', ''), '\D', '', 'g'), 10);
+  v_address text := left(btrim(regexp_replace(coalesce(p ->> 'address', ''), '\s+', ' ', 'g')), 300);
+  v_city text := left(btrim(coalesce(p ->> 'city', '')), 60);
+  v_state text := left(btrim(coalesce(p ->> 'state', '')), 60);
+  v_pin text := regexp_replace(coalesce(p ->> 'pincode', ''), '\D', '', 'g');
+  v_colour text := lower(coalesce(p ->> 'colour', ''));
+  v_qty int := case when (p ->> 'qty') ~ '^\d{1,2}$' then (p ->> 'qty')::int else 1 end;
+  v_email text := nullif(lower(btrim(coalesce(p ->> 'email', ''))), '');
+  v_note text := nullif(left(btrim(coalesce(p ->> 'note', '')), 300), '');
+  v_price numeric := coalesce(nullif(p ->> 'price', '')::numeric, 1690);
+  v_pay text := case when lower(coalesce(p ->> 'payment', 'cod')) = 'prepaid' then 'prepaid' else 'cod' end;
+  v_channel text := coalesce(nullif(lower(p ->> 'channel'), ''), 'phone');
+  v_awb text := nullif(btrim(coalesce(p ->> 'awb', '')), '');
+  v_courier text := nullif(btrim(coalesce(p ->> 'courier', '')), '');
+  v_who text := coalesce(auth.jwt() ->> 'email', 'admin');
+  v_stock int; v_no text; v_id uuid; v_status text;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  if length(v_name) < 2 then return jsonb_build_object('ok', false, 'error', 'Name is missing.'); end if;
+  if v_phone !~ '^[6-9][0-9]{9}$' then return jsonb_build_object('ok', false, 'error', 'Phone must be a 10-digit Indian mobile number.'); end if;
+  if length(v_address) < 8 then return jsonb_build_object('ok', false, 'error', 'Address is too short.'); end if;
+  if v_pin !~ '^[1-9][0-9]{5}$' then return jsonb_build_object('ok', false, 'error', 'PIN must be 6 digits.'); end if;
+  if length(v_city) < 2 then return jsonb_build_object('ok', false, 'error', 'City is missing.'); end if;
+  if v_state = '' then return jsonb_build_object('ok', false, 'error', 'State is missing.'); end if;
+  if v_email is not null and v_email !~ '^[^@\s]+@[^@\s]+\.[a-z]{2,}$' then return jsonb_build_object('ok', false, 'error', 'Email looks wrong.'); end if;
+  if v_qty not between 1 and 5 then return jsonb_build_object('ok', false, 'error', 'Quantity must be 1 to 5.'); end if;
+  if v_price < 0 or v_price > 100000 then return jsonb_build_object('ok', false, 'error', 'Price looks wrong.'); end if;
+  if v_awb is not null and exists (select 1 from orders where awb = v_awb) then
+    return jsonb_build_object('ok', false, 'error', 'An order with this AWB is already here.');
+  end if;
+
+  select on_hand into v_stock from inventory where colour = v_colour for update;
+  if not found then return jsonb_build_object('ok', false, 'error', 'Pick a colour.'); end if;
+  if v_stock < v_qty then
+    return jsonb_build_object('ok', false, 'error', format('Only %s %s in stock. Add stock on the Stock tab first.', v_stock, v_colour));
+  end if;
+  update inventory set on_hand = on_hand - v_qty, updated_at = now() where colour = v_colour;
+
+  v_no := 'GLP-' || lpad(nextval('order_no_seq')::text, 4, '0');
+  v_status := case when v_awb is not null then 'shipped' else 'confirmed' end;
+  insert into orders (order_no, name, phone, email, address, city, state, pincode, note, colour, qty, value_paise, payment_method,
+                      status, status_updated_at, channel, source, courier, awb, ship_via)
+  values (v_no, v_name, v_phone, v_email, v_address, v_city, v_state, v_pin, v_note, v_colour, v_qty, round(v_qty * v_price * 100)::int, v_pay,
+          v_status, now(), v_channel, 'admin', case when v_awb is not null then coalesce(v_courier, 'iThink') end, v_awb,
+          case when v_awb is not null then 'ithink' end)
+  returning order_id into v_id;
+
+  insert into inventory_moves (colour, delta, reason, order_no, created_by) values (v_colour, -v_qty, 'order', v_no, v_who);
+  insert into order_status_events (order_id, status, created_by) values (v_id, 'created', v_who);
+  insert into order_status_events (order_id, status, created_by) values (v_id, 'confirmed', v_who);
+  if v_awb is not null then
+    insert into order_status_events (order_id, status, meta, created_by)
+    values (v_id, 'shipped', jsonb_build_object('courier', v_courier, 'awb', v_awb, 'booked_in', 'ithink_panel'), v_who);
+  end if;
+  return jsonb_build_object('ok', true, 'order', v_no, 'status', v_status);
+end $$;
+
 -- ───────────────────────── Admin: stock ─────────────────────────
 create or replace function admin_stock(p_colour text, p_mode text, p_n int, p_note text default null)
 returns jsonb language plpgsql security definer set search_path = public as $$
@@ -1222,7 +1286,7 @@ revoke execute on function
   admin_set_spend(date, numeric), admin_dashboard(date, date), admin_orders(text, int),
   admin_stock_view(), admin_restock_notified(bigint), html_esc(text), url_encode(text),
   split_addr(text, int), ithink_call(text, jsonb, text), ithink_err(jsonb), notify_shipped(uuid), ithink_sync(int),
-  admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
+  admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
   admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
   from public, anon, authenticated;
 grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text)
@@ -1230,7 +1294,7 @@ grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify
 grant execute on function is_site_admin(), admin_dashboard(date, date), admin_orders(text, int),
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
   admin_set_spend(date, numeric), admin_stock_view(), admin_restock_notified(bigint),
-  admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
+  admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
   admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
   to authenticated;
 -- Every admin_* function also checks is_site_admin() itself, so a signed-in app user gets "not allowed".
