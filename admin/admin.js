@@ -262,7 +262,7 @@ https://glimp.in/c/${o.colour}`;
       return `<article class="order${o.is_test ? " test" : ""}" data-no="${esc(o.order_no)}">
         <div class="o-head"><span class="o-no">${esc(o.order_no)} · ${when}</span>
           <span class="o-meta"><span class="tag st-${esc(o.status)}">${esc(o.status)}</span>${o.call_attempts ? `<span class="tag">${o.call_attempts} call${o.call_attempts > 1 ? "s" : ""}${o.last_call_outcome ? " · " + esc(o.last_call_outcome) : ""}</span>` : ""}${o.is_test ? `<span class="tag">test</span>` : ""}</span></div>
-        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a></div>
+        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
         <div class="o-addr">${esc(addr)} <button class="link" data-copy="${esc(`${o.name}\n${addr}\n+91 ${o.phone}`)}">Copy</button></div>
         <div class="o-meta"><span class="tag"><span class="dot" style="background:${SWATCH[o.colour]}"></span>${o.qty} × ${esc(o.colour)}</span><span class="tag">${inr(o.value_paise)} COD</span>
           ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${o.courier ? `<span class="tag">${esc(o.courier)} ${esc(o.awb || "")}</span>` : ""}</div>

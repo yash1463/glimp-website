@@ -49,6 +49,33 @@ For the Instagram bio use `https://glimp.in/#order?utm_source=instagram&utm_medi
 - When you ship: pick the courier, type the tracking number, press **Shipped**. Later press **Delivered** or **RTO**.
 - **Stock tab → Meta ad spend**: type yesterday's spend from Ads Manager. That gives you CAC and ROAS on *delivered* orders.
 
+## 8. Order emails + WhatsApp alert (about 10 minutes)
+When an order comes in, the buyer gets a thank-you email from **yash@glimp.in** (with a photo of their colour and the order summary), and you get a **New order** email with a one-tap WhatsApp thank-you button. Replies to the buyer's email land in your normal yash@glimp.in inbox.
+
+**A. Resend (sends the emails, free up to 3,000 a month)**
+1. Go to **resend.com** → sign up → **Domains** → **Add domain** → type `glimp.in` → region **Tokyo (ap-northeast-1)** (closest to India) → **Add**.
+2. Resend shows 3–4 DNS records. Open **dash.cloudflare.com** → `glimp.in` → **DNS** → **Records** → **Add record** and copy each one exactly (Type, Name, Content, Priority). Set **Proxy status** to **DNS only** (grey cloud).
+   They go on `send.glimp.in` and `resend._domainkey`, so your GoDaddy mailbox and its MX records are not touched.
+3. Back in Resend press **Verify DNS records**. It turns green in a few minutes.
+4. **API Keys** → **Create API key** → name `glimp-orders`, permission **Sending access**, domain `glimp.in` → **Add**. Copy the key (starts with `re_`). You only see it once.
+5. Supabase → **SQL Editor** → **+ New query** → paste this with your key → **Run**:
+   ```sql
+   select vault.create_secret('re_your_key_here', 'resend_api_key');
+   ```
+6. Run `website/backend/supabase.sql` again (step 1). Then place a test order on **glimp.in/?glimp_internal=1** with your own email. Both emails arrive with **[test]** in the subject.
+
+**B. WhatsApp alert (optional, free)**
+A short ping to your WhatsApp: `🛒 New order GLP-0012 · Yellow × 1 · ₹1,690 · Pune`. It goes through CallMeBot, a free third-party service, so it never carries the buyer's name, phone or address.
+1. Open **callmebot.com/blog/free-api-whatsapp-messages** and follow its steps: save their number, send them the activation message from your WhatsApp, and you get an **API key** back.
+2. Supabase SQL Editor → **Run** (your number with +91, and the key):
+   ```sql
+   select vault.create_secret('+919157877150', 'callmebot_phone');
+   select vault.create_secret('123456', 'callmebot_key');
+   ```
+
+To change a key later: `select vault.update_secret((select id from vault.secrets where name = 'resend_api_key'), 're_new_key');`
+If an email ever fails, the order is still saved. Supabase → **Database** → **Extensions** → `pg_net` → its `net._http_response` table shows what Resend answered.
+
 ## Test without messing up the numbers
 Open **glimp.in/?glimp_internal=1** once on each phone or laptop you use. That device's visits are then left out, and its orders are marked **test**. (`?glimp_internal=0` undoes it.) You can also mark any order as test on the Orders tab.
 

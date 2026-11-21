@@ -101,6 +101,7 @@ create table if not exists orders (
 create index if not exists orders_created_idx on orders (created_at);
 create index if not exists orders_session_idx on orders (session_id);
 alter table orders enable row level security;
+alter table orders add column if not exists email text;   -- asked on the order form (2026-11-21)
 
 create table if not exists order_status_events (
   id         bigserial primary key,
@@ -330,6 +331,128 @@ language sql stable security definer set search_path = public as $$
   from (select *, row_number() over (order by on_hand desc, sort) as rk from inventory) i;
 $$;
 
+-- ───────────────────────── Order emails + WhatsApp ping ─────────────────────────
+-- Sent by Supabase the moment an order is saved (pg_net = async HTTP, it never slows or blocks the order).
+--   • Customer: thank-you + order summary from yash@glimp.in (if they gave an email)
+--   • Yash: "New order" email to yash@glimp.in, with a one-tap WhatsApp thank-you link
+--   • Yash, optional: a short WhatsApp ping through CallMeBot (no name, phone or address in it)
+-- Keys live in Supabase Vault, never in this file (SETUP.md → Order emails):
+--   select vault.create_secret('re_…', 'resend_api_key');
+--   select vault.create_secret('<apikey>', 'callmebot_key');  select vault.create_secret('+91…', 'callmebot_phone');
+create extension if not exists pg_net;
+
+create or replace function html_esc(t text) returns text language sql immutable as $$
+  select replace(replace(replace(replace(coalesce(t, ''), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '"', '&quot;')
+$$;
+
+create or replace function url_encode(t text) returns text language sql immutable as $$
+  select coalesce(string_agg(case when b between 48 and 57 or b between 65 and 90 or b between 97 and 122 or b in (45, 46, 95, 126)
+                                  then chr(b) else '%' || upper(lpad(to_hex(b), 2, '0')) end, '' order by i), '')
+  from (select i, get_byte(convert_to(coalesce(t, ''), 'UTF8'), i) as b
+        from generate_series(0, length(convert_to(coalesce(t, ''), 'UTF8')) - 1) as i) s
+$$;
+
+create or replace function secret(p_name text) returns text
+language sql stable security definer set search_path = public as $$
+  select decrypted_secret from vault.decrypted_secrets where name = p_name limit 1
+$$;
+revoke all on function secret(text) from public, anon, authenticated;
+
+create or replace function notify_order(p_id uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  o orders%rowtype;
+  v_key text := secret('resend_api_key');
+  v_cb_key text := secret('callmebot_key');
+  v_cb_phone text := secret('callmebot_phone');
+  v_colour text; v_first text; v_total text; v_line text; v_tag text;
+  p1 text; p2 text; p3 text; p4 text; p5 text; v_wa text; v_ship text; v_html text; v_text text;
+begin
+  select * into o from orders where order_id = p_id;
+  if not found then return; end if;
+
+  v_colour := initcap(o.colour);
+  v_first  := initcap(split_part(o.name, ' ', 1));
+  v_total  := '₹' || to_char(o.qty * 1690, 'FM999,999');   -- ₹1,690 each, delivery free
+  v_line   := format('Glimp · %s × %s', v_colour, o.qty);
+  v_tag    := case when o.is_test then '[test] ' else '' end;
+
+  p1 := format('Hi %s 👋', v_first);
+  p2 := format('This is Yash, the founder of Glimp. I wanted to personally say thank you. Your order #%s has been received, and you''re one of our early customers. That means a lot to me 🙏', o.order_no);
+  p3 := 'I''m packing your Glimp myself and will ship it as soon as possible. I''ll send you the tracking details the moment it''s on its way. It''s Cash on Delivery, so you only pay when it reaches you.';
+  p4 := 'If you face any issue at any point, before or after delivery, we''ll give you our utmost support until it''s sorted. Just reply here. You''re talking directly to me.';
+  p5 := 'Once it arrives, clip it on, click your first shot, and send it to me. I''ll be waiting to see the first glimpse you catch 📸✨';
+
+  v_ship := format('%s<br>%s<br>%s, %s %s<br>+91 %s', html_esc(o.name), html_esc(o.address), html_esc(o.city), html_esc(o.state), html_esc(o.pincode), html_esc(o.phone));
+
+  if v_key is not null then
+    -- 1) the customer
+    if o.email is not null then
+      v_html := format($h$<div style="background:#f2efe8;padding:24px 12px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1a17">
+<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden">
+<img src="https://glimp.in/assets/wa/%s.jpg" width="560" alt="Your Glimp in %s" style="display:block;width:100%%;height:auto;border:0">
+<div style="padding:24px 24px 4px;font-size:16px;line-height:1.6">
+<p style="margin:0 0 16px">%s</p><p style="margin:0 0 16px">%s</p><p style="margin:0 0 16px">%s</p><p style="margin:0 0 16px">%s</p><p style="margin:0 0 16px">%s</p>
+<p style="margin:0 0 20px">Yash<br><span style="color:#6b6760">Founder, Glimp</span></p>
+</div>
+<div style="margin:0 24px 24px;padding:16px 18px;border:1px solid #e6e2da;border-radius:12px;font-size:14px;line-height:1.6">
+<div style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#6b6760">Order %s</div>
+<div style="margin-top:4px"><b>%s</b></div>
+<div>Pay on delivery: <b>%s</b> <span style="color:#6b6760">· Free SD card (worth ₹500) · Free delivery</span></div>
+<div style="margin-top:12px;color:#6b6760">Ships to</div>
+<div>%s</div>
+</div>
+</div>
+<p style="text-align:center;font-size:12px;color:#6b6760;margin:16px 0 0"><a href="https://glimp.in" style="color:#6b6760">glimp.in</a></p>
+</div>$h$, o.colour, v_colour, html_esc(p1), html_esc(p2), html_esc(p3), html_esc(p4), html_esc(p5),
+        o.order_no, v_line, v_total, v_ship);
+      v_text := concat_ws(E'\n\n', p1, p2, p3, p4, p5, E'Yash\nFounder, Glimp',
+        format(E'Order %s\n%s\nPay on delivery: %s · Free SD card (worth ₹500) · Free delivery\nShips to: %s, %s, %s, %s %s', o.order_no, v_line, v_total, o.name, o.address, o.city, o.state, o.pincode));
+      perform net.http_post(
+        url := 'https://api.resend.com/emails',
+        headers := jsonb_build_object('Authorization', 'Bearer ' || v_key, 'Content-Type', 'application/json'),
+        body := jsonb_build_object('from', 'Yash from Glimp <yash@glimp.in>', 'to', jsonb_build_array(o.email),
+                                   'reply_to', 'yash@glimp.in', 'subject', v_tag || 'Your Glimp order ' || o.order_no,
+                                   'html', v_html, 'text', v_text));
+    end if;
+
+    -- 2) Yash
+    v_wa := 'https://api.whatsapp.com/send?phone=91' || o.phone || '&text=' ||
+            url_encode(concat_ws(E'\n\n', p1, p2, p3, p4, p5, E'Yash\nFounder, Glimp', 'https://glimp.in/c/' || o.colour));
+    v_html := format($h$<div style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#1c1a17">
+<p style="margin:0 0 4px;font-size:20px"><b>%s</b> · %s</p>
+<p style="margin:0 0 16px;color:#6b6760">%s · %s</p>
+<p style="margin:0 0 16px">%s<br>%s</p>
+%s
+<p style="margin:20px 0">
+<a href="%s" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#25d366;color:#ffffff;text-decoration:none;font-weight:600">WhatsApp thank-you</a>
+&nbsp; <a href="tel:+91%s" style="display:inline-block;padding:10px 18px;border-radius:999px;border:1px solid #1c1a17;color:#1c1a17;text-decoration:none">Call</a>
+&nbsp; <a href="https://glimp.in/admin/" style="color:#1c1a17">Admin</a>
+</p>
+<p style="margin:0;color:#6b6760;font-size:13px">%s%s</p>
+</div>$h$, v_line, v_total, o.order_no, coalesce(o.channel, 'direct'), v_ship,
+      case when o.email is not null then html_esc(o.email) else '<span style="color:#6b6760">no email</span>' end,
+      case when o.note is not null then '<p style="margin:0 0 16px">Note: ' || html_esc(o.note) || '</p>' else '' end,
+      html_esc(v_wa), html_esc(o.phone),
+      case when o.is_test then 'Test order. ' else '' end, 'COD · ships in about 20 days');
+    perform net.http_post(
+      url := 'https://api.resend.com/emails',
+      headers := jsonb_build_object('Authorization', 'Bearer ' || v_key, 'Content-Type', 'application/json'),
+      body := jsonb_build_object('from', 'Glimp orders <yash@glimp.in>', 'to', jsonb_build_array('yash@glimp.in'),
+                                 'subject', format('%sNew order %s · %s × %s · %s · %s', v_tag, o.order_no, v_colour, o.qty, v_total, o.city),
+                                 'html', v_html));
+  end if;
+
+  -- 3) WhatsApp ping to Yash (optional). Third-party service, so no name, phone or address.
+  if v_cb_key is not null and v_cb_phone is not null then
+    perform net.http_get(
+      url := 'https://api.callmebot.com/whatsapp.php',
+      params := jsonb_build_object('phone', v_cb_phone, 'apikey', v_cb_key,
+                                   'text', format('%s🛒 New order %s · %s × %s · %s · %s', v_tag, o.order_no, v_colour, o.qty, v_total, o.city)));
+  end if;
+end $$;
+revoke all on function notify_order(uuid) from public, anon, authenticated;
+
 -- ───────────────────────── Public: place an order ─────────────────────────
 create or replace function place_order(p jsonb) returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -343,6 +466,7 @@ declare
   v_colour text := lower(coalesce(p ->> 'colour', ''));
   v_qty int := case when (p ->> 'qty') ~ '^\d{1,2}$' then (p ->> 'qty')::int else 1 end;
   v_note text := nullif(left(btrim(coalesce(p ->> 'note', '')), 300), '');
+  v_email text := nullif(lower(btrim(coalesce(p ->> 'email', ''))), '');
   v_session text := left(p ->> 'session_id', 64);
   v_anon uuid := case when (p ->> 'anonymous_id') ~ '^[0-9a-f-]{36}$' then (p ->> 'anonymous_id')::uuid end;
   v_attr jsonb := case when jsonb_typeof(p -> 'attr') = 'object' and length((p -> 'attr')::text) < 1200 then p -> 'attr' end;
@@ -358,6 +482,9 @@ begin
   if v_pin !~ '^[1-9][0-9]{5}$' then return jsonb_build_object('ok', false, 'error', 'pincode'); end if;
   if length(v_city) < 2 then return jsonb_build_object('ok', false, 'error', 'city'); end if;
   if v_state = '' then return jsonb_build_object('ok', false, 'error', 'state'); end if;
+  if v_email is not null and (length(v_email) > 120 or v_email !~ '^[^@\s]+@[^@\s]+\.[a-z]{2,}$') then
+    return jsonb_build_object('ok', false, 'error', 'email');
+  end if;
   if v_qty not between 1 and 5 then return jsonb_build_object('ok', false, 'error', 'qty'); end if;
 
   -- double tap on "Place order": hand back the order we just made
@@ -379,9 +506,9 @@ begin
   update inventory set on_hand = on_hand - v_qty, updated_at = now() where colour = v_colour;
   v_no := 'GLP-' || lpad(nextval('order_no_seq')::text, 4, '0');
 
-  insert into orders (order_no, name, phone, address, city, state, pincode, note, colour, qty, value_paise,
+  insert into orders (order_no, name, phone, email, address, city, state, pincode, note, colour, qty, value_paise,
                       session_id, anonymous_id, attr, channel, device_type, is_test)
-  values (v_no, v_name, v_phone, v_address, v_city, v_state, v_pin, v_note, v_colour, v_qty, v_qty * 169000,
+  values (v_no, v_name, v_phone, v_email, v_address, v_city, v_state, v_pin, v_note, v_colour, v_qty, v_qty * 169000,
           v_session, v_anon, v_attr, channel_of(v_attr), left(p ->> 'device_type', 12), v_test)
   returning order_id into v_id;
 
@@ -396,6 +523,9 @@ begin
                                'pincode_prefix', left(v_pin, 3), 'state', v_state),
             v_test);
   end if;
+
+  -- emails + WhatsApp ping; a failure here never loses the order
+  begin perform notify_order(v_id); exception when others then raise warning 'notify_order %: %', v_no, sqlerrm; end;
 
   return jsonb_build_object('ok', true, 'order', v_no);
 end $$;
@@ -652,7 +782,7 @@ language plpgsql stable security definer set search_path = public as $$
 begin
   if not is_site_admin() then raise exception 'not allowed'; end if;
   return (select coalesce(jsonb_agg(x order by x.created_at desc), '[]'::jsonb) from (
-    select order_no, created_at, name, phone, address, city, state, pincode, note, colour, qty, value_paise,
+    select order_no, created_at, name, phone, email, address, city, state, pincode, note, colour, qty, value_paise,
            status, call_attempts, last_call_outcome, courier, awb, channel, device_type, is_test
     from orders
     where p_status is null
@@ -696,7 +826,7 @@ revoke execute on function
   ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text),
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
   admin_set_spend(date, numeric), admin_dashboard(date, date), admin_orders(text, int),
-  admin_stock_view(), admin_restock_notified(bigint)
+  admin_stock_view(), admin_restock_notified(bigint), html_esc(text), url_encode(text)
   from public, anon, authenticated;
 grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text)
   to anon, authenticated;

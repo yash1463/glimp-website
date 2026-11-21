@@ -309,6 +309,7 @@ function wireOrder() {
   const rules = {
     name: (v) => v.trim().length >= 2,
     phone: validPhone,
+    email: (v) => /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(v.trim()),
     address: (v) => v.trim().length >= 8,
     pincode: (v) => /^[1-9]\d{5}$/.test(v),
     city: (v) => v.trim().length >= 2,
@@ -334,7 +335,7 @@ function wireOrder() {
     if (bad.length) { form.elements[bad[0]].focus(); return; }
     const f = Object.fromEntries(new FormData(form));
     const s = window.glimp?.session() || {};
-    const payload = { ...f, phone: f.phone.replace(/\D/g, ""), qty: +f.qty, session_id: s.session_id, anonymous_id: s.anonymous_id,
+    const payload = { ...f, phone: f.phone.replace(/\D/g, ""), email: f.email.trim(), qty: +f.qty, session_id: s.session_id, anonymous_id: s.anonymous_id,
                       attr: s.attr, device_type: s.device_type, internal: s.internal };
     submit.disabled = true; submit.firstChild.textContent = "Placing order… ";
     try {
