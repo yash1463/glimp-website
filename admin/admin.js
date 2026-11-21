@@ -292,9 +292,9 @@ https://glimp.in/c/${o.colour}`;
         <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${waTrack ? ` · <a href="${waTrack}" target="_blank" rel="noopener">Send tracking</a>` : ""}${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
         <div class="o-addr">${esc(addr)} <button class="link" data-copy="${esc(`${o.name}\n${addr}\n+91 ${o.phone}`)}">Copy</button></div>
         <div class="o-meta"><span class="tag"><span class="dot" style="background:${SWATCH[o.colour]}"></span>${o.qty} × ${esc(o.colour)}</span><span class="tag">${inr(o.value_paise)} COD</span>
-          ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${awbTag}${trackTag}</div>
+          ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${awbTag}${o.ship_cost != null && o.status !== "confirmed" ? `<span class="tag">Ship ₹${Math.round(o.ship_cost)}</span>` : ""}${trackTag}</div>
         ${o.note ? `<div class="o-addr">Note: ${esc(o.note)}</div>` : ""}
-        <div class="o-acts">${actions(o)}</div></article>`;
+        <div class="o-acts">${actions(o)}</div><div class="couriers-box" data-couriers hidden></div></article>`;
     }).join("");
   }
   let shown = [];
@@ -305,10 +305,39 @@ https://glimp.in/c/${o.colour}`;
     if (r?.ok) { if (w) w.location = r.url; else location.href = r.url; return; }
     w?.close(); if (r) alert(r.error);
   }
-  async function ithinkShip(no) {
-    const r = await call("admin_ithink_ship", { p_order_no: no });
+  async function ithinkShip(no, courier = null, service = null, rate = null) {
+    const r = await call("admin_ithink_ship", { p_order_no: no, p_courier: courier, p_service: service, p_rate: rate });
     if (!r.ok) throw new Error(r.error === "bad_transition" ? `${no}: can't ship from "${r.status}"` : `${no}: ${r.error}`);
     return r;
+  }
+  // Couriers for this order from iThink (price, days, COD), cheapest first. Tap Book on one.
+  async function showCouriers(card) {
+    const box = $("[data-couriers]", card);
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false; box.innerHTML = `<p class="empty">Checking couriers…</p>`;
+    let r;
+    try { r = await call("admin_ithink_rates", { p_order_no: card.dataset.no }); } catch { box.hidden = true; return; }
+    const dflt = `<button class="link" data-act="book">Book with default courier</button>`;
+    if (!r.ok) { box.innerHTML = `<p class="msg">${esc(r.error)}</p>${dflt}`; return; }
+    const yes = (v) => String(v ?? "").toUpperCase() === "Y";
+    const list = r.couriers.map((c) => ({ ...c, _rate: parseFloat(c.rate), _days: parseFloat(c.delivery_tat), _ok: r.cod ? yes(c.cod) : yes(c.prepaid) }))
+      .sort((a, b) => (b._ok - a._ok) || ((isFinite(a._rate) ? a._rate : 1e9) - (isFinite(b._rate) ? b._rate : 1e9)));
+    const live = list.filter((c) => c._ok);
+    const cheapest = Math.min(...live.filter((c) => isFinite(c._rate)).map((c) => c._rate));
+    const fastest = Math.min(...live.filter((c) => isFinite(c._days)).map((c) => c._days));
+    // iThink's docs show no rating; if their answer carries one anyway, show it
+    const ratingKey = (c) => Object.keys(c).find((k) => /rating|score|performance|star/i.test(k));
+    const anyRating = list.some(ratingKey);
+    box.innerHTML = `<div class="scroll"><table class="tbl couriers"><thead><tr><th>Courier</th>${anyRating ? `<th class="n">Rating</th>` : ""}<th class="n">₹</th><th class="n">Days</th><th></th></tr></thead><tbody>${
+      list.map((c) => {
+        const rk = ratingKey(c);
+        return `<tr class="${c._ok ? "" : "off"}"><td>${esc(c.logistic_name)}${c.logistic_service_type ? ` <span class="label">${esc(c.logistic_service_type)}</span>` : ""}${
+          c._ok && c._rate === cheapest ? ` <span class="tag">Cheapest</span>` : ""}${c._ok && c._days === fastest ? ` <span class="tag">Fastest</span>` : ""}</td>
+          ${anyRating ? `<td class="n">${rk ? esc(c[rk]) : "—"}</td>` : ""}
+          <td class="n">${isFinite(c._rate) ? Math.round(c._rate) : "—"}</td><td class="n">${isFinite(c._days) ? c._days : "—"}</td>
+          <td class="n">${c._ok ? `<button class="btn sm" data-act="book" data-courier="${esc(c.logistic_name)}" data-service="${esc(c.logistic_service_type || "")}" data-rate="${isFinite(c._rate) ? c._rate : ""}">Book</button>`
+                                : `<span class="label">${r.cod ? "No COD" : "No"}</span>`}</td></tr>`;
+      }).join("")}</tbody></table></div>${r.edd ? `<p class="empty">Zone ${esc(r.zone || "—")} · ${esc(r.edd)}</p>` : ""}`;
   }
   $("[data-orders]").addEventListener("click", async (e) => {
     const copy = e.target.closest("[data-copy]");
@@ -340,12 +369,16 @@ https://glimp.in/c/${o.colour}`;
     const b = e.target.closest("[data-act]"); if (!b) return;
     const card = b.closest("[data-no]"), grp = b.closest(".o-acts span") || b.parentElement;
     if (b.dataset.act === "label") { b.disabled = true; await openLabel([card.dataset.no]); b.disabled = false; return; }
-    if (b.dataset.act === "ithink" || b.dataset.act === "unship") {
-      const ship = b.dataset.act === "ithink";
+    if (b.dataset.act === "ithink") { b.disabled = true; await showCouriers(card); b.disabled = false; return; }
+    if (b.dataset.act === "book" || b.dataset.act === "unship") {
+      const ship = b.dataset.act === "book";
       if (!ship && !confirm("Cancel this courier booking? The order goes back to To ship.")) return;
       const label = b.textContent; b.disabled = true; b.textContent = ship ? "Booking…" : "Cancelling…";
       try {
-        if (ship) { const r = await ithinkShip(card.dataset.no); toast(`Shipped · ${r.courier || "iThink"} ${r.awb}`); }
+        if (ship) {
+          const r = await ithinkShip(card.dataset.no, b.dataset.courier || null, b.dataset.service || null, b.dataset.rate ? +b.dataset.rate : null);
+          toast(`Shipped · ${r.courier || "iThink"} ${r.awb}`);
+        }
         else { const r = await call("admin_ithink_cancel", { p_order_no: card.dataset.no }); if (!r.ok) throw new Error(r.error); toast("Booking cancelled"); }
         loadOrders();
       } catch (err) { if (err.message && !err.code) alert(err.message); b.disabled = false; b.textContent = label; }
@@ -409,6 +442,7 @@ https://glimp.in/c/${o.colour}`;
       <form class="ship-form" data-ship-form>
         ${opt("mode", "Mode", c.mode, [["live", "Live"], ["test", "Test"]])}
         ${f("pickup_id", "Pickup ID", c.pickup_id, 'inputmode="numeric" required')}
+        ${f("from_pin", "Pickup PIN", c.from_pin, 'inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" required')}
         ${f("return_id", "Return ID", c.return_id, 'inputmode="numeric" required')}
         ${opt("courier", "Courier", c.courier, [["", "iThink picks"], ["delhivery", "Delhivery"], ["xpressbees", "Xpressbees"], ["ekart", "Ekart"], ["bluedart", "Bluedart"], ["ecom", "Ecom Express"]])}
         ${opt("service", "Service", c.service, [["", "Default"], ["surface", "Surface"], ["air", "Air"]])}
@@ -432,14 +466,14 @@ https://glimp.in/c/${o.colour}`;
   });
   $("[data-pane=stock]").addEventListener("click", async (e) => {
     const use = e.target.closest("[data-use-wh]");
-    if (use) { const f = $("[data-ship-form]"); f.elements.pickup_id.value = f.elements.return_id.value = use.dataset.useWh; toast("Now press Save"); return; }
+    if (use) { const f = $("[data-ship-form]"); f.elements.pickup_id.value = f.elements.return_id.value = use.dataset.useWh; if (/^[1-9]\d{5}$/.test(use.dataset.pin)) f.elements.from_pin.value = use.dataset.pin; toast("Now press Save"); return; }
     const wb = e.target.closest("[data-wh]"); if (!wb) return;
     wb.disabled = true;
     try {
       const r = await call("admin_ithink_warehouses");
       $("[data-wh-list]").innerHTML = r.ok
         ? table([["ID", (w) => `<b>${esc(w.id)}</b>`], ["Warehouse", (w) => esc(w.name)], ["Address", (w) => esc(w.address)], ["Status", (w) => esc(w.status)],
-            ["", (w) => `<button class="link" type="button" data-use-wh="${esc(w.id)}">Use</button>`]], r.warehouses)
+            ["", (w) => `<button class="link" type="button" data-use-wh="${esc(w.id)}" data-pin="${esc(w.pincode || "")}">Use</button>`]], r.warehouses)
         : `<p class="msg">${esc(r.error)}</p>`;
     } catch {} finally { wb.disabled = false; }
   });

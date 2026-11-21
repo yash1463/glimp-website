@@ -46,7 +46,7 @@ For the Instagram bio use `https://glimp.in/#order?utm_source=instagram&utm_medi
 
 ## 7. Daily routine
 - **Orders tab → To call**: call each buyer, then press **Confirmed**, **No answer**, **Call later** or **Cancel** (with a reason).
-- **To ship**: press **Ship via iThink** on an order (or **Ship all via iThink** at the top). iThink books the courier, the order moves to **Shipped** with its AWB, and the buyer gets a "Your Glimp is on its way" email. Then press **Label** (or **All labels**) and print.
+- **To ship**: press **Ship via iThink** on an order. It lists the couriers that deliver to that PIN with iThink's price and days (cheapest first, couriers without COD greyed out). Tap **Book** on the one you want. **Ship all via iThink** at the top books every order with the default courier from the Stock tab. iThink books the courier, the order moves to **Shipped** with its AWB, and the buyer gets a "Your Glimp is on its way" email. Then press **Label** (or **All labels**) and print.
 - **Shipped**: **Send tracking** opens WhatsApp with the AWB and tracking link. **Refresh tracking** asks iThink where everything is: delivered orders become **Delivered** by themselves, and returned ones become **RTO** with their stock put back. **Cancel shipment** undoes a booking before pickup.
 - Not using iThink for an order? Pick the courier, type the tracking number, press **Shipped**, and later **Delivered** or **RTO** by hand.
 - **Stock tab → Meta ad spend**: type yesterday's spend from Ads Manager. That gives you CAC and ROAS on *delivered* orders.
@@ -89,7 +89,7 @@ Supabase talks to iThink directly, so your iThink keys never reach a browser.
    select vault.create_secret('your_secret_key', 'ithink_secret_key');
    ```
 4. Run `website/backend/supabase.sql` again (step 1). It turns on Supabase's `http` extension. If the run stops at `http`, turn it on in **Database → Extensions → http**, then run the file again.
-5. **glimp.in/admin → Stock → iThink Logistics** → **Find IDs** → **Use** next to your warehouse. Type the boxed camera's size and weight, then **Save**. **Courier: iThink picks** uses the courier priority you set in the iThink panel.
+5. **glimp.in/admin → Stock → iThink Logistics** → **Find IDs** → **Use** next to your warehouse. Check the **Pickup PIN** (needed for courier prices), type the boxed camera's size and weight, then **Save**. **Courier** is only the default for **Ship all**: **iThink picks** uses the courier priority you set in the iThink panel.
 6. Book your first real order and check it in the iThink panel. If anything looks wrong, press **Cancel shipment**: the order goes back to **To ship**.
    Orders marked **test** won't book in **Live** mode. **Test** mode uses iThink's pre-alpha server, which needs separate test keys from iThink.
 
