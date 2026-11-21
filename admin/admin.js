@@ -150,7 +150,47 @@
         <div class="card"><h3>Devices · States</h3>${table([
           ["Device", (r) => esc(r.device)], ["Sessions", (r) => num(r.sessions), "n"], ["CR", (r) => fmtPct(r.converted, r.sessions), "n"]], d.devices)}
           <div class="section-gap"></div>${table([["State", (r) => esc(r.state)], ["Orders", (r) => num(r.orders), "n"], ["RTO", (r) => num(r.rto), "n"]], d.states)}</div>
-      </div>`;
+      </div>
+      <div class="section-gap"></div>
+      <div class="card own" data-own><h3>Your own visits</h3><p class="empty">Checking…</p></div>`;
+    loadOwn();
+  }
+
+  /* ---------- your own visits (this laptop / phone) ---------- */
+  // Same device description as analytics.js, so this browser's past visits can be found.
+  const ua = navigator.userAgent;
+  const me = {
+    p_device: /iPad|Tablet/i.test(ua) || (innerWidth >= 700 && innerWidth < 1024 && "ontouchstart" in window) ? "tablet"
+      : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop",
+    p_os: /Android/i.test(ua) ? "Android" : /iPhone|iPad|iOS/i.test(ua) ? "iOS" : /Windows/i.test(ua) ? "Windows"
+      : /Mac OS/i.test(ua) ? "macOS" : /Linux/i.test(ua) ? "Linux" : "other",
+    p_browser: /FBAN|FBAV|Instagram/i.test(ua) ? "in-app" : /Edg\//.test(ua) ? "Edge" : /SamsungBrowser/.test(ua) ? "Samsung"
+      : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "other",
+    p_vw: innerWidth,
+  };
+  const anon = (document.cookie.split("; ").find((c) => c.startsWith("glimp_vid=")) || "").split("=")[1] || null;
+  const day = (t) => new Date(t).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+
+  async function loadOwn(hide = null) {
+    const box = $("[data-own]"); if (!box) return;
+    const r = await call("admin_device_visits", { p_anon: anon, ...me, p_hide: hide });
+    const kind = `${esc(me.p_os)} · ${esc(me.p_browser)} · ${me.p_vw} px wide`;
+    box.innerHTML = `<h3>Your own visits</h3>
+      <p>This browser (${kind}) is left out of the numbers from now on. Sign in here on your phone too.</p>
+      ${r.mine ? `<p class="own-row"><span><b>${num(r.mine)}</b> earlier visits from this browser still count.</span>
+        <button class="btn sm" data-own-hide="mine">Hide them</button></p>` : ""}
+      ${r.alike ? `<p class="own-row"><span><b>${num(r.alike)}</b> visits from the same kind of device (${kind}), ${day(r.alike_from)} – ${day(r.alike_to)}.
+        Most are likely yours, but a customer with the same phone would be hidden too.</span>
+        <button class="btn sm ghost" data-own-hide="alike">Hide them</button></p>` : ""}
+      ${!r.mine && !r.alike ? `<p class="empty">No earlier visits from this device are counted.</p>` : ""}
+      ${r.hidden ? `<p class="own-row"><span><b>${num(r.hidden)}</b> visits hidden.</span>
+        <button class="btn sm ghost" data-own-hide="undo">Bring back</button></p>` : ""}`;
+    $$("[data-own-hide]", box).forEach((b) => b.addEventListener("click", async () => {
+      b.disabled = true;
+      await loadOwn(b.dataset.ownHide);
+      toast(b.dataset.ownHide === "undo" ? "Hidden visits are back." : "Hidden. Numbers updated.");
+      load();
+    }));
   }
 
   /* ---------- behaviour ---------- */

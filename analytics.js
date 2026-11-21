@@ -136,7 +136,7 @@
   const PIXEL_MAP = { product_viewed: "ViewContent", checkout_started: "InitiateCheckout", order_placed: "Purchase" };
   let pixelOn = false;
   function loadPixel() {
-    if (pixelOn || !CFG.metaPixelId || !consent?.marketing) return;
+    if (pixelOn || !CFG.metaPixelId || !consent?.marketing || isInternal) return;   // own visits don't train the ads
     pixelOn = true;
     /* eslint-disable */
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
@@ -157,7 +157,7 @@
   /* ---------- Microsoft Clarity (analytics consent only) ---------- */
   let clarityOn = false;
   function loadClarity() {
-    if (clarityOn || !CFG.clarityId || !consent?.analytics) return;
+    if (clarityOn || !CFG.clarityId || !consent?.analytics || isInternal) return;   // no recordings of our own visits
     clarityOn = true;
     /* eslint-disable */
     (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};

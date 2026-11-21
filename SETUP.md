@@ -102,7 +102,9 @@ Every 3 hours, delivered orders become **Delivered** and returned ones **RTO**, 
 Every call to iThink and its answer is saved in the `ithink_log` table (Table Editor), without the keys. Check there first if a booking fails.
 
 ## Test without messing up the numbers
-Open **glimp.in/?glimp_internal=1** once on each phone or laptop you use. That device's visits are then left out, and its orders are marked **test**. (`?glimp_internal=0` undoes it.) You can also mark any order as test on the Orders tab.
+Sign in to **glimp.in/admin** once on each phone or laptop you use (or open **glimp.in/?glimp_internal=1**). That device's visits are then left out, Clarity and the Meta Pixel don't run on it, and its orders are marked **test**. (`?glimp_internal=0` undoes it.) You can also mark any order as test on the Orders tab.
+
+Visits from before that: /admin → Overview → **Your own visits** (at the bottom). "Hide them" on the first line hides this browser's earlier visits (found by its cookie, if you accepted cookies). The second line finds visits from the same kind of device (same OS, browser and screen width), which also catches visits made before you accepted cookies. **Bring back** undoes both. Do it on each device.
 
 ## Good to know
 - The Supabase free plan pauses a project after 7 days with no traffic at all. Normal site visits keep it awake.

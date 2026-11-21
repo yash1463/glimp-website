@@ -287,8 +287,17 @@ create or replace function channel_of(a jsonb) returns text language sql immutab
 $$;
 
 -- ───────────────────────── Sessions (computed live from events) ─────────────────────────
+-- Visits hidden from the numbers by an admin (their own laptop / phone). Reversible: delete the rows.
+create table if not exists excluded_sessions (
+  session_id text primary key,
+  reason     text not null,
+  created_at timestamptz not null default now()
+);
+alter table excluded_sessions enable row level security;
+
 -- At Glimp's volume a view is fast enough. Turn it into a nightly table past ~1M events.
-create or replace view sessions_v with (security_invoker = true) as
+drop view if exists sessions_v;   -- recreated: is_internal now also covers excluded_sessions
+create view sessions_v with (security_invoker = true) as
 with s as (
   select session_id,
          min(received_at) as started_at,
@@ -307,12 +316,13 @@ with s as (
          count(*) filter (where event_name = 'rage_click') as rage_clicks,
          count(*) filter (where event_name = 'js_error')   as js_errors,
          bool_or(is_bot)      as is_bot,
-         bool_or(is_internal) as is_internal,
+         bool_or(is_internal) as is_internal_evt,
          max(consent_state)   as consent_state
   from events
   group by session_id
 )
 select s.*,
+       (s.is_internal_evt or exists (select 1 from excluded_sessions x where x.session_id = s.session_id)) as is_internal,
        (s.started_at at time zone 'Asia/Kolkata')::date as started_date_ist,
        channel_of(s.attr) as channel,
        exists (select 1 from orders o where o.session_id = s.session_id and not o.is_test) as has_order,
@@ -759,7 +769,8 @@ begin
       'delivered',         (select count(*) from po where status in ('delivered','returned'))
     ),
     'live', (select count(distinct session_id) from events
-             where received_at > now() - interval '5 minutes' and not is_bot and not is_internal and source = 'browser'),
+             where received_at > now() - interval '5 minutes' and not is_bot and not is_internal and source = 'browser'
+               and session_id not in (select session_id from excluded_sessions)),
     'daily', (select coalesce(jsonb_agg(x order by x.day), '[]'::jsonb) from (
                select g::date as day,
                       (select count(*) from ss where started_date_ist = g::date) as sessions,
@@ -849,6 +860,58 @@ begin
     )
   ) into result;
   return result;
+end $$;
+
+-- ───────────────────────── Admin: your own visits ─────────────────────────
+-- 'mine'  = sessions with this browser's glimp_vid cookie (only exists if cookies were accepted)
+-- 'alike' = sessions from the same kind of device: same OS, browser, device type and screen width
+-- p_hide: null = just count, 'mine' = hide mine, 'alike' = hide mine + alike, 'undo' = bring all hidden back
+create or replace function admin_device_visits(p_anon uuid, p_os text, p_browser text, p_device text, p_vw int,
+                                               p_hide text default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare v_n int := 0; v_m int := 0;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  if p_hide = 'undo' then
+    delete from excluded_sessions where reason in ('admin: this device', 'admin: same kind of device');
+    get diagnostics v_n = row_count;
+  elsif p_hide in ('mine', 'alike') then
+    insert into excluded_sessions (session_id, reason)
+    select distinct session_id, 'admin: this device' from events
+     where p_anon is not null and anonymous_id = p_anon
+       and session_id not in (select session_id from events where is_internal)
+    on conflict do nothing;
+    get diagnostics v_n = row_count;
+    if p_hide = 'alike' then
+      insert into excluded_sessions (session_id, reason)
+      select distinct session_id, 'admin: same kind of device' from events
+       where event_name = 'page_viewed' and os = p_os and browser = p_browser and device_type = p_device and viewport_w = p_vw
+         and session_id not in (select session_id from events where is_internal)
+      on conflict do nothing;
+      get diagnostics v_m = row_count;
+      v_n := v_n + v_m;
+    end if;
+  end if;
+
+  return (
+    with mine as (
+      select distinct session_id from events where p_anon is not null and anonymous_id = p_anon
+    ), alike as (
+      select distinct session_id from events
+       where event_name = 'page_viewed' and os = p_os and browser = p_browser and device_type = p_device and viewport_w = p_vw
+         and session_id not in (select session_id from mine)
+    ), open_s as (
+      select session_id, started_at from sessions_v where not is_internal
+    )
+    select jsonb_build_object(
+      'changed', v_n,
+      'mine',    (select count(*) from open_s where session_id in (select session_id from mine)),
+      'alike',   (select count(*) from open_s where session_id in (select session_id from alike)),
+      'alike_from', (select min(started_at) from open_s where session_id in (select session_id from alike)),
+      'alike_to',   (select max(started_at) from open_s where session_id in (select session_id from alike)),
+      'hidden',  (select count(*) from excluded_sessions where reason in ('admin: this device', 'admin: same kind of device'))
+    )
+  );
 end $$;
 
 -- ───────────────────────── Admin: order list ─────────────────────────
@@ -1287,7 +1350,8 @@ revoke execute on function
   admin_stock_view(), admin_restock_notified(bigint), html_esc(text), url_encode(text),
   split_addr(text, int), ithink_call(text, jsonb, text), ithink_err(jsonb), notify_shipped(uuid), ithink_sync(int),
   admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
-  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
+  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb),
+  admin_device_visits(uuid, text, text, text, int, text)
   from public, anon, authenticated;
 grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text)
   to anon, authenticated;
@@ -1295,7 +1359,8 @@ grant execute on function is_site_admin(), admin_dashboard(date, date), admin_or
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
   admin_set_spend(date, numeric), admin_stock_view(), admin_restock_notified(bigint),
   admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
-  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
+  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb),
+  admin_device_visits(uuid, text, text, text, int, text)
   to authenticated;
 -- Every admin_* function also checks is_site_admin() itself, so a signed-in app user gets "not allowed".
 

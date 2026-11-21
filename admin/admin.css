@@ -135,3 +135,6 @@ a.tag { text-decoration: none; }
 }
 
 .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 50; }
+.own p { margin: 0 0 10px; }
+.own .own-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--line); }
+.own .own-row span { flex: 1 1 260px; }
