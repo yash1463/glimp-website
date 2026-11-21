@@ -33,8 +33,17 @@ async function rpc(fn, body) {
 }
 
 /* ---------- stock ---------- */
-let STOCK = {};                                   // {teal: {status:'in'|'low'|'out', left}}
+let STOCK = {};                                   // {teal: {status:'in'|'low'|'out', left, rank}}
 const stockOf = (c) => STOCK[c]?.status || "in";
+// The colour we have most of: rank 1 from get_stock. Without a rank: in stock first, then the most "left", then sold out.
+const bestColour = () => {
+  const score = (k) => {
+    const st = STOCK[k];
+    if (st?.rank) return st.rank;
+    return { in: 100, low: 1000 - (st?.left || 0), out: 9999 }[stockOf(k)];
+  };
+  return [...COLOURS].map(([k], i) => ({ k, i, s: score(k) })).sort((a, b) => a.s - b.s || a.i - b.i)[0].k;
+};
 async function loadStock() {
   try { STOCK = await rpc("get_stock"); } catch { STOCK = {}; }
   paintStock();
@@ -42,11 +51,11 @@ async function loadStock() {
 function paintStock() {
   $$("[data-swatch]").forEach((b) => b.classList.toggle("out", stockOf(b.dataset.swatch) === "out"));
   $$("#o-colour option").forEach((o) => { o.disabled = stockOf(o.value) === "out"; o.textContent = nameOf(o.value) + (o.disabled ? " (sold out)" : ""); });
-  setColour(colour, false, true);
+  if (picked) setColour(colour, false, true); else setColour(bestColour(), false);
 }
 
 /* ---------- colour + angle gallery ---------- */
-let colour = "white", angle = 1;
+let colour = "white", angle = 1, picked = false;   // picked: the visitor chose a colour themselves
 function showAngle(n, user) {
   const max = ANGLES[colour];
   angle = ((n - 1 + max) % max) + 1;
@@ -72,6 +81,7 @@ function buildThumbs() {
 function setColour(c, user, keepAngle) {
   const from = colour;
   const changed = c !== colour;
+  if (user) picked = true;
   colour = c;
   if (changed || !$("[data-thumb]")) { buildThumbs(); }
   showAngle(changed || !keepAngle ? 1 : angle, false);

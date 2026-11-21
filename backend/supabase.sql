@@ -322,10 +322,12 @@ revoke all on sessions_v from anon, authenticated;
 -- ───────────────────────── Public: stock ─────────────────────────
 create or replace function get_stock() returns jsonb
 language sql stable security definer set search_path = public as $$
+  -- rank 1 = the colour with the most stock (the site opens on it); counts above low_at stay private
   select coalesce(jsonb_object_agg(colour, jsonb_build_object(
            'status', case when on_hand <= 0 then 'out' when on_hand <= low_at then 'low' else 'in' end,
-           'left',   case when on_hand between 1 and low_at then on_hand end)), '{}'::jsonb)
-  from inventory;
+           'left',   case when on_hand between 1 and low_at then on_hand end,
+           'rank',   rk)), '{}'::jsonb)
+  from (select *, row_number() over (order by on_hand desc, sort) as rk from inventory) i;
 $$;
 
 -- ───────────────────────── Public: place an order ─────────────────────────
