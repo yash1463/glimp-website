@@ -273,6 +273,7 @@
     <div class="shop-info">
       <h2>Glimp</h2>
       <div class="price">₹1,690<small>Free delivery · COD</small></div>
+      <a class="rv-mini" href="#reviews" data-rv-mini hidden><span class="stars" data-rv-mini-stars></span><b data-rv-mini-avg></b><span data-rv-mini-n></span></a>
       <div class="swatch-label label">Colour: <b data-colour-name>White</b> <em class="stock" data-stock-note></em></div>
       <div class="swatches" role="radiogroup" aria-label="Colour" data-swatches></div>
       <button class="btn block" type="button" data-buy-selected data-cta="shop_order">Order White — ₹1,690 <span class="arr">→</span></button>
@@ -283,6 +284,22 @@
         <li>Ships in ~20 days</li>
       </ul>
     </div>
+  </div>
+</section>
+
+<!-- Reviews: hidden until at least one is approved on /admin -->
+<section class="section rv" id="reviews" data-section="reviews" hidden>
+  <div class="wrap">
+    <div class="rv-head">
+      <div class="rv-score">
+        <span class="label">Reviews</span>
+        <div class="rv-avg"><b data-rv-avg></b><span class="stars lg" data-rv-stars></span></div>
+        <span class="rv-n" data-rv-n></span>
+      </div>
+    </div>
+    <div class="rv-photos" data-rv-photos role="list" aria-label="Customer photos"></div>
+    <div class="rv-track" data-rv-track></div>
+    <div class="rv-foot"><span class="rv-foot-l"><span class="rv-nav" data-rv-nav hidden><button type="button" data-rv-scroll="-1" aria-label="Previous reviews">‹</button><button type="button" data-rv-scroll="1" aria-label="More reviews">›</button></span><button class="link-mono" type="button" data-rv-all-open hidden></button></span><button class="btn ghost" type="button" data-rv-write data-cta="review_write">Write a review</button></div>
   </div>
 </section>
 
@@ -380,7 +397,7 @@
       </div>
       <div>
         <h4>Shop</h4>
-        <ul><li><a href="#colours">Colours</a></li><li><a href="#box">In the box</a></li><li><a href="#faq">FAQ</a></li></ul>
+        <ul><li><a href="#colours">Colours</a></li><li><a href="#box">In the box</a></li><li><a href="#faq">FAQ</a></li><li><a href="#review">Write a review</a></li></ul>
       </div>
       <div>
         <h4>Glimp</h4>
@@ -473,6 +490,67 @@
   </form>
 </dialog>
 
+<!-- Write a review -->
+<dialog class="order rv-dlg" data-rv-dlg aria-labelledby="rv-title">
+  <form class="order-form" data-rv-form novalidate>
+    <div class="order-top">
+      <div><span class="label">Glimp</span><h2 id="rv-title">Write a review</h2></div>
+      <button type="button" class="order-x" data-rv-close aria-label="Close">×</button>
+    </div>
+    <div class="field" data-rv-rate-field>
+      <span class="lab" id="rv-rate-lab">Your rating</span>
+      <div class="rv-rate" role="radiogroup" aria-labelledby="rv-rate-lab" data-rv-rate>
+        <button type="button" role="radio" aria-checked="false" aria-label="1 star" data-v="1"></button><button type="button" role="radio" aria-checked="false" aria-label="2 stars" data-v="2"></button><button type="button" role="radio" aria-checked="false" aria-label="3 stars" data-v="3"></button><button type="button" role="radio" aria-checked="false" aria-label="4 stars" data-v="4"></button><button type="button" role="radio" aria-checked="false" aria-label="5 stars" data-v="5"></button>
+      </div>
+      <small class="err">Tap a star.</small>
+    </div>
+    <div class="field"><label for="rv-body">Your review</label><textarea id="rv-body" name="body" rows="4" maxlength="1500" required placeholder="What do you like? What could be better?"></textarea><small class="err">A few words, please.</small></div>
+    <div class="field">
+      <span class="lab">Photos <span class="opt">(optional, up to 4)</span></span>
+      <div class="rv-up" data-rv-up>
+        <label class="rv-add" data-rv-add><input type="file" accept="image/*" multiple data-rv-file><span aria-hidden="true">+</span><small>Add</small></label>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label for="rv-name">Name</label><input id="rv-name" name="name" autocomplete="name" required maxlength="40"><small class="err">Your name, please.</small></div>
+      <div class="field"><label for="rv-phone">Phone</label><div class="pre"><span>+91</span><input id="rv-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" required maxlength="11" placeholder="98765 43210" data-clarity-mask="true"></div><small class="err">A 10-digit mobile number.</small></div>
+    </div>
+    <p class="rv-note">Only your first name shows. Your phone stays private.</p>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button class="btn block" type="submit" data-rv-submit>Post review <span class="arr">→</span></button>
+    <p class="order-msg" data-rv-msg role="alert" hidden></p>
+  </form>
+  <div class="order-done" data-rv-done hidden>
+    <span class="stripes" aria-hidden="true"></span>
+    <h2 data-rv-done-title>Thanks.</h2>
+    <p class="lede">It shows up here after a quick check.</p>
+    <button type="button" class="btn" data-rv-close>Done</button>
+  </div>
+</dialog>
+
+<!-- All reviews -->
+<dialog class="order rv-all" data-rv-all aria-labelledby="rv-all-title">
+  <div class="order-form">
+    <div class="order-top">
+      <div><span class="label">Reviews</span><h2 id="rv-all-title" data-rv-all-title></h2></div>
+      <button type="button" class="order-x" data-rv-all-close aria-label="Close">×</button>
+    </div>
+    <div class="rv-dist" data-rv-dist></div>
+    <div class="rv-chips" data-rv-chips role="group" aria-label="Filter"></div>
+    <div class="rv-list" data-rv-list></div>
+    <button class="btn ghost block" type="button" data-rv-more hidden>More reviews</button>
+  </div>
+</dialog>
+
+<!-- Customer photo, full size -->
+<dialog class="rv-lb" data-rv-lb aria-label="Customer photo">
+  <button type="button" class="order-x" data-rv-lb-close aria-label="Close">×</button>
+  <div class="rv-lb-stage"><img data-rv-lb-img alt=""></div>
+  <button type="button" class="g-nav prev" data-rv-lb-go="-1" aria-label="Previous photo">‹</button>
+  <button type="button" class="g-nav next" data-rv-lb-go="1" aria-label="Next photo">›</button>
+  <div class="rv-lb-cap" data-rv-lb-cap></div>
+</dialog>
+
 <div class="buybar" data-buybar>
   <img class="bb-cam" data-bb-img src="assets/gallery/white/1-sm.webp" alt="" width="240" height="150">
   <div class="bb-text"><span class="label" data-bb-name>Glimp · White</span><b>₹1,690 <small class="bb-free">Free SD card + delivery</small></b></div>
@@ -484,5 +562,6 @@
 </svg>
 
 <script src="main.js" defer></script>
+<script src="reviews.js" defer></script>
 </body>
 </html>

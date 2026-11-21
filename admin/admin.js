@@ -67,6 +67,8 @@
   async function load() {
     if (tab === "orders") return loadOrders();
     if (tab === "stock") return loadStock();
+    if (tab === "reviews") return loadReviews();
+    rvBadge();
     const [from, to] = range();
     dash = await call("admin_dashboard", { p_from: from, p_to: to });
     const tc = $("[data-tocall]"); tc.textContent = dash.kpi.to_call; tc.hidden = !dash.kpi.to_call;
@@ -294,6 +296,12 @@ ${o.courier || "Courier"} · AWB ${o.awb}${o.tracking_url ? `\nTrack: ${o.tracki
 Pay ${inr(o.value_paise)} in cash when it arrives.
 
 Yash`;
+    const reviewAsk = (o) => `Hi ${first(o)}, hope you're enjoying your Glimp \u{1F4F8}
+
+Could you leave a quick review? A photo you took with it would be amazing. It takes a minute:
+https://glimp.in/#review
+
+Yash`;
     // Thank-you message. The last line is a glimp.in/c/<colour> link: WhatsApp shows it as a preview
     // with the photo of the camera they ordered (assets/wa/<colour>.jpg, made by tools/build_wa_cards.py).
     const thankYou = (o) => {
@@ -320,6 +328,7 @@ https://glimp.in/c/${o.colour}`;
       // api.whatsapp.com, not wa.me: wa.me's redirect turns emoji into "�" on some phones
       const wa = `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(thankYou(o))}`;
       const addr = `${o.address}, ${o.city}, ${o.state} ${o.pincode}`;
+      const waReview = o.status === "delivered" ? `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(reviewAsk(o))}` : "";
       const waTrack = o.status === "shipped" && o.awb ? `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(trackMsg(o))}` : "";
       const awbTag = !o.courier ? "" : o.tracking_url
         ? `<a class="tag" href="${esc(o.tracking_url)}" target="_blank" rel="noopener">${esc(o.courier)} ${esc(o.awb || "")} ›</a>`
@@ -329,7 +338,7 @@ https://glimp.in/c/${o.colour}`;
       return `<article class="order${o.is_test ? " test" : ""}" data-no="${esc(o.order_no)}">
         <div class="o-head"><span class="o-no">${esc(o.order_no)} · ${when}</span>
           <span class="o-meta"><span class="tag st-${esc(o.status)}">${esc(o.status)}</span>${o.call_attempts ? `<span class="tag">${o.call_attempts} call${o.call_attempts > 1 ? "s" : ""}${o.last_call_outcome ? " · " + esc(o.last_call_outcome) : ""}</span>` : ""}${o.is_test ? `<span class="tag">test</span>` : ""}</span></div>
-        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${waTrack ? ` · <a href="${waTrack}" target="_blank" rel="noopener">Send tracking</a>` : ""}${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
+        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${waTrack ? ` · <a href="${waTrack}" target="_blank" rel="noopener">Send tracking</a>` : ""}${waReview ? ` · <a href="${waReview}" target="_blank" rel="noopener">Ask for review</a>` : ""}${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
         <div class="o-addr">${esc(addr)} <button class="link" data-copy="${esc(`${o.name}\n${addr}\n+91 ${o.phone}`)}">Copy</button></div>
         <div class="o-meta"><span class="tag"><span class="dot" style="background:${SWATCH[o.colour]}"></span>${o.qty} × ${esc(o.colour)}</span><span class="tag">${inr(o.value_paise)} COD</span>
           ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${awbTag}${o.ship_cost != null && o.status !== "confirmed" ? `<span class="tag">Ship ₹${Math.round(o.ship_cost)}</span>` : ""}${trackTag}</div>
@@ -555,6 +564,45 @@ https://glimp.in/c/${o.colour}`;
     const f = e.target;
     await call("admin_set_spend", { p_date: f.elements.date.value, p_rupees: +f.elements.rupees.value });
     toast("Spend saved"); loadStock();
+  });
+
+
+  /* ---------- reviews ---------- */
+  const RV_PHOTO = (u, t) => `${CFG.supabaseUrl}/storage/v1/object/public/reviews/r/${u}${t ? "-t" : ""}.jpg`;
+  let rvFilter = "pending";
+  async function rvBadge() {
+    const { data } = await sb.rpc("admin_reviews", { p_status: "pending" });   // quiet: the SQL may not be run yet
+    const b = $("[data-rv-pending]"); const n = Array.isArray(data) ? data.length : 0;
+    b.textContent = n; b.hidden = !n;
+  }
+  async function loadReviews() {
+    const pane = $("[data-pane=reviews]");
+    const list = await call("admin_reviews", { p_status: rvFilter === "all" ? null : rvFilter });
+    const chips = [["pending", "Waiting"], ["approved", "On the site"], ["hidden", "Hidden"], ["all", "All"]]
+      .map(([k, t]) => `<button class="btn sm${rvFilter === k ? "" : " ghost"}" data-rv-filter="${k}">${t}</button>`).join("");
+    const starsTxt = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+    const btn = (r, to, t, cls = "ghost") => r.status === to ? "" : `<button class="btn sm ${cls}" data-rv-act="${to}" data-id="${r.id}">${t}</button>`;
+    pane.innerHTML = `<div class="o-acts bulk">${chips}</div>` + (list.length ? list.map((r) => `
+      <article class="order rv-a">
+        <div class="o-head"><span class="rv-a-stars">${starsTxt(r.rating)}</span>
+          <span class="o-meta"><span class="tag st-${r.status === "approved" ? "delivered" : r.status === "hidden" ? "cancelled" : "created"}">${esc(r.status === "approved" ? "on the site" : r.status)}</span>
+          <span class="tag">${day(r.created_at)}</span></span></div>
+        <div><span class="o-who">${esc(r.name)}</span> <span class="rv-a-dim">shows as “${esc(r.shown_as)}”</span> · <a href="tel:+91${esc(r.phone)}">+91 ${esc(r.phone)}</a>
+          · ${r.verified ? `<span class="tag st-delivered">verified · ${esc(r.order_no)}</span>` : `<span class="rv-a-dim">no matching order</span>`}</div>
+        <p class="rv-a-body">${esc(r.body)}</p>
+        ${r.photos.length ? `<div class="rv-a-pics">${r.photos.map((u) => `<a href="${RV_PHOTO(u)}" target="_blank" rel="noopener"><img src="${RV_PHOTO(u, true)}" alt="" loading="lazy"></a>`).join("")}</div>` : ""}
+        <div class="o-acts">${btn(r, "approved", "Approve", "")}${btn(r, "hidden", "Hide", "warn")}${btn(r, "pending", "Back to waiting")}</div>
+      </article>`).join("") : `<p class="empty">${rvFilter === "pending" ? "No reviews waiting." : "Nothing here."}</p>`);
+  }
+  $("[data-pane=reviews]").addEventListener("click", async (e) => {
+    const f = e.target.closest("[data-rv-filter]");
+    if (f) { rvFilter = f.dataset.rvFilter; return loadReviews(); }
+    const a = e.target.closest("[data-rv-act]");
+    if (!a) return;
+    a.disabled = true;
+    const r = await call("admin_review_action", { p_id: +a.dataset.id, p_action: a.dataset.rvAct });
+    toast(!r.ok ? "Didn't work" : a.dataset.rvAct === "approved" ? "On the site" : a.dataset.rvAct === "hidden" ? "Hidden" : "Moved back");
+    loadReviews(); rvBadge();
   });
 
   // refresh the numbers every minute while the tab is open

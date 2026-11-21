@@ -101,6 +101,15 @@ Every 3 hours, delivered orders become **Delivered** and returned ones **RTO**, 
 
 Every call to iThink and its answer is saved in the `ithink_log` table (Table Editor), without the keys. Check there first if a booking fails.
 
+## 10. Reviews
+Customers write a review with stars, text and up to 4 photos (camera or gallery) from **glimp.in/#review**, the footer link, or the **Write a review** button.
+Nothing shows until you approve it.
+1. Run `website/backend/supabase.sql` again (step 1). It makes the `reviews` table and a public photo folder (Supabase → **Storage** → `reviews`).
+2. **glimp.in/admin → Reviews**: **Approve** puts it on the site, **Hide** takes it off. The tab shows how many are waiting, and you get a "New review" email (if step 8 is done).
+3. To ask a buyer: on a **delivered** order, tap **Ask for review**. It opens WhatsApp with a short message and the link.
+The Reviews section and the stars under the price appear by themselves once one review is approved.
+A review is **Verified buyer** when its phone number matches an order. Approve honest low ratings too: hiding only bad ones is not allowed under India's rules on online reviews, and buyers trust a 4.6 more than a 5.0.
+
 ## Test without messing up the numbers
 Sign in to **glimp.in/admin** once on each phone or laptop you use (or open **glimp.in/?glimp_internal=1**). That device's visits are then left out, Clarity and the Meta Pixel don't run on it, and its orders are marked **test**. (`?glimp_internal=0` undoes it.) You can also mark any order as test on the Orders tab.
 

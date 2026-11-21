@@ -190,7 +190,8 @@ create or replace function allowed_events() returns text[] language sql immutabl
     'checkout_started','checkout_field_error','order_placed','form_abandoned',
     'whatsapp_clicked','instagram_clicked','outbound_link_clicked',
     'rage_click','dead_click','js_error','api_error',
-    'look_selected','app_usecase_selected'
+    'look_selected','app_usecase_selected',
+    'review_form_opened','review_submitted','review_photo_viewed','reviews_all_opened'
   ];
 $$;
 
@@ -1340,6 +1341,143 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+-- ───────────────────────── Reviews ─────────────────────────
+-- Anyone can post (stars, name, text, up to 4 photos); the phone is private and only marks "Verified buyer"
+-- when it matches an order. Nothing shows on the site until /admin → Reviews → Approve.
+-- Photos: the browser shrinks each one (also drops GPS and other EXIF), uploads r/<uuid>.jpg (≤1600 px)
+-- and r/<uuid>-t.jpg (≤480 px thumbnail) to the public "reviews" bucket, then sends the uuids here.
+create table if not exists reviews (
+  id          bigserial primary key,
+  created_at  timestamptz not null default now(),
+  name        text not null,
+  rating      int  not null check (rating between 1 and 5),
+  body        text not null,
+  photos      text[] not null default '{}',        -- uuids; files are r/<uuid>.jpg and r/<uuid>-t.jpg
+  phone       text not null,                        -- private: never returned by get_reviews
+  order_no    text,
+  verified    boolean not null default false,
+  status      text not null default 'pending' check (status in ('pending', 'approved', 'hidden')),
+  session_id  text,
+  decided_at  timestamptz
+);
+create index if not exists reviews_status_idx on reviews (status, created_at desc);
+alter table reviews enable row level security;
+
+-- Photo bucket: public read (unguessable names), 3 MB JPEGs only, uploads only into r/<uuid>[-t].jpg
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('reviews', 'reviews', true, 3145728, array['image/jpeg'])
+on conflict (id) do update set public = true, file_size_limit = 3145728, allowed_mime_types = array['image/jpeg'];
+drop policy if exists "review photos: anyone can upload" on storage.objects;
+create policy "review photos: anyone can upload" on storage.objects for insert to anon, authenticated
+  with check (bucket_id = 'reviews' and name ~ '^r/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(-t)?\.jpg$');
+
+create or replace function review_name(n text) returns text language sql immutable as $$
+  -- "rohan kumar sharma" → "Rohan S."
+  select case when array_length(w, 1) > 1 then initcap(w[1]) || ' ' || upper(left(w[array_length(w, 1)], 1)) || '.'
+              else initcap(w[1]) end
+  from (select regexp_split_to_array(btrim(n), '\s+') as w) s
+$$;
+
+create or replace function notify_review(p_id bigint) returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  r reviews%rowtype;
+  v_key text := secret('resend_api_key');
+  v_stars text;
+begin
+  select * into r from reviews where id = p_id;
+  if not found or v_key is null then return; end if;
+  v_stars := repeat('★', r.rating) || repeat('☆', 5 - r.rating);
+  perform net.http_post(
+    url := 'https://api.resend.com/emails',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || v_key, 'Content-Type', 'application/json'),
+    body := jsonb_build_object('from', 'Glimp reviews <yash@glimp.in>', 'to', jsonb_build_array('yash@glimp.in'),
+      'subject', format('New review %s from %s%s', v_stars, review_name(r.name), case when r.verified then ' (verified)' else '' end),
+      'html', format($h$<div style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#1c1a17">
+<p style="margin:0 0 4px;font-size:22px;color:#e3a21a">%s</p>
+<p style="margin:0 0 12px"><b>%s</b> · +91 %s%s</p>
+<p style="margin:0 0 16px;white-space:pre-wrap">%s</p>
+<p style="margin:0 0 16px">%s</p>
+<p style="margin:0"><a href="https://glimp.in/admin/" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#1c1a17;color:#ffffff;text-decoration:none">Approve in admin</a></p>
+</div>$h$, v_stars, html_esc(r.name), html_esc(r.phone),
+        case when r.verified then ' · verified buyer ' || html_esc(r.order_no) else ' · no matching order' end,
+        html_esc(r.body),
+        coalesce((select string_agg(format('<img src="https://vuiqgyllynhgekmcaqij.supabase.co/storage/v1/object/public/reviews/r/%s-t.jpg" width="120" style="border-radius:8px;margin:0 6px 6px 0">', u), '')
+                  from unnest(r.photos) u), ''))));
+end $$;
+
+create or replace function submit_review(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_name text := left(btrim(regexp_replace(coalesce(p ->> 'name', ''), '\s+', ' ', 'g')), 40);
+  v_phone text := right(regexp_replace(coalesce(p ->> 'phone', ''), '\D', '', 'g'), 10);
+  v_rating int := case when (p ->> 'rating') ~ '^[1-5]$' then (p ->> 'rating')::int end;
+  v_body text := btrim(regexp_replace(coalesce(p ->> 'body', ''), '[ \t]+', ' ', 'g'));
+  v_photos text[] := '{}';
+  v_order text; v_id bigint; u text;
+begin
+  if coalesce(p ->> 'website', '') <> '' then return jsonb_build_object('ok', true); end if;   -- honeypot
+  if v_rating is null then return jsonb_build_object('ok', false, 'error', 'rating'); end if;
+  if length(v_name) < 2 then return jsonb_build_object('ok', false, 'error', 'name'); end if;
+  if v_phone !~ '^[6-9][0-9]{9}$' then return jsonb_build_object('ok', false, 'error', 'phone'); end if;
+  if length(v_body) < 10 or length(v_body) > 1500 then return jsonb_build_object('ok', false, 'error', 'body'); end if;
+  if jsonb_typeof(p -> 'photos') = 'array' then
+    for u in select jsonb_array_elements_text(p -> 'photos') limit 4 loop
+      if u !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+         or not exists (select 1 from storage.objects where bucket_id = 'reviews' and name = 'r/' || u || '.jpg') then
+        return jsonb_build_object('ok', false, 'error', 'photo');
+      end if;
+      v_photos := v_photos || u;
+    end loop;
+  end if;
+  if (select count(*) from reviews where phone = v_phone and created_at > now() - interval '24 hours') >= 3 then
+    return jsonb_build_object('ok', false, 'error', 'limit');
+  end if;
+
+  select order_no into v_order from orders
+   where phone = v_phone and status not in ('cancelled') and not is_test
+   order by created_at desc limit 1;
+
+  insert into reviews (name, rating, body, photos, phone, order_no, verified, session_id)
+  values (v_name, v_rating, v_body, v_photos, v_phone, v_order, v_order is not null, left(p ->> 'session_id', 64))
+  returning id into v_id;
+
+  begin perform notify_review(v_id); exception when others then raise warning 'notify_review %: %', v_id, sqlerrm; end;
+  return jsonb_build_object('ok', true);
+end $$;
+
+-- Public: approved reviews only, no phone or order number
+create or replace function get_reviews() returns jsonb
+language sql stable security definer set search_path = public as $$
+  with a as (select * from reviews where status = 'approved')
+  select jsonb_build_object(
+    'count', (select count(*) from a),
+    'avg',   (select round(avg(rating)::numeric, 1) from a),
+    'dist',  (select jsonb_object_agg(s, (select count(*) from a where rating = s)) from generate_series(1, 5) s),
+    'reviews', coalesce((select jsonb_agg(jsonb_build_object(
+        'id', id, 'name', review_name(name), 'rating', rating, 'body', body, 'photos', to_jsonb(photos),
+        'verified', verified, 'date', to_char(created_at at time zone 'Asia/Kolkata', 'YYYY-MM-DD'))
+        order by (cardinality(photos) > 0) desc, created_at desc) from (select * from a order by created_at desc limit 500) x), '[]'::jsonb))
+$$;
+
+create or replace function admin_reviews(p_status text default null) returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  return coalesce((select jsonb_agg(to_jsonb(r) order by r.created_at desc) from (
+    select id, created_at, name, review_name(name) as shown_as, rating, body, photos, phone, order_no, verified, status
+    from reviews where p_status is null or status = p_status order by created_at desc limit 300) r), '[]'::jsonb);
+end $$;
+
+create or replace function admin_review_action(p_id bigint, p_action text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  if p_action not in ('approved', 'hidden', 'pending') then return jsonb_build_object('ok', false, 'error', 'action'); end if;
+  update reviews set status = p_action, decided_at = now() where id = p_id;
+  return jsonb_build_object('ok', found);
+end $$;
+
 -- ───────────────────────── Who may call what ─────────────────────────
 -- Only this file's functions are touched; the app's own functions keep their grants.
 revoke execute on function
@@ -1351,16 +1489,18 @@ revoke execute on function
   split_addr(text, int), ithink_call(text, jsonb, text), ithink_err(jsonb), notify_shipped(uuid), ithink_sync(int),
   admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
   admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb),
-  admin_device_visits(uuid, text, text, text, int, text)
+  admin_device_visits(uuid, text, text, text, int, text),
+  review_name(text), notify_review(bigint), submit_review(jsonb), get_reviews(), admin_reviews(text), admin_review_action(bigint, text)
   from public, anon, authenticated;
-grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text)
+grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text),
+  submit_review(jsonb), get_reviews()
   to anon, authenticated;
 grant execute on function is_site_admin(), admin_dashboard(date, date), admin_orders(text, int),
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
   admin_set_spend(date, numeric), admin_stock_view(), admin_restock_notified(bigint),
   admin_ithink_ship(text, text, text, numeric), admin_ithink_rates(text), admin_create_order(jsonb), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
   admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb),
-  admin_device_visits(uuid, text, text, text, int, text)
+  admin_device_visits(uuid, text, text, text, int, text), admin_reviews(text), admin_review_action(bigint, text)
   to authenticated;
 -- Every admin_* function also checks is_site_admin() itself, so a signed-in app user gets "not allowed".
 
