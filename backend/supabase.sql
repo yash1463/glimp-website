@@ -379,7 +379,7 @@ begin
 
   insert into orders (order_no, name, phone, address, city, state, pincode, note, colour, qty, value_paise,
                       session_id, anonymous_id, attr, channel, device_type, is_test)
-  values (v_no, v_name, v_phone, v_address, v_city, v_state, v_pin, v_note, v_colour, v_qty, v_qty * 149000,
+  values (v_no, v_name, v_phone, v_address, v_city, v_state, v_pin, v_note, v_colour, v_qty, v_qty * 169000,
           v_session, v_anon, v_attr, channel_of(v_attr), left(p ->> 'device_type', 12), v_test)
   returning order_id into v_id;
 
@@ -390,7 +390,7 @@ begin
   if v_session is not null then
     insert into events (event_id, event_name, source, session_id, anonymous_id, consent_state, props, is_internal)
     values (gen_random_uuid(), 'order_created', 'server', v_session, v_anon, 'server',
-            jsonb_build_object('order_no', v_no, 'colour', v_colour, 'qty', v_qty, 'value_paise', v_qty * 149000,
+            jsonb_build_object('order_no', v_no, 'colour', v_colour, 'qty', v_qty, 'value_paise', v_qty * 169000,
                                'pincode_prefix', left(v_pin, 3), 'state', v_state),
             v_test);
   end if;

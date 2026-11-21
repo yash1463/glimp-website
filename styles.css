@@ -408,6 +408,8 @@ h3 { font-size: var(--fs-h3); line-height: 1.12; font-variation-settings: "SOFT"
 .bb-text { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .bb-text .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bb-text b { font-size: 1.125rem; line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
+.bb-text .bb-free { font-family: inherit; font-size: 0.6875rem; font-weight: 600; color: var(--yes); letter-spacing: 0.02em; margin-left: 4px; vertical-align: 2px; white-space: nowrap; }
+.final .final-cod { display: block; margin-top: 16px; }
 .buybar .btn { flex: none; min-height: 48px; --pad-y: 15px; padding-left: 24px; padding-right: 24px; }
 
 /* ---------- order + restock dialogs ---------- */

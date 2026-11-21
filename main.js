@@ -1,7 +1,6 @@
 /* Glimp site behaviour. No libraries. Settings live in config.js. */
 const CFG = window.GLIMP_CONFIG || {};
 const PRICE = 1690;
-const SHIPPING = 119; // flat per order, collected on delivery
 const COLOURS = [
   ["white", "White"], ["red", "Red"], ["yellow", "Yellow"], ["teal", "Teal"], ["grey", "Grey"],
 ];
@@ -264,8 +263,7 @@ function wireOrder() {
   let checkoutId = null, touched = null, placed = false;
 
   const sync = () => {
-    $("[data-order-total]").textContent = inr(PRICE * +qty.value + SHIPPING);
-    $("[data-order-break]").textContent = `${inr(PRICE * +qty.value)} + ${inr(SHIPPING)} shipping`;
+    $("[data-order-total]").textContent = inr(PRICE * +qty.value);
     img.src = `assets/gallery/${colourSel.value}/1-sm.webp`;
   };
   const open = (c) => {
