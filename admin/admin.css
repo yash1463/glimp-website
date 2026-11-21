@@ -102,6 +102,15 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--s2); border
 .tag.st-rto, .tag.st-cancelled { background: color-mix(in srgb, var(--bad) 15%, var(--bg)); }
 .o-acts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .o-acts input, .o-acts select { min-height: 34px; padding: 5px 10px; font-size: 13px; }
+.o-acts.bulk { margin-bottom: 12px; }
+a.tag { text-decoration: none; }
+.tag.trk { background: color-mix(in srgb, var(--s1) 20%, var(--bg)); }
+
+/* iThink settings */
+.ship-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+.fld { display: grid; gap: 5px; min-width: 0; }
+.fld input, .fld select { width: 100%; }
+.ship-btns { grid-column: 1 / -1; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; border: 1px solid var(--line); }
 
 /* stock */

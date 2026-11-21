@@ -546,12 +546,12 @@ begin
 end $$;
 
 -- ───────────────────────── Admin: order actions ─────────────────────────
-create or replace function admin_order_action(p_order_no text, p_action text, p_reason text default null,
-                                              p_courier text default null, p_awb text default null)
+-- order_action_core does the work; admin_order_action is the admin-only door to it.
+-- (iThink tracking sync also uses the core, from a schedule with no one signed in.)
+create or replace function order_action_core(p_order_no text, p_action text, p_reason text, p_courier text, p_awb text, p_who text)
 returns jsonb language plpgsql security definer set search_path = public as $$
-declare o orders; v_new text; v_who text := coalesce(auth.jwt() ->> 'email', 'admin'); v_restock boolean := false;
+declare o orders; v_new text; v_who text := coalesce(p_who, 'admin'); v_restock boolean := false;
 begin
-  if not is_site_admin() then raise exception 'not allowed'; end if;
   select * into o from orders where order_no = p_order_no for update;
   if not found then return jsonb_build_object('ok', false, 'error', 'no_order'); end if;
 
@@ -572,17 +572,19 @@ begin
     when 'deliver' then case when o.status = 'shipped' then 'delivered' end
     when 'rto'     then case when o.status = 'shipped' then 'rto' end
     when 'return'  then case when o.status = 'delivered' then 'returned' end
+    when 'unship'  then case when o.status = 'shipped' then 'confirmed' end   -- courier booking cancelled
   end;
   if v_new is null then return jsonb_build_object('ok', false, 'error', 'bad_transition', 'status', o.status); end if;
 
   update orders set status = v_new, status_updated_at = now(),
          call_attempts = call_attempts + case when p_action in ('confirm', 'cancel') and o.status = 'created' then 1 else 0 end,
          last_call_outcome = case when p_action in ('confirm', 'cancel') and o.status = 'created' then p_action else last_call_outcome end,
-         courier = coalesce(nullif(p_courier, ''), courier), awb = coalesce(nullif(p_awb, ''), awb)
+         courier = case when p_action = 'unship' then null else coalesce(nullif(p_courier, ''), courier) end,
+         awb     = case when p_action = 'unship' then null else coalesce(nullif(p_awb, ''), awb) end
    where order_id = o.order_id;
   insert into order_status_events (order_id, status, reason, meta, created_by)
-  values (o.order_id, v_new, nullif(p_reason, ''),
-          case when p_action = 'ship' then jsonb_build_object('courier', p_courier, 'awb', p_awb) end, v_who);
+  values (o.order_id, v_new, coalesce(nullif(p_reason, ''), case when p_action = 'unship' then 'shipment_cancelled' end),
+          case when p_action in ('ship', 'unship') then jsonb_build_object('courier', coalesce(p_courier, o.courier), 'awb', coalesce(p_awb, o.awb)) end, v_who);
 
   -- stock comes back when the camera does
   v_restock := v_new in ('cancelled', 'rto');
@@ -593,9 +595,18 @@ begin
   end if;
 
   insert into events (event_id, event_name, source, session_id, anonymous_id, consent_state, props, is_internal)
-  values (gen_random_uuid(), 'order_' || v_new, 'server', coalesce(o.session_id, 'server'), o.anonymous_id, 'server',
+  values (gen_random_uuid(), case when p_action = 'unship' then 'order_ship_cancelled' else 'order_' || v_new end, 'server', coalesce(o.session_id, 'server'), o.anonymous_id, 'server',
           jsonb_build_object('order_no', o.order_no, 'reason', p_reason), o.is_test);
   return jsonb_build_object('ok', true, 'status', v_new, 'restocked', v_restock);
+end $$;
+revoke all on function order_action_core(text, text, text, text, text, text) from public, anon, authenticated;
+
+create or replace function admin_order_action(p_order_no text, p_action text, p_reason text default null,
+                                              p_courier text default null, p_awb text default null)
+returns jsonb language plpgsql security definer set search_path = public as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  return order_action_core(p_order_no, p_action, p_reason, p_courier, p_awb, coalesce(auth.jwt() ->> 'email', 'admin'));
 end $$;
 
 -- ───────────────────────── Admin: stock ─────────────────────────
@@ -783,7 +794,8 @@ begin
   if not is_site_admin() then raise exception 'not allowed'; end if;
   return (select coalesce(jsonb_agg(x order by x.created_at desc), '[]'::jsonb) from (
     select order_no, created_at, name, phone, email, address, city, state, pincode, note, colour, qty, value_paise,
-           status, call_attempts, last_call_outcome, courier, awb, channel, device_type, is_test
+           status, call_attempts, last_call_outcome, courier, awb, channel, device_type, is_test,
+           ship_via, tracking_url, track_status, track_code, track_where, track_at, edd
     from orders
     where p_status is null
        or (p_status = 'open' and status in ('created', 'confirmed', 'shipped'))
@@ -819,6 +831,346 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+-- ════════════════════════════════════════════════════════════════════════════
+-- Shipping with iThink Logistics (API v3, docs.ithinklogistics.com)
+--   /admin → Orders → "Ship via iThink" books the courier and gets the AWB,
+--   "Label" opens the PDF, "Cancel shipment" undoes a booking before pickup,
+--   "Refresh tracking" (or the optional 3-hourly schedule, SETUP.md step 9) marks
+--   orders Delivered / RTO by itself. RTO puts the stock back.
+-- Keys live in Vault: ithink_access_token, ithink_secret_key (iThink panel → Settings → API).
+-- Postgres calls iThink itself (the http extension), so the keys never reach a browser.
+-- ════════════════════════════════════════════════════════════════════════════
+create extension if not exists http with schema extensions;
+
+alter table orders add column if not exists ship_via     text;         -- 'ithink' when booked from /admin
+alter table orders add column if not exists ship_ref     text;         -- iThink refnum
+alter table orders add column if not exists tracking_url text;
+alter table orders add column if not exists track_status text;         -- iThink current_status, e.g. In Transit
+alter table orders add column if not exists track_code   text;         -- UD / DL / CN / RT …
+alter table orders add column if not exists track_where  text;         -- last scan location
+alter table orders add column if not exists track_at     timestamptz;  -- when we last asked
+alter table orders add column if not exists edd          text;         -- expected delivery date, as iThink sends it
+create index if not exists orders_awb_idx on orders (awb);
+
+create table if not exists ship_settings (
+  id         int primary key default 1 check (id = 1),
+  mode       text not null default 'live' check (mode in ('live', 'test')),   -- test = pre-alpha.ithinklogistics.com
+  pickup_id  text,                     -- iThink warehouse id you ship from
+  return_id  text,                     -- iThink warehouse id RTOs go back to (usually the same)
+  courier    text not null default '', -- '' = iThink's own courier priority; or delhivery, xpressbees, ekart, bluedart, ecom
+  service    text not null default '', -- s_type: '' / surface / air
+  length_cm  numeric not null default 12,
+  width_cm   numeric not null default 10,
+  height_cm  numeric not null default 8,
+  weight_kg  numeric not null default 0.3,   -- per camera, boxed
+  hsn        text not null default '',
+  gst        text not null default '',
+  label_size text not null default 'A4' check (label_size in ('A4', 'A5', 'A6')),
+  updated_at timestamptz not null default now()
+);
+insert into ship_settings (id) values (1) on conflict do nothing;
+alter table ship_settings enable row level security;
+
+-- every call to iThink and its answer (keys are never stored here)
+create table if not exists ithink_log (
+  id          bigserial primary key,
+  created_at  timestamptz not null default now(),
+  order_no    text,
+  path        text not null,
+  request     jsonb,
+  http_status int,
+  response    jsonb
+);
+alter table ithink_log enable row level security;
+
+-- one address into up to 3 lines of ~n characters, split on spaces (couriers cut long lines)
+create or replace function split_addr(t text, n int default 100) returns text[]
+language plpgsql immutable as $$
+declare out text[] := '{}'; cur text := ''; w text;
+begin
+  foreach w in array regexp_split_to_array(btrim(coalesce(t, '')), '\s+') loop
+    if cur <> '' and length(cur) + 1 + length(w) > n and coalesce(array_length(out, 1), 0) < 2 then
+      out := out || cur; cur := w;
+    else
+      cur := btrim(cur || ' ' || w);
+    end if;
+  end loop;
+  return out || cur;
+end $$;
+
+-- POST {"data": {...p_data, access_token, secret_key}} to iThink. Returns {ok, http, body} or {ok:false, error}.
+create or replace function ithink_call(p_path text, p_data jsonb, p_order_no text default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  s ship_settings; v_tok text := secret('ithink_access_token'); v_sec text := secret('ithink_secret_key');
+  v_host text; r extensions.http_response; v_body jsonb;
+begin
+  select * into s from ship_settings where id = 1;
+  if v_tok is null or v_sec is null then
+    return jsonb_build_object('ok', false, 'error', 'iThink keys are not in Supabase Vault yet (SETUP.md step 9).');
+  end if;
+  v_host := case when s.mode = 'test' then 'https://pre-alpha.ithinklogistics.com'
+                 when p_path like 'order/track%' then 'https://api.ithinklogistics.com'
+                 else 'https://my.ithinklogistics.com' end;
+  perform set_config('http.timeout_msec', '20000', true);
+  begin
+    r := extensions.http_post(v_host || '/api_v3/' || p_path,
+           jsonb_build_object('data', p_data || jsonb_build_object('access_token', v_tok, 'secret_key', v_sec))::text,
+           'application/json');
+  exception when others then
+    insert into ithink_log (order_no, path, request, response) values (p_order_no, p_path, p_data, to_jsonb(sqlerrm));
+    return jsonb_build_object('ok', false, 'error', 'Could not reach iThink: ' || sqlerrm);
+  end;
+  begin v_body := r.content::jsonb; exception when others then v_body := to_jsonb(left(r.content, 2000)); end;
+  insert into ithink_log (order_no, path, request, http_status, response) values (p_order_no, p_path, p_data, r.status, v_body);
+  return jsonb_build_object('ok', r.status between 200 and 299, 'http', r.status, 'body', v_body,
+                            'error', case when r.status not between 200 and 299 then 'iThink answered HTTP ' || r.status end);
+end $$;
+
+-- best readable error out of an iThink answer
+create or replace function ithink_err(res jsonb) returns text language sql immutable as $$
+  select coalesce(nullif(res -> 'body' -> 'data' -> '1' ->> 'remark', ''), nullif(res -> 'body' ->> 'html_message', ''),
+                  nullif(res -> 'body' ->> 'message', ''), res ->> 'error', left((res -> 'body')::text, 300), 'iThink did not answer');
+$$;
+
+-- "Your Glimp is on its way" email to the buyer (Resend, same as the order email)
+create or replace function notify_shipped(p_id uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare o orders; v_key text := secret('resend_api_key'); v_first text; v_total text; v_track text; v_html text; v_text text;
+begin
+  select * into o from orders where order_id = p_id;
+  if not found or o.email is null or v_key is null then return; end if;
+  v_first := initcap(split_part(o.name, ' ', 1));
+  v_total := '₹' || to_char(o.value_paise / 100, 'FM999,999');
+  v_track := coalesce(o.tracking_url, '');
+  v_html := format($h$<div style="background:#f2efe8;padding:24px 12px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1a17">
+<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:24px;font-size:16px;line-height:1.6">
+<p style="margin:0 0 16px">Hi %s,</p>
+<p style="margin:0 0 16px">Your Glimp is on its way.</p>
+<p style="margin:0 0 16px;font-size:14px"><span style="color:#6b6760">Order</span> %s<br><span style="color:#6b6760">Courier</span> %s<br><span style="color:#6b6760">AWB</span> %s<br><span style="color:#6b6760">Pay on delivery</span> <b>%s</b></p>
+%s
+<p style="margin:0">Yash<br><span style="color:#6b6760">Founder, Glimp</span></p>
+</div>
+<p style="text-align:center;font-size:12px;color:#6b6760;margin:16px 0 0"><a href="https://glimp.in" style="color:#6b6760">glimp.in</a></p>
+</div>$h$, html_esc(v_first), o.order_no, html_esc(coalesce(o.courier, '')), html_esc(coalesce(o.awb, '')), v_total,
+    case when v_track <> '' then format('<p style="margin:0 0 20px"><a href="%s" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#1c1a17;color:#ffffff;text-decoration:none;font-weight:600">Track</a></p>', html_esc(v_track)) else '' end);
+  v_text := format(E'Hi %s,\n\nYour Glimp is on its way.\n\nOrder %s\nCourier %s\nAWB %s\nPay on delivery %s\n%s\nYash\nFounder, Glimp',
+                   v_first, o.order_no, coalesce(o.courier, ''), coalesce(o.awb, ''), v_total,
+                   case when v_track <> '' then E'\nTrack: ' || v_track || E'\n' else '' end);
+  perform net.http_post(
+    url := 'https://api.resend.com/emails',
+    headers := jsonb_build_object('Authorization', 'Bearer ' || v_key, 'Content-Type', 'application/json'),
+    body := jsonb_build_object('from', 'Yash from Glimp <yash@glimp.in>', 'to', jsonb_build_array(o.email), 'reply_to', 'yash@glimp.in',
+                               'subject', case when o.is_test then '[test] ' else '' end || 'Your Glimp is on its way · ' || o.order_no,
+                               'html', v_html, 'text', v_text));
+end $$;
+
+-- Book the courier for one order. Marks it Shipped with the AWB iThink gives back.
+create or replace function admin_ithink_ship(p_order_no text) returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '40s' as $$
+declare
+  o orders; s ship_settings; a text[]; v_total numeric; v_cod boolean; v_ship jsonb; res jsonb; d jsonb; v_awb text; r jsonb;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  select * into s from ship_settings where id = 1;
+  if coalesce(s.pickup_id, '') = '' or coalesce(s.return_id, '') = '' then
+    return jsonb_build_object('ok', false, 'error', 'Add the pickup and return IDs on Stock → iThink first.');
+  end if;
+  select * into o from orders where order_no = p_order_no for update;
+  if not found then return jsonb_build_object('ok', false, 'error', 'no_order'); end if;
+  if o.status not in ('created', 'confirmed') then
+    return jsonb_build_object('ok', false, 'error', 'bad_transition', 'status', o.status);
+  end if;
+  if o.is_test and s.mode = 'live' then
+    return jsonb_build_object('ok', false, 'error', 'This is a test order. Mark it "Not a test" or switch iThink to Test mode.');
+  end if;
+
+  a := split_addr(o.address, 100);
+  v_total := o.value_paise / 100.0;
+  v_cod := o.payment_method = 'cod';
+  v_ship := jsonb_build_object(
+      'waybill', '', 'order', o.order_no, 'sub_order', '',
+      'order_date', to_char(o.created_at at time zone 'Asia/Kolkata', 'DD-MM-YYYY'),
+      'total_amount', v_total, 'name', o.name, 'company_name', '',
+      'add', a[1], 'add2', coalesce(a[2], ''), 'add3', coalesce(a[3], ''),
+      'pin', o.pincode, 'city', o.city, 'state', o.state, 'country', 'India',
+      'phone', o.phone, 'alt_phone', '', 'email', coalesce(o.email, ''),
+      'is_billing_same_as_shipping', 'yes')
+    || jsonb_build_object(
+      'billing_name', o.name, 'billing_company_name', '',
+      'billing_add', a[1], 'billing_add2', coalesce(a[2], ''), 'billing_add3', coalesce(a[3], ''),
+      'billing_pin', o.pincode, 'billing_city', o.city, 'billing_state', o.state, 'billing_country', 'India',
+      'billing_phone', o.phone, 'billing_alt_phone', '', 'billing_email', coalesce(o.email, ''))
+    || jsonb_build_object(
+      'products', jsonb_build_array(jsonb_build_object(
+          'product_name', 'Glimp keychain camera - ' || initcap(o.colour), 'product_sku', 'GLIMP-' || upper(o.colour),
+          'product_quantity', o.qty, 'product_price', round(v_total / o.qty, 2), 'product_tax_rate', '',
+          'product_hsn_code', s.hsn, 'product_discount', 0)),
+      'shipment_length', s.length_cm, 'shipment_width', s.width_cm, 'shipment_height', s.height_cm,
+      'weight', round(s.weight_kg * o.qty, 3),
+      'shipping_charges', 0, 'giftwrap_charges', 0, 'transaction_charges', 0, 'total_discount', 0,
+      'first_attemp_discount', 0, 'cod_charges', 0, 'advance_amount', 0,
+      'cod_amount', case when v_cod then v_total else 0 end, 'payment_mode', case when v_cod then 'COD' else 'Prepaid' end,
+      'reseller_name', '', 'eway_bill_number', '', 'gst_number', s.gst, 'return_address_id', s.return_id);
+
+  res := ithink_call('order/add.json',
+           jsonb_build_object('shipments', jsonb_build_array(v_ship), 'pickup_address_id', s.pickup_id,
+                              'logistics', s.courier, 's_type', s.service, 'order_type', 'forward'),
+           o.order_no);
+  d := res -> 'body' -> 'data' -> '1';
+  v_awb := nullif(btrim(coalesce(d ->> 'waybill', '')), '');
+  if v_awb is null then return jsonb_build_object('ok', false, 'error', ithink_err(res)); end if;
+
+  r := order_action_core(o.order_no, 'ship', null, coalesce(nullif(d ->> 'logistic_name', ''), 'iThink'), v_awb,
+                         coalesce(auth.jwt() ->> 'email', 'admin'));
+  update orders set ship_via = 'ithink', ship_ref = nullif(d ->> 'refnum', ''), tracking_url = nullif(d ->> 'tracking_url', ''),
+                    track_status = 'Manifested', track_code = null, track_where = null, track_at = now(), edd = null
+   where order_id = o.order_id;
+  begin perform notify_shipped(o.order_id); exception when others then raise warning 'notify_shipped %: %', o.order_no, sqlerrm; end;
+  return jsonb_build_object('ok', true, 'awb', v_awb, 'courier', d ->> 'logistic_name', 'tracking_url', d ->> 'tracking_url');
+end $$;
+
+-- Shipping label PDF for one or more orders (iThink hosts the file; we hand back its link)
+create or replace function admin_ithink_label(p_order_nos text[]) returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '40s' as $$
+declare s ship_settings; v_awbs text; res jsonb; v_url text;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  select * into s from ship_settings where id = 1;
+  select string_agg(awb, ',') into v_awbs from orders
+   where order_no = any (p_order_nos) and ship_via = 'ithink' and awb is not null and status = 'shipped';
+  if v_awbs is null then return jsonb_build_object('ok', false, 'error', 'No iThink shipments here.'); end if;
+  res := ithink_call('shipping/label.json',
+           jsonb_build_object('awb_numbers', v_awbs, 'page_size', s.label_size,
+                              'display_cod_prepaid', '', 'display_shipper_mobile', '', 'display_shipper_address', ''));
+  v_url := nullif(res -> 'body' ->> 'file_name', '');
+  if v_url is null then return jsonb_build_object('ok', false, 'error', ithink_err(res)); end if;
+  return jsonb_build_object('ok', true, 'url', v_url);
+end $$;
+
+-- Cancel the courier booking (before pickup). The order goes back to "To ship".
+create or replace function admin_ithink_cancel(p_order_no text) returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '40s' as $$
+declare o orders; res jsonb; d jsonb; v_ok boolean;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  select * into o from orders where order_no = p_order_no for update;
+  if not found or o.status <> 'shipped' or o.ship_via is distinct from 'ithink' or o.awb is null then
+    return jsonb_build_object('ok', false, 'error', 'Not an iThink shipment.');
+  end if;
+  res := ithink_call('order/cancel.json', jsonb_build_object('awb_numbers', o.awb), o.order_no);
+  d := res -> 'body' -> 'data' -> '1';
+  v_ok := coalesce((res ->> 'ok')::boolean, false) and lower(coalesce(d ->> 'status', res -> 'body' ->> 'status', '')) = 'success';
+  if not v_ok then return jsonb_build_object('ok', false, 'error', ithink_err(res)); end if;
+  perform order_action_core(o.order_no, 'unship', null, null, null, coalesce(auth.jwt() ->> 'email', 'admin'));
+  update orders set ship_via = null, ship_ref = null, tracking_url = null, track_status = null, track_code = null,
+                    track_where = null, track_at = null, edd = null
+   where order_id = o.order_id;
+  return jsonb_build_object('ok', true);
+end $$;
+
+-- Ask iThink where every shipped order is (10 AWBs per call). Delivered → Delivered, RTO Delivered → RTO
+-- (stock back), Cancelled at iThink → back to "To ship". Runs from /admin or from the schedule.
+create or replace function ithink_sync(p_max int default 100) returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '170s' as $$
+declare
+  v_awbs text[]; v_batch text[]; i int; res jsonb; k text; t jsonb; v_cur text; v_no text; v_reason text;
+  n_checked int := 0; n_deliv int := 0; n_rto int := 0; v_err text;
+begin
+  select array_agg(awb) into v_awbs from (
+    select awb from orders where status = 'shipped' and ship_via = 'ithink' and awb is not null
+    order by track_at nulls first limit p_max) x;
+  if v_awbs is null then return jsonb_build_object('ok', true, 'checked', 0, 'delivered', 0, 'rto', 0); end if;
+
+  for i in 1 .. array_length(v_awbs, 1) by 10 loop
+    v_batch := v_awbs[i : i + 9];
+    res := ithink_call('order/track.json', jsonb_build_object('awb_number_list', array_to_string(v_batch, ',')));
+    if not coalesce((res ->> 'ok')::boolean, false) or jsonb_typeof(res -> 'body' -> 'data') is distinct from 'object' then
+      v_err := ithink_err(res); continue;
+    end if;
+    for k, t in select key, value from jsonb_each(res -> 'body' -> 'data') loop
+      if jsonb_typeof(t) <> 'object' or coalesce(t ->> 'current_status', '') = '' then continue; end if;
+      v_cur := btrim(t ->> 'current_status');
+      v_no := null;
+      update orders set track_status = left(v_cur, 60), track_code = left(nullif(t ->> 'current_status_code', ''), 20),
+                        track_where = left(nullif(t -> 'last_scan_details' ->> 'scan_location', ''), 80),
+                        track_at = now(), edd = left(nullif(t ->> 'expected_delivery_date', ''), 30)
+       where awb = coalesce(nullif(t ->> 'awb_no', ''), k) and status = 'shipped' and ship_via = 'ithink'
+       returning order_no into v_no;
+      if v_no is null then continue; end if;
+      n_checked := n_checked + 1;
+      if lower(v_cur) = 'delivered' then
+        perform order_action_core(v_no, 'deliver', null, null, null, 'ithink'); n_deliv := n_deliv + 1;
+      elsif lower(v_cur) = 'rto delivered' then
+        v_reason := lower(coalesce(t -> 'last_scan_details' ->> 'reason', ''));
+        v_reason := case when v_reason ~ 'refus|cancel|not interested|reject' then 'refused'
+                         when v_reason ~ 'address|incomplete|wrong' then 'wrong_address'
+                         when v_reason ~ 'not available|unreachable|not reachable|not contactable|door' then 'unreachable'
+                         else 'other' end;
+        perform order_action_core(v_no, 'rto', v_reason, null, null, 'ithink'); n_rto := n_rto + 1;
+      elsif lower(v_cur) = 'cancelled' then
+        perform order_action_core(v_no, 'unship', null, null, null, 'ithink');
+        update orders set ship_via = null, ship_ref = null, tracking_url = null where order_no = v_no;
+      end if;
+    end loop;
+  end loop;
+  return jsonb_build_object('ok', v_err is null or n_checked > 0, 'checked', n_checked, 'delivered', n_deliv, 'rto', n_rto, 'error', v_err);
+end $$;
+
+create or replace function admin_ithink_track() returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '170s' as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  return ithink_sync(100);
+end $$;
+
+-- Your iThink warehouses (their ids are the pickup / return IDs). Also proves the keys work.
+create or replace function admin_ithink_warehouses() returns jsonb
+language plpgsql security definer set search_path = public set statement_timeout = '40s' as $$
+declare res jsonb;
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  res := ithink_call('warehouse/get.json', '{}'::jsonb);
+  if jsonb_typeof(res -> 'body' -> 'data') is distinct from 'array' then
+    return jsonb_build_object('ok', false, 'error', ithink_err(res));
+  end if;
+  return jsonb_build_object('ok', true, 'warehouses', (
+    select coalesce(jsonb_agg(jsonb_build_object('id', w ->> 'id', 'name', w ->> 'company_name',
+             'address', concat_ws(', ', nullif(w ->> 'address1', ''), nullif(w ->> 'city_name', ''), nullif(w ->> 'pincode', '')),
+             'status', w ->> 'status')), '[]'::jsonb)
+    from jsonb_array_elements(res -> 'body' -> 'data') w));
+end $$;
+
+create or replace function admin_ship_settings() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  return (select to_jsonb(s) - 'id' from ship_settings s where id = 1)
+         || jsonb_build_object('has_keys', secret('ithink_access_token') is not null and secret('ithink_secret_key') is not null);
+end $$;
+
+create or replace function admin_ship_settings_save(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+begin
+  if not is_site_admin() then raise exception 'not allowed'; end if;
+  update ship_settings set
+    mode       = case when p ->> 'mode' in ('live', 'test') then p ->> 'mode' else mode end,
+    pickup_id  = nullif(btrim(coalesce(p ->> 'pickup_id', pickup_id)), ''),
+    return_id  = nullif(btrim(coalesce(p ->> 'return_id', return_id)), ''),
+    courier    = lower(btrim(coalesce(p ->> 'courier', courier))),
+    service    = lower(btrim(coalesce(p ->> 'service', service))),
+    length_cm  = coalesce(nullif(p ->> 'length_cm', '')::numeric, length_cm),
+    width_cm   = coalesce(nullif(p ->> 'width_cm', '')::numeric, width_cm),
+    height_cm  = coalesce(nullif(p ->> 'height_cm', '')::numeric, height_cm),
+    weight_kg  = coalesce(nullif(p ->> 'weight_kg', '')::numeric, weight_kg),
+    hsn        = btrim(coalesce(p ->> 'hsn', hsn)),
+    gst        = upper(btrim(coalesce(p ->> 'gst', gst))),
+    label_size = case when p ->> 'label_size' in ('A4', 'A5', 'A6') then p ->> 'label_size' else label_size end,
+    updated_at = now()
+  where id = 1;
+  return jsonb_build_object('ok', true);
+end $$;
+
 -- ───────────────────────── Who may call what ─────────────────────────
 -- Only this file's functions are touched; the app's own functions keep their grants.
 revoke execute on function
@@ -826,13 +1178,18 @@ revoke execute on function
   ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text),
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
   admin_set_spend(date, numeric), admin_dashboard(date, date), admin_orders(text, int),
-  admin_stock_view(), admin_restock_notified(bigint), html_esc(text), url_encode(text)
+  admin_stock_view(), admin_restock_notified(bigint), html_esc(text), url_encode(text),
+  split_addr(text, int), ithink_call(text, jsonb, text), ithink_err(jsonb), notify_shipped(uuid), ithink_sync(int),
+  admin_ithink_ship(text), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
+  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
   from public, anon, authenticated;
 grant execute on function ingest(jsonb), place_order(jsonb), get_stock(), notify_restock(text, text, text)
   to anon, authenticated;
 grant execute on function is_site_admin(), admin_dashboard(date, date), admin_orders(text, int),
   admin_order_action(text, text, text, text, text), admin_stock(text, text, int, text),
-  admin_set_spend(date, numeric), admin_stock_view(), admin_restock_notified(bigint)
+  admin_set_spend(date, numeric), admin_stock_view(), admin_restock_notified(bigint),
+  admin_ithink_ship(text), admin_ithink_label(text[]), admin_ithink_cancel(text), admin_ithink_track(),
+  admin_ithink_warehouses(), admin_ship_settings(), admin_ship_settings_save(jsonb)
   to authenticated;
 -- Every admin_* function also checks is_site_admin() itself, so a signed-in app user gets "not allowed".
 

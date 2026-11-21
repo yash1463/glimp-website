@@ -1,4 +1,4 @@
-# Turn on orders, stock and analytics (about 15 minutes)
+# Turn on orders, stock, analytics and shipping
 
 Everything lives in the Supabase project the app already uses (`vuiqgyllynhgekmcaqij`). Nothing here touches the app's own tables.
 
@@ -46,7 +46,9 @@ For the Instagram bio use `https://glimp.in/#order?utm_source=instagram&utm_medi
 
 ## 7. Daily routine
 - **Orders tab → To call**: call each buyer, then press **Confirmed**, **No answer**, **Call later** or **Cancel** (with a reason).
-- When you ship: pick the courier, type the tracking number, press **Shipped**. Later press **Delivered** or **RTO**.
+- **To ship**: press **Ship via iThink** on an order (or **Ship all via iThink** at the top). iThink books the courier, the order moves to **Shipped** with its AWB, and the buyer gets a "Your Glimp is on its way" email. Then press **Label** (or **All labels**) and print.
+- **Shipped**: **Send tracking** opens WhatsApp with the AWB and tracking link. **Refresh tracking** asks iThink where everything is: delivered orders become **Delivered** by themselves, and returned ones become **RTO** with their stock put back. **Cancel shipment** undoes a booking before pickup.
+- Not using iThink for an order? Pick the courier, type the tracking number, press **Shipped**, and later **Delivered** or **RTO** by hand.
 - **Stock tab → Meta ad spend**: type yesterday's spend from Ads Manager. That gives you CAC and ROAS on *delivered* orders.
 
 ## 8. Order emails + WhatsApp alert (about 10 minutes)
@@ -75,6 +77,29 @@ A short ping to your WhatsApp: `🛒 New order GLP-0012 · Yellow × 1 · ₹1,6
 
 To change a key later: `select vault.update_secret((select id from vault.secrets where name = 'resend_api_key'), 're_new_key');`
 If an email ever fails, the order is still saved. Supabase → **Database** → **Extensions** → `pg_net` → its `net._http_response` table shows what Resend answered.
+
+## 9. iThink Logistics: book couriers from /admin (about 10 minutes)
+Supabase talks to iThink directly, so your iThink keys never reach a browser.
+
+1. In the iThink panel (**my.ithinklogistics.com**), make sure your pickup address is added as a warehouse and shows **approved**.
+2. Get your **Access token** and **Secret key** for API v3 from the panel's API settings. If you can't find them, ask your iThink account manager.
+3. Supabase → **SQL Editor** → **+ New query** → paste with your two keys → **Run**:
+   ```sql
+   select vault.create_secret('your_access_token', 'ithink_access_token');
+   select vault.create_secret('your_secret_key', 'ithink_secret_key');
+   ```
+4. Run `website/backend/supabase.sql` again (step 1). It turns on Supabase's `http` extension. If the run stops at `http`, turn it on in **Database → Extensions → http**, then run the file again.
+5. **glimp.in/admin → Stock → iThink Logistics** → **Find IDs** → **Use** next to your warehouse. Type the boxed camera's size and weight, then **Save**. **Courier: iThink picks** uses the courier priority you set in the iThink panel.
+6. Book your first real order and check it in the iThink panel. If anything looks wrong, press **Cancel shipment**: the order goes back to **To ship**.
+   Orders marked **test** won't book in **Live** mode. **Test** mode uses iThink's pre-alpha server, which needs separate test keys from iThink.
+
+**Automatic tracking (optional).** Supabase → **Database → Extensions** → turn on **pg_cron**. Then run this once:
+```sql
+select cron.schedule('ithink-tracking', '0 */3 * * *', $$select ithink_sync()$$);
+```
+Every 3 hours, delivered orders become **Delivered** and returned ones **RTO**, with no button press. To stop it: `select cron.unschedule('ithink-tracking');`
+
+Every call to iThink and its answer is saved in the `ithink_log` table (Table Editor), without the keys. Check there first if a booking fails.
 
 ## Test without messing up the numbers
 Open **glimp.in/?glimp_internal=1** once on each phone or laptop you use. That device's visits are then left out, and its orders are marked **test**. (`?glimp_internal=0` undoes it.) You can also mark any order as test on the Orders tab.

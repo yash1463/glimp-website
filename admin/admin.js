@@ -211,6 +211,8 @@
   const CANCEL = [["changed_mind", "Changed mind"], ["price", "Price"], ["delivery_too_late", "Too slow"], ["unreachable", "Unreachable"],
     ["fake_order", "Fake order"], ["duplicate", "Duplicate"], ["other", "Other"]];
   const RTO = [["refused", "Refused at door"], ["unreachable", "Not reachable"], ["wrong_address", "Wrong address"], ["other", "Other"]];
+  // iThink can still cancel a booking until the courier picks it up
+  const notPicked = (o) => !o.track_status || /^(manifested|not picked|pickup)/i.test(o.track_status);
   const sel = (name, opts) => `<select name="${name}">${opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join("")}</select>`;
   function actions(o) {
     const s = o.status;
@@ -220,10 +222,13 @@
       `<button class="btn sm ghost" data-act="no_answer">No answer</button>`,
       `<button class="btn sm ghost" data-act="reschedule">Call later</button>`);
     if (s === "created" || s === "confirmed") a.push(
+      `<button class="btn sm${s === "confirmed" ? "" : " ghost"}" data-act="ithink">Ship via iThink</button>`,
       `<span class="o-acts">${sel("courier", [["", "Courier"], ["India Post", "India Post"], ["Delhivery", "Delhivery"], ["Shiprocket", "Shiprocket"], ["DTDC", "DTDC"], ["Other", "Other"]])}
-       <input name="awb" placeholder="Tracking no." size="12"><button class="btn sm${s === "confirmed" ? "" : " ghost"}" data-act="ship">Shipped</button></span>`,
+       <input name="awb" placeholder="Tracking no." size="12"><button class="btn sm ghost" data-act="ship">Shipped</button></span>`,
       `<span class="o-acts">${sel("reason", CANCEL)}<button class="btn sm warn" data-act="cancel">Cancel</button></span>`);
-    if (s === "shipped") a.push(`<button class="btn sm" data-act="deliver">Delivered</button>`,
+    if (s === "shipped" && o.ship_via === "ithink") a.push(`<button class="btn sm ghost" data-act="label">Label</button>`);
+    if (s === "shipped" && o.ship_via === "ithink" && notPicked(o)) a.push(`<button class="btn sm warn" data-act="unship">Cancel shipment</button>`);
+    if (s === "shipped") a.push(`<button class="btn sm${o.ship_via === "ithink" ? " ghost" : ""}" data-act="deliver">Delivered</button>`,
       `<span class="o-acts">${sel("reason", RTO)}<button class="btn sm warn" data-act="rto">RTO</button></span>`);
     if (s === "delivered") a.push(`<button class="btn sm ghost" data-act="return">Returned</button>`);
     a.push(`<button class="link" data-act="toggle_test">${o.is_test ? "Not a test" : "Mark as test"}</button>`);
@@ -232,7 +237,23 @@
   async function loadOrders() {
     const list = await call("admin_orders", { p_status: filter || null, p_limit: 300 });
     const box = $("[data-orders]");
+    shown = list;
     if (!list.length) { box.innerHTML = `<p class="empty">No orders here.</p>`; return; }
+    const toShip = list.filter((o) => o.status === "confirmed" && !o.is_test);
+    const unpicked = list.filter((o) => o.status === "shipped" && o.ship_via === "ithink" && notPicked(o));
+    const bar = [
+      filter === "confirmed" && toShip.length ? `<button class="btn sm" data-bulk="ship">Ship all via iThink (${toShip.length})</button>` : "",
+      unpicked.length > 1 ? `<button class="btn sm ghost" data-bulk="labels">All labels (${unpicked.length})</button>` : "",
+      list.some((o) => o.status === "shipped" && o.ship_via === "ithink") ? `<button class="btn sm ghost" data-bulk="track">Refresh tracking</button>` : ""].join("");
+    const first = (o) => (o.name.trim().split(/\s+/)[0] || "").replace(/^./, (c) => c.toUpperCase());
+    const trackMsg = (o) => `Hi ${first(o)}, your Glimp is on its way \u{1F4E6}
+
+Order #${o.order_no}
+${o.courier || "Courier"} · AWB ${o.awb}${o.tracking_url ? `\nTrack: ${o.tracking_url}` : ""}
+
+Pay ${inr(o.value_paise)} in cash when it arrives.
+
+Yash`;
     // Thank-you message. The last line is a glimp.in/c/<colour> link: WhatsApp shows it as a preview
     // with the photo of the camera they ordered (assets/wa/<colour>.jpg, made by tools/build_wa_cards.py).
     const thankYou = (o) => {
@@ -254,27 +275,82 @@ Founder, Glimp
 
 https://glimp.in/c/${o.colour}`;
     };
-    box.innerHTML = list.map((o) => {
+    box.innerHTML = (bar ? `<div class="o-acts bulk">${bar}</div>` : "") + list.map((o) => {
       const when = new Date(o.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
       // api.whatsapp.com, not wa.me: wa.me's redirect turns emoji into "�" on some phones
       const wa = `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(thankYou(o))}`;
       const addr = `${o.address}, ${o.city}, ${o.state} ${o.pincode}`;
+      const waTrack = o.status === "shipped" && o.awb ? `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(trackMsg(o))}` : "";
+      const awbTag = !o.courier ? "" : o.tracking_url
+        ? `<a class="tag" href="${esc(o.tracking_url)}" target="_blank" rel="noopener">${esc(o.courier)} ${esc(o.awb || "")} ›</a>`
+        : `<span class="tag">${esc(o.courier)} ${esc(o.awb || "")}</span>`;
+      const trackTag = o.status === "shipped" && o.ship_via === "ithink" && o.track_status
+        ? `<span class="tag trk">${esc(o.track_status)}${o.track_where ? " · " + esc(o.track_where) : ""}${o.edd ? " · ETA " + esc(o.edd) : ""}</span>` : "";
       return `<article class="order${o.is_test ? " test" : ""}" data-no="${esc(o.order_no)}">
         <div class="o-head"><span class="o-no">${esc(o.order_no)} · ${when}</span>
           <span class="o-meta"><span class="tag st-${esc(o.status)}">${esc(o.status)}</span>${o.call_attempts ? `<span class="tag">${o.call_attempts} call${o.call_attempts > 1 ? "s" : ""}${o.last_call_outcome ? " · " + esc(o.last_call_outcome) : ""}</span>` : ""}${o.is_test ? `<span class="tag">test</span>` : ""}</span></div>
-        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
+        <div><span class="o-who">${esc(o.name)}</span> · <a href="tel:+91${esc(o.phone)}">+91 ${esc(o.phone)}</a> · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>${waTrack ? ` · <a href="${waTrack}" target="_blank" rel="noopener">Send tracking</a>` : ""}${o.email ? ` · <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>` : ""}</div>
         <div class="o-addr">${esc(addr)} <button class="link" data-copy="${esc(`${o.name}\n${addr}\n+91 ${o.phone}`)}">Copy</button></div>
         <div class="o-meta"><span class="tag"><span class="dot" style="background:${SWATCH[o.colour]}"></span>${o.qty} × ${esc(o.colour)}</span><span class="tag">${inr(o.value_paise)} COD</span>
-          ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${o.courier ? `<span class="tag">${esc(o.courier)} ${esc(o.awb || "")}</span>` : ""}</div>
+          ${o.channel ? `<span class="tag">${esc(o.channel)}</span>` : ""}${awbTag}${trackTag}</div>
         ${o.note ? `<div class="o-addr">Note: ${esc(o.note)}</div>` : ""}
         <div class="o-acts">${actions(o)}</div></article>`;
     }).join("");
   }
+  let shown = [];
+  // Label: open the tab straight from the tap (pop-up blockers allow only that), then point it at iThink's PDF
+  async function openLabel(orderNos) {
+    const w = window.open("", "_blank");
+    const r = await call("admin_ithink_label", { p_order_nos: orderNos }).catch(() => null);
+    if (r?.ok) { if (w) w.location = r.url; else location.href = r.url; return; }
+    w?.close(); if (r) alert(r.error);
+  }
+  async function ithinkShip(no) {
+    const r = await call("admin_ithink_ship", { p_order_no: no });
+    if (!r.ok) throw new Error(r.error === "bad_transition" ? `${no}: can't ship from "${r.status}"` : `${no}: ${r.error}`);
+    return r;
+  }
   $("[data-orders]").addEventListener("click", async (e) => {
     const copy = e.target.closest("[data-copy]");
     if (copy) { navigator.clipboard?.writeText(copy.dataset.copy); toast("Address copied"); return; }
+
+    const bulk = e.target.closest("[data-bulk]");
+    if (bulk) {
+      const kind = bulk.dataset.bulk;
+      if (kind === "labels") { bulk.disabled = true; await openLabel(shown.filter((o) => o.status === "shipped" && o.ship_via === "ithink" && notPicked(o)).map((o) => o.order_no)); bulk.disabled = false; return; }
+      if (kind === "track") {
+        bulk.disabled = true; bulk.textContent = "Checking…";
+        try { const r = await call("admin_ithink_track"); toast(r.error && !r.checked ? r.error : `${r.checked} checked · ${r.delivered} delivered · ${r.rto} RTO`); } catch {}
+        loadOrders(); return;
+      }
+      if (kind === "ship") {
+        const todo = shown.filter((o) => o.status === "confirmed" && !o.is_test);
+        if (!confirm(`Book iThink for ${todo.length} order${todo.length > 1 ? "s" : ""}?`)) return;
+        bulk.disabled = true;
+        let done = 0; const fails = [];
+        for (const o of todo) {
+          bulk.textContent = `Booking ${done + fails.length + 1} of ${todo.length}…`;
+          try { await ithinkShip(o.order_no); done++; } catch (err) { fails.push(err.message || o.order_no); }
+        }
+        if (fails.length) alert(`Booked ${done}. Not booked:\n\n${fails.join("\n")}`); else toast(`Booked ${done}`);
+        loadOrders(); return;
+      }
+    }
+
     const b = e.target.closest("[data-act]"); if (!b) return;
     const card = b.closest("[data-no]"), grp = b.closest(".o-acts span") || b.parentElement;
+    if (b.dataset.act === "label") { b.disabled = true; await openLabel([card.dataset.no]); b.disabled = false; return; }
+    if (b.dataset.act === "ithink" || b.dataset.act === "unship") {
+      const ship = b.dataset.act === "ithink";
+      if (!ship && !confirm("Cancel this courier booking? The order goes back to To ship.")) return;
+      const label = b.textContent; b.disabled = true; b.textContent = ship ? "Booking…" : "Cancelling…";
+      try {
+        if (ship) { const r = await ithinkShip(card.dataset.no); toast(`Shipped · ${r.courier || "iThink"} ${r.awb}`); }
+        else { const r = await call("admin_ithink_cancel", { p_order_no: card.dataset.no }); if (!r.ok) throw new Error(r.error); toast("Booking cancelled"); }
+        loadOrders();
+      } catch (err) { if (err.message && !err.code) alert(err.message); b.disabled = false; b.textContent = label; }
+      return;
+    }
     const reason = $("[name=reason]", grp)?.value || null;
     const courier = $("[name=courier]", grp)?.value || null, awb = $("[name=awb]", grp)?.value || null;
     if (b.dataset.act === "cancel" && !confirm("Cancel this order? Its stock goes back on the shelf.")) return;
@@ -316,8 +392,57 @@ https://glimp.in/c/${o.colour}`;
       <div class="card"><h3>Stock history</h3>${table([
         ["When", (r) => new Date(r.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })],
         ["Colour", (r) => esc(r.colour)], ["Change", (r) => `<span class="${r.delta > 0 ? "up" : "down"}">${r.delta > 0 ? "+" : ""}${r.delta}</span>`, "n"],
-        ["Why", (r) => esc(r.reason) + (r.order_no ? " · " + esc(r.order_no) : "") + (r.note ? " · " + esc(r.note) : "")]], v.moves)}</div>`;
+        ["Why", (r) => esc(r.reason) + (r.order_no ? " · " + esc(r.order_no) : "") + (r.note ? " · " + esc(r.note) : "")]], v.moves)}</div>
+      <div class="section-gap"></div>
+      <div class="card" data-ship-card><h3>iThink Logistics</h3></div>`;
+    loadShip();
   }
+
+  /* ---------- iThink settings (Stock tab) ---------- */
+  async function loadShip() {
+    const c = await call("admin_ship_settings");
+    const f = (name, label, val, extra = "") => `<label class="fld"><span class="label">${label}</span><input name="${name}" value="${esc(val ?? "")}" ${extra}></label>`;
+    const opt = (name, label, val, opts) => `<label class="fld"><span class="label">${label}</span><select name="${name}">${opts.map(([v, t]) =>
+      `<option value="${v}"${String(val ?? "") === v ? " selected" : ""}>${t}</option>`).join("")}</select></label>`;
+    $("[data-ship-card]").innerHTML = `<h3>iThink Logistics</h3>
+      ${c.has_keys ? "" : `<p class="msg">iThink keys are missing. See SETUP.md step 9.</p>`}
+      <form class="ship-form" data-ship-form>
+        ${opt("mode", "Mode", c.mode, [["live", "Live"], ["test", "Test"]])}
+        ${f("pickup_id", "Pickup ID", c.pickup_id, 'inputmode="numeric" required')}
+        ${f("return_id", "Return ID", c.return_id, 'inputmode="numeric" required')}
+        ${opt("courier", "Courier", c.courier, [["", "iThink picks"], ["delhivery", "Delhivery"], ["xpressbees", "Xpressbees"], ["ekart", "Ekart"], ["bluedart", "Bluedart"], ["ecom", "Ecom Express"]])}
+        ${opt("service", "Service", c.service, [["", "Default"], ["surface", "Surface"], ["air", "Air"]])}
+        ${opt("label_size", "Label", c.label_size, [["A4", "A4"], ["A5", "A5"], ["A6", "A6"]])}
+        ${f("length_cm", "Length cm", c.length_cm, 'type="number" min="1" step="0.1" required')}
+        ${f("width_cm", "Width cm", c.width_cm, 'type="number" min="1" step="0.1" required')}
+        ${f("height_cm", "Height cm", c.height_cm, 'type="number" min="1" step="0.1" required')}
+        ${f("weight_kg", "Weight kg", c.weight_kg, 'type="number" min="0.01" step="0.01" required')}
+        ${f("hsn", "HSN", c.hsn)}
+        ${f("gst", "GSTIN", c.gst)}
+        <div class="o-acts ship-btns"><button class="btn sm">Save</button><button class="btn sm ghost" type="button" data-wh>Find IDs</button></div>
+      </form>
+      <div data-wh-list></div>
+      <p class="empty">Size and weight: one boxed camera.</p>`;
+  }
+  $("[data-pane=stock]").addEventListener("submit", async (e) => {
+    if (!e.target.matches("[data-ship-form]")) return;
+    e.preventDefault();
+    const r = await call("admin_ship_settings_save", { p: Object.fromEntries(new FormData(e.target)) });
+    toast(r.ok ? "Saved" : "Didn't save");
+  });
+  $("[data-pane=stock]").addEventListener("click", async (e) => {
+    const use = e.target.closest("[data-use-wh]");
+    if (use) { const f = $("[data-ship-form]"); f.elements.pickup_id.value = f.elements.return_id.value = use.dataset.useWh; toast("Now press Save"); return; }
+    const wb = e.target.closest("[data-wh]"); if (!wb) return;
+    wb.disabled = true;
+    try {
+      const r = await call("admin_ithink_warehouses");
+      $("[data-wh-list]").innerHTML = r.ok
+        ? table([["ID", (w) => `<b>${esc(w.id)}</b>`], ["Warehouse", (w) => esc(w.name)], ["Address", (w) => esc(w.address)], ["Status", (w) => esc(w.status)],
+            ["", (w) => `<button class="link" type="button" data-use-wh="${esc(w.id)}">Use</button>`]], r.warehouses)
+        : `<p class="msg">${esc(r.error)}</p>`;
+    } catch {} finally { wb.disabled = false; }
+  });
   $("[data-pane=stock]").addEventListener("click", async (e) => {
     const mode = e.target.closest("[data-mode]");
     if (mode) {
