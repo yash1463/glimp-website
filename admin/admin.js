@@ -237,15 +237,17 @@
     // with the photo of the camera they ordered (assets/wa/<colour>.jpg, made by tools/build_wa_cards.py).
     const thankYou = (o) => {
       const first = (o.name.trim().split(/\s+/)[0] || "").replace(/^./, (c) => c.toUpperCase());
-      return `Hi ${first} 👋
+      // emoji as code points so they survive any file/page encoding
+      const WAVE = "\u{1F44B}", PRAY = "\u{1F64F}", CAMERA = "\u{1F4F8}", SPARKLES = "\u{2728}";
+      return `Hi ${first} ${WAVE}
 
-This is Yash, the founder of Glimp. I wanted to personally say thank you. Your order #${o.order_no} has been received, and you're one of our early customers. That means a lot to me 🙏
+This is Yash, the founder of Glimp. I wanted to personally say thank you. Your order #${o.order_no} has been received, and you're one of our early customers. That means a lot to me ${PRAY}
 
 I'm packing your Glimp myself and will ship it as soon as possible. I'll send you the tracking details the moment it's on its way. It's Cash on Delivery, so you only pay when it reaches you.
 
 If you face any issue at any point, before or after delivery, we'll give you our utmost support until it's sorted. Just reply here. You're talking directly to me.
 
-Once it arrives, clip it on, click your first shot, and send it to me. I'll be waiting to see the first glimpse you catch 📸✨
+Once it arrives, clip it on, click your first shot, and send it to me. I'll be waiting to see the first glimpse you catch ${CAMERA}${SPARKLES}
 
 Yash
 Founder, Glimp
@@ -254,7 +256,8 @@ https://glimp.in/c/${o.colour}`;
     };
     box.innerHTML = list.map((o) => {
       const when = new Date(o.created_at).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
-      const wa = `https://wa.me/91${o.phone}?text=${encodeURIComponent(thankYou(o))}`;
+      // api.whatsapp.com, not wa.me: wa.me's redirect turns emoji into "�" on some phones
+      const wa = `https://api.whatsapp.com/send?phone=91${o.phone}&text=${encodeURIComponent(thankYou(o))}`;
       const addr = `${o.address}, ${o.city}, ${o.state} ${o.pincode}`;
       return `<article class="order${o.is_test ? " test" : ""}" data-no="${esc(o.order_no)}">
         <div class="o-head"><span class="o-no">${esc(o.order_no)} · ${when}</span>
